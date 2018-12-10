@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>exp</title>
+    <script src="jspsych-6.0.3/jspsych.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-multi-choice.js"></script>
+    <script src="js/jspsych-categorize-html-mat.js"></script>
+    <script src="js/jquery.min.js"></script> <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -->
+    <script src="js/lodash.min.js"></script> <!-- https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js -->
+    <script src="js/firebase.js"></script> <!-- https://www.gstatic.com/firebasejs/5.0.4/firebase.js -->
+    <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            cursor: default;
+        }
+
+        .jspsych-content-wrapper {
+            width: 700px;
+            height: 600px;
+        }
+
+        .LCMimg {
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
+    /* Parameters */
+    var itiSta = 400;  // 400; inter-trial-interval for statements
+    var delaySta = 6500; // 5500; how long is each statement displayed
+    var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_etA7GWODOp3F6Rf";
+
+    /* Initial variables */
+    var timeline = [];
+    var HC = [];
+    var LC = [];
+    var id = jsPsych.data.getURLVariable("id");
+    var hghGrp = jsPsych.data.getURLVariable("hghGrp");    // counterbalanced
+
+    // EXPERIMENT -----------------------------------------------------------------------------------------------------------------
+    /* IMPRESION FORMATION */
+    /* Generate statements */
+    var CP = ['CP1', 'CP2', 'CP3', 'CP4', 'CP5', 'CP6', 'CP7', 'CP8']; // C+
+    var CN = ['CN1', 'CN2', 'CN3', 'CN4', 'CN5', 'CN6', 'CN7', 'CN8']; // C-
+    var WP = ['WP1', 'WP2', 'WP3', 'WP4', 'WP5', 'WP6', 'WP7', 'WP8']; // W+
+    var WN = ['WN1', 'WN2', 'WN3', 'WN4', 'WN5', 'WN6', 'WN7', 'WN8']; // w-
+
+    // HC: 6C+, 2C-, 2W+, 2W-
+    HC = HC.concat(_.sampleSize(CP, 6), _.sampleSize(CN, 2), _.sampleSize(WP, 2), _.sampleSize(WN, 2));
+
+    // LC: 2C+, 6C-, 2W+, 2W-
+    var CPleft = _.difference(CP, HC);
+    var CNleft = _.difference(CN, HC);
+    var WPleft = _.difference(WP, HC);
+    var WNleft = _.difference(WN, HC);
+    LC = LC.concat(_.sampleSize(CPleft, 2), _.sampleSize(CNleft, 6), _.sampleSize(WPleft, 2), _.sampleSize(WNleft, 2));
+
+    HC = _.shuffle(HC);
+    LC = _.shuffle(LC);
+
+    // Assign group identity (B vs. G)
+    var hghGrp = hghGrp == null ? _.sample(['B', 'G']) : hghGrp;
+    var lowGrp = _.difference(['B', 'G'], [hghGrp])[0];
+    var inGrp = hghGrp; // only H-members
+    if (inGrp == hghGrp) { var status = "H" };
+    if (inGrp == lowGrp) { var status = "L" };
+    if (inGrp == 'O') { var status = 'O' };
+
+    HC = HC.map(function (e) { return e + hghGrp });
+    LC = LC.map(function (e) { return e + lowGrp });
+
+    var hghFstSta = _.sample([true, false]);
+    if (hghFstSta) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) };
+    if (hghGrp == 'B') {
+        var HcolorHtml = "<span id='blue'>BLEUS</span>";
+        var LcolorHtml = "<span id='green'>VERTS</span>";
+    } else {
+        var HcolorHtml = "<span id='green'>VERTS</span>";
+        var LcolorHtml = "<span id='blue'>BLEUS</span>";
+    };
+
+    /* Statements */
+    var CP = [
+        "X a remporté le prix annuel de l'employé qui contribue le plus au profit de l'entreprise.",
+        "X a s’est entrainé à jouer un morceau de violon 20 fois par jour, et après un mois, a estimé qu'il savait bien la jouer.",
+        "X a conçu un petit programme informatique destiné à résoudre un problème d'intégrale mathématique très compliqué.",
+        "X parle couramment quatre langues différentes.",
+        "X a présenté ses recherches lors d'un congrès de chimie.",
+        "X a publié une nouvelle dans un magazine littéraire très connues avant la fin de ses études.",
+        "X a beaucoup travaillé sur une tâche d’algèbre linéaire afin d’obtenir des points bonus à son examen.",
+        "X fait très attention quand il s'agit d'épargner afin de pouvoir s’acheter une maison."
+    ];
+    var CN = [
+        "X est allé·e faire de la randonnée en montagne et a dû se faire secourir car il/elle n'avait pas fait attention au chemin qu’il/elle avait emprunté.",
+        "X a été renvoyé de son travail parce qu'il/elle a rarement fait les choses à temps.",
+        "Le vélo de X a été volé plusieurs fois parce qu'il/elle oublie de le cadenasser.",
+        "X se perd souvent lorsqu’elle conduit en ville, même s'il/elle y vit depuis plusieurs années.",
+        "L'électricité de X a été coupée parce qu'il/elle n'a pas payé la facture à temps.",
+        "X a eu difficile à trouver du travail parce qu'il/elle était toujours en retard pour des entretiens d’embauche.",
+        "X a mis près d'une heure pour trouver sa voiture après l'avoir garée dans un centre commercial.",
+        "X a raté son permis de conduire pour la quatrième fois et a fini par l'abandonner."
+    ];
+    var WP = [
+        "X a passé des heures avec un ami dont le chien venait de mourir.",
+        "X adore être entouré d'autres personnes.",
+        "X a aidé une femme aveugle à traverser la rue.",
+        "X salue toujours ses amis avec une accolade.",
+        "X sourit toujours aux étrangers dans la rue juste pour rendre leur journée meilleure.",
+        "X rend souvent visite à ses amis d’enfance.",
+        "X aime avoir de longues conversations avec ses amis.",
+        "X a proposé sa place dans le bus à une vieille dame car le bus était surchargé."
+    ];
+    var WN = [
+        "X n’a pas pris la peine d’aider un étranger à trouver son chemin.",
+        "X a décidé de partir tôt de la fête car il estimait que c’était trop superficiel.",
+        "X préfère aller au cinéma seul plutôt qu'avec un ami.",
+        "X a crié sur le conducteur qui lui a volé la dernière place de parking libre.",
+        "X parle rarement à ses colocataires.",
+        "X n’a pas voulu féliciter le gagnant d’un concours.",
+        "X n'est pas allé·e à l'enterrement de sa grand-mère parce qu'il/elle était trop occupé·e par son travail.",
+        "X a crié à sur une petite fille car elle lui avait coupé la route au supermarché."
+    ];
+
+    staStim = {
+        CP1B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[0] + "</p>", CP1G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[0] + "</p>",
+        CP2B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[1] + "</p>", CP2G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[1] + "</p>",
+        CP3B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[2] + "</p>", CP3G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[2] + "</p>",
+        CP4B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[3] + "</p>", CP4G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[3] + "</p>",
+        CP5B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[4] + "</p>", CP5G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[4] + "</p>",
+        CP6B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[5] + "</p>", CP6G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[5] + "</p>",
+        CP7B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[6] + "</p>", CP7G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[6] + "</p>",
+        CP8B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CP[7] + "</p>", CP8G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CP[7] + "</p>",
+
+        CN1B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[0] + "</p>", CN1G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[0] + "</p>",
+        CN2B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[1] + "</p>", CN2G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[1] + "</p>",
+        CN3B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[2] + "</p>", CN3G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[2] + "</p>",
+        CN4B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[3] + "</p>", CN4G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[3] + "</p>",
+        CN5B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[4] + "</p>", CN5G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[4] + "</p>",
+        CN6B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[5] + "</p>", CN6G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[5] + "</p>",
+        CN7B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[6] + "</p>", CN7G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[6] + "</p>",
+        CN8B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + CN[7] + "</p>", CN8G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + CN[7] + "</p>",
+
+        WP1B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[0] + "</p>", WP1G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[0] + "</p>",
+        WP2B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[1] + "</p>", WP2G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[1] + "</p>",
+        WP3B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[2] + "</p>", WP3G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[2] + "</p>",
+        WP4B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[3] + "</p>", WP4G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[3] + "</p>",
+        WP5B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[4] + "</p>", WP5G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[4] + "</p>",
+        WP6B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[5] + "</p>", WP6G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[5] + "</p>",
+        WP7B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[6] + "</p>", WP7G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[6] + "</p>",
+        WP8B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WP[7] + "</p>", WP8G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WP[7] + "</p>",
+
+        WN1B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[0] + "</p>", WN1G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[0] + "</p>",
+        WN2B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[1] + "</p>", WN2G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[1] + "</p>",
+        WN3B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[2] + "</p>", WN3G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[2] + "</p>",
+        WN4B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[3] + "</p>", WN4G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[3] + "</p>",
+        WN5B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[4] + "</p>", WN5G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[4] + "</p>",
+        WN6B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[5] + "</p>", WN6G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[5] + "</p>",
+        WN7B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[6] + "</p>", WN7G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[6] + "</p>",
+        WN8B: "<p id='blueSta'><b>GROUPE BLEU</b></br></br>" + WN[7] + "</p>", WN8G: "<p id='greenSta'><b>GROUPE VERT</b></br></br>" + WN[7] + "</p>",
+    };
+
+    stimStaOrd = []; // Ordered statements by group color
+    staOrd.map(function (sta) { stimStaOrd.push({ stimulus: staStim[sta] }) });
+
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: "",
+        button_label: "Veuillez cliquer ici pour continuer",
+        type: 'fullscreen',
+        fullscreen_mode: true,
+        delay_after: 200,
+        on_start: function () { $('body').css('cursor', 'default') },
+        on_finish: function () { $('body').css('cursor', 'none') },
+    };
+
+    /* Consentement */
+    var consent = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            html = "";
+            html += "<h1>CONSENTEMENT ÉCLAIRÉ</h1>";
+            html += "<p class='justify'>Un autre avantage important de ce test est qu'il ";
+            html += "permet de classer les personnes en deux groupes différents. ";
+            html += "Les membres de chaque groupe ont tendance à être très similaires les uns aux autres : ";
+            html += "ils sont souvent issus de milieux semblables, et partagent des opinions et croyances similaires. ";
+            html += "Afin d'éviter l'utilisation d'un langage trop technique et spécifique à ce test, ";
+            html += "nous les appellerons ici simplement le groupe des ";
+            html += "« " + HcolorHtml + " » et des « " + LcolorHtml + " ».</br></br>";
+            html += "En ce qui vous concerne, l’analyse de vos réponses au test indique ";
+            html += "que <b>vous faites partie du groupe des " + HcolorHtml + "</b>.</br></p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        },
+    };
+
+    /* Sta rdm instructions */
+    var staRdmInst1 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            html = "";
+            html += "<h1>INFORMATIONS COMPLEMENTAIRES TEST-D98</h1>";
+            html += "<p class='justify'>Un autre avantage important de ce test est qu'il ";
+            html += "permet de classer les personnes en deux groupes différents. ";
+            html += "Les membres de chaque groupe ont tendance à être très similaires les uns aux autres : ";
+            html += "ils sont souvent issus de milieux semblables, et partagent des opinions et croyances similaires. ";
+            html += "Afin d'éviter l'utilisation d'un langage trop technique et spécifique à ce test, ";
+            html += "nous les appellerons ici simplement le groupe des ";
+            html += "« " + HcolorHtml + " » et des « " + LcolorHtml + " ».</br></br>";
+            html += "En ce qui vous concerne, l’analyse de vos réponses au test indique ";
+            html += "que <b>vous faites partie du groupe des " + HcolorHtml + "</b>.</br></p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        },
+    };
+
+    /* Sta rdm instructions */
+    var staRdmInst2 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>INFORMATIONS COMPLEMENTAIRES TEST-D98</h1>";
+            html += "<p class='justify'>Plusieurs chercheurs (notamment Dough, Glass & Fromm, 2016) ";
+            html += "ont fait passer ce test à un grand nombre de personnes et leur ont par la suite ";
+            html += "demandé de lister une série de comportements qui les caractérisaient ";
+            html += " (comme nous l’avons fait pour vous).</br></br>";
+            html += "Dans la tâche qui suit, nous vous présenterons des comportements typiques ";
+            html += "(rendus anonymes) réalisés par les membres du groupe des " + HcolorHtml + " ";
+            html += "(groupe auquel vous appartenez) et des " + LcolorHtml + " ";
+            html += "afin que vous puissiez avoir une meilleure appréhension de ces groupes. ";
+            html += "Chaque comportement sera présenté avec un arrière-plan coloré (bleu ou vert), ";
+            html += "indiquant ainsi à quel groupe appartient l’auteur de ce comportement.</br></br>";
+            html += "Votre tâche consiste simplement à <b>lire</b> les comportements et ";
+            html += "à vous <b>faire une impression</b> de ces deux groupes.</br></br>";
+            html += "Les comportements défileront de manière automatique. Veuillez rester concentré·e.</p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        },
+    };
+
+    /* Statements randomised */
+    var staRandomised = {
+        timeline_variables: stimStaOrd,
+        randomize_order: true,
+        timeline: [{
+            type: 'html-keyboard-response',
+            stimulus: jsPsych.timelineVariable('stimulus'),
+            choices: jsPsych.NO_KEYS,
+            trial_duration: delaySta,
+            post_trial_gap: itiSta
+        }]
+    };
+
+    /* Sta ord instructions */
+    var staOrdInst = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>INFORMATION COMPLEMENTAIRE TEST-D98</h1>";
+            html += "<p class='justify'>Nous allons à nouveau vous présenter les comportements mais cette fois-ci, ";
+            html += "ceux-ci seront triés par groupe.</br></br>";
+            html += "Comme précédemment, votre tâche consiste à <b>lire</b> les comportements et ";
+            html += "vous <b>faire une impression</b> des deux groupes.</br></br>";
+            html += "Les comportements défileront automatiquement.</p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        },
+    };
+
+    /* Statements ordered */
+    var staOrdered = {
+        timeline_variables: stimStaOrd,
+        randomize_order: false,
+        timeline: [{
+            type: 'html-keyboard-response',
+            stimulus: jsPsych.timelineVariable('stimulus'),
+            choices: jsPsych.NO_KEYS,
+            trial_duration: delaySta,
+            post_trial_gap: itiSta
+        }]
+    };
+
+    /* Group description */
+    var hghFstDscrp = _.sample([true, false]);
+
+    var staDescription = {
+        type: 'survey-text',
+        preamble: 'Veuillez écrire en quelques lignes votre impression des groupes:',
+        questions: function () {
+            var G = "<span id='green'>VERTS</span>";
+            var B = "<span id='blue'>BLEUS</span>";
+
+            function sendMsg(groupName) {
+                return 'les membres du groupe ' + groupName + ' sont :' + "</br><span id='min2lines'>(minimum: 2 lignes)</span>";
+            };
+
+            if (hghGrp == 'B') { var HGname = B; var LGname = G; } else { var HGname = G; var LGname = B; };
+
+            if (hghFstDscrp) {
+                return [{ prompt: sendMsg(HGname), rows: 5, columns: 80 }, { prompt: sendMsg(LGname), rows: 5, columns: 80 }];
+            } else {
+                return [{ prompt: sendMsg(LGname), rows: 5, columns: 80 }, { prompt: sendMsg(HGname), rows: 5, columns: 80 }];
+            };
+        },
+        on_start: function () { $('body').css('cursor', 'default') }
+    };
+
+    /* LCM */
+    /* LCM inst */
+    var LCMinst = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>DESCRIPTION DES IMAGES</h1>";
+            html += "<p class='justify'>Dans cette tâche nous allons vous présenter 16 images illustrant des comportements réalisés ";
+            html += "par les membres du groupe des " + HcolorHtml + " (groupe auquel vous appartenez) ";
+            html += "ou des " + LcolorHtml + ". Chaque image sera accompagnée de 4 descriptions.</br></br>";
+            html += "Pour chacune des images, votre tâche consiste à <b>choisir la phrase qui,  ";
+            html += " à votre avis, décrit le mieux le comportement présenté sur l'image</b>.</br></br>";
+            html += "Sachez qu'il n'y a pas de réponse correcte. Essayez de répondre le plus spontanément et honnêtement possible. ";
+            html += "La première réponse qui vous vient à l'esprit est souvent la meilleur.</p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        },
+    };
+
+    /* Scale labels */
+    var CN1 = ["X est imprudent.", "X regarde les dégâts de sa voiture.", "X conduit mal.", "X a commis un accident."];
+    var CN2 = ["X se relaxe dans le canapé.", "X ne fait rien.", "X est paresseux.", "X est assis dans le canapé."];
+    var CN3 = ["X est tête en l’air.", "X cherche ses clefs.", "X s’inquiète.", "X fouille ses poches."];
+    var CN4 = ["X se prend la tête dans les mains.", "X est dépité.", "X se déçoit lui même.", "X se lamente."];
+    var CP1 = ["X écrit assis à son bureau.", "X est travailleur.", "X travaille à son bureau.", "X aime son travail."];
+    var CP2 = ["X est convaincant.", "X défend ses opinions.", "X parle devant des gens.", "X fait un discours."];
+    var CP3 = ["X tient un diplôme en main.", "X est intelligent.", "X a terminé l’université.", "X a reçu son diplôme."];
+    var CP4 = ["X est doué.", "X lève le bras et sourit.", "X gagne la partie.", "X s’en sort bien aux échecs."];
+    var WN1 = ["X est méchant.", "X n’aime pas le chien.", "X botte les fesses du chien.", "X agresse le chien."];
+    var WN2 = ["X se fâche contre son mari.", "X domine son mari.", "X est autoritaire.", "X parle fort à son mari."];
+    var WN3 = ["X attaque le monsieur.", "X donne un coup au monsieur.", "X est violent.", "X en veut au monsieur."];
+    var WN4 = ["X préfère s’isoler.", "X est solitaire.", "X évite la compagnie des autres gens.", "X mange à côté d’autres personnes."];
+    var WP1 = ["X estime beaucoup la jeune fille.", "X traite la jeune fille avec attention.", "X présente une chaise à la jeune fille.", "X est galant."];
+    var WP2 = ["X est bienveillante.", "X réconforte l’enfant.", "X tient à l’enfant.", "X prend l’enfant dans ses bras."];
+    var WP3 = ["X s'entend bien avec le monsieur.", "X serre la main du monsieur.", "X salue le monsieur.", "X est aimable."];
+    var WP4 = ["X fait des grimaces.", "X tire la langue à l’enfant.", "X est drôle.", "X s’amuse avec l’enfant."];
+
+    var CNimg = [
+        { img: 'CN1', labels: CN1, LCM_score: [4, 1, 3, 2], dim: "C", valence: "N", staNum: 1 },
+        { img: 'CN2', labels: CN2, LCM_score: [2, 3, 4, 1], dim: "C", valence: "N", staNum: 2 },
+        { img: 'CN3', labels: CN3, LCM_score: [4, 2, 3, 1], dim: "C", valence: "N", staNum: 3 },
+        { img: 'CN4', labels: CN4, LCM_score: [1, 4, 3, 2], dim: "C", valence: "N", staNum: 4 }
+    ];
+    var CPimg = [
+        { img: 'CP1', labels: CP1, LCM_score: [1, 4, 2, 3], dim: "C", valence: "P", staNum: 1 },
+        { img: 'CP2', labels: CP2, LCM_score: [4, 3, 1, 2], dim: "C", valence: "P", staNum: 2 },
+        { img: 'CP3', labels: CP3, LCM_score: [1, 4, 3, 2], dim: "C", valence: "P", staNum: 3 },
+        { img: 'CP4', labels: CP4, LCM_score: [4, 1, 2, 3], dim: "C", valence: "P", staNum: 4 }
+    ];
+    var WNimg = [
+        { img: 'WN1', labels: WN1, LCM_score: [4, 3, 1, 2], dim: "W", valence: "N", staNum: 1 },
+        { img: 'WN2', labels: WN2, LCM_score: [2, 3, 4, 1], dim: "W", valence: "N", staNum: 2 },
+        { img: 'WN3', labels: WN3, LCM_score: [2, 1, 4, 3], dim: "W", valence: "N", staNum: 3 },
+        { img: 'WN4', labels: WN4, LCM_score: [3, 4, 2, 1], dim: "W", valence: "N", staNum: 4 }
+    ];
+    var WPimg = [
+        { img: 'WP1', labels: WP1, LCM_score: [3, 2, 1, 4], dim: "W", valence: "P", staNum: 1 },
+        { img: 'WP2', labels: WP2, LCM_score: [4, 2, 3, 1], dim: "W", valence: "P", staNum: 2 },
+        { img: 'WP3', labels: WP3, LCM_score: [3, 1, 2, 4], dim: "W", valence: "P", staNum: 3 },
+        { img: 'WP4', labels: WP4, LCM_score: [2, 1, 4, 3], dim: "W", valence: "P", staNum: 4 }
+    ];
+    var LCMimg = _.flattenDeep([CNimg, CPimg, WNimg, WPimg]);
+
+    var Himgs = _.flattenDeep([_.sampleSize(CNimg, 2), _.sampleSize(CPimg, 2), _.sampleSize(WNimg, 2), _.sampleSize(WPimg, 2)]);
+    var Limgs = _.difference(LCMimg, Himgs);
+
+    Himgs.map(function (e, i) {
+        Himgs[i].trgGrp = 'H';
+        Himgs[i].img = '<img class="LCMimg" src="LCMimg/' + Himgs[i].img + '.png">';
+        Himgs[i].img += "</br>Groupe des " + HcolorHtml;
+
+    });
+    Limgs.map(function (e, i) {
+        Limgs[i].trgGrp = 'L';
+        Limgs[i].img = '<img class="LCMimg" src="LCMimg/' + Limgs[i].img + '.png">';
+        Limgs[i].img += "</br>Groupe des " + LcolorHtml;
+    });
+
+    var LCMstims = _.flattenDeep([Himgs, Limgs]);
+
+    var multi_choice_block = {
+        timeline_variables: LCMstims,
+        randomize_order: true,
+        timeline: [{
+            type: 'survey-multi-choice',
+            questions: function () {
+                return [{
+                    prompt: jsPsych.timelineVariable('img', true),
+                    options: jsPsych.timelineVariable('labels', true),
+                    required: true
+                }];
+            },
+            data: {
+                dim: jsPsych.timelineVariable('dim'),
+                valence: jsPsych.timelineVariable('valence'),
+                staNum: jsPsych.timelineVariable('staNum'),
+                trgGrp: jsPsych.timelineVariable('trgGrp')
+            },
+            button_label: "continué",
+            on_finish: function (data) {
+                data.responses = JSON.parse(data.responses)["Q0"];
+                var labels = jsPsych.timelineVariable('labels', true);
+                var LCM_score = jsPsych.timelineVariable('LCM_score', true);
+                var res_num = _.findIndex(labels, function (label) { return label == data.responses; });
+                data.LCM_score = LCM_score[res_num];
+            },
+        }],
+        on_load: function () {
+            $(".jspsych-survey-multi-choice-question").css("margin", "0px"); // avoids pushing continue button too far down
+            $("#jspsych-survey-multi-choice-next").css("margin-top", "30px"); // next button
+        },
+    };
+
+
+    /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+    timeline.push(activeFullscreen);
+    timeline.push(staRdmInst1);
+    timeline.push(staRdmInst2);
+    timeline.push(staRandomised);
+    timeline.push(staOrdInst);
+    timeline.push(staOrdered);
+    timeline.push(staDescription);
+    timeline.push(LCMinst);
+    timeline.push(multi_choice_block);
+
+    /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+    jsPsych.init({
+        timeline: timeline,
+        // max_load_time: 300 * 1000,
+        // exclusions: {
+        //     min_width: 700,
+        //     min_height: 600,
+        // },
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+            /* Initialize Firebase */
+            var config = {
+                apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+                databaseURL: "https://biatw-68fe6.firebaseio.com/"
+            };
+
+            firebase.initializeApp(config);
+            var database = firebase.database();
+            if (id == null | id == "") { id = jsPsych.randomization.randomID(15) }; // if no id provided, generate an id
+
+            /* Qualtrics url parameters */
+            qlink += "?id=" + id;
+            qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            qlink += "&screenWidth=" + screen.width || 0;
+            qlink += "&screenHeight=" + screen.height || 0;
+            qlink += "&userAgent=" + navigator.userAgent;
+            qlink += "&totalTime=" + jsPsych.totalTime();
+
+            /* jsPsych: add data to every trial */
+            jsPsych.data.addProperties({
+                id: id,
+                hghGrp: hghGrp,           // H-group color: "G" | "B"
+                inGrp: inGrp,             // Ingroup color: "G" | "B"
+                status: status,           // Participant status: "H" | "L" | "O" (always "O")
+                hghFstSta: hghFstSta,     // 
+                hghFstDscrp: hghFstDscrp
+            });
+
+            // jsPsych.data.displayData();
+            var subdata = data.filter({ trial_type: 'survey-multi-choice' }).csv();
+
+            /* Send data to Firebase and redirect to Qualtrics */
+            database.ref("LCM/" + id + "/").update({ subdata }).then(function () {
+                console.log("Data sent!");
+                window.location = qlink; // redirect to qualtrics
+            });
+        }
+    });
+</script>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../jspsych.js"></script>
+    <script src="../plugins/jspsych-survey-multi-choice.js"></script>
+    <link rel="stylesheet" href="../css/jspsych.css"></link>
+  </head>
+  <body></body>
+  <script>
+
+  // definiting two different response scales that can be used.
+  var page_1_options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+
+  var multi_choice_block = {
+      type: 'survey-multi-choice',
+      questions: [{prompt: '<img src="https://uclpsychology.co1.qualtrics.com/ControlPanel/Graphic.php?IM=IM_3HGzRlOsQjGllwp">', options: page_1_options, required:true,}],
+  };
+
+  jsPsych.init({
+    timeline: [multi_choice_block],
+    on_finish: function() {
+      jsPsych.data.displayData();
+    }
+  });
+
+
+  </script>
+</html>

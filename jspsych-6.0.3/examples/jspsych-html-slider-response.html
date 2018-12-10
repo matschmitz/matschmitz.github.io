@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="../jspsych.js"></script>
+  <script src="../plugins/jspsych-html-slider-response.js"></script>
+  <link rel="stylesheet" href="../css/jspsych.css"></link>
+  <script src="../../js/jquery.min.js"></script>
+  <style>
+    body {
+      cursor: default;
+    }
+    img {
+      width: 300px;
+    },
+  </style>
+</head>
+<body></body>
+<script>
+
+/*
+    var judgment = {
+      timeline_variables: sampledCIsStims,
+      randomize_order: true,
+      timeline: [{
+        type: 'html-slider-response',
+        stimulus: jsPsych.timelineVariable('imgHtml'),
+        labels: ['0</br>Pas du tout criminel', '100</br>Très criminel'],
+        start: 50,
+        button_label: 'Continué'
+      }],
+      data: {trait: 'test'},
+      loop_function: function(data){ 
+        var answered = data.values()[0].response;
+        console.log(answered);
+        console.log("hello");
+        if(!answered){
+          alert("Veuillez répondre à la question"); 
+          return true; 
+        } 
+      },
+      on_load: function() {
+        $("#jspsych-html-slider-response-wrapper").css("margin", "50px"); // avoids pushing continue button too far down
+        $("#jspsych-html-slider-response-wrapper").css("line-height", 1); // slider labels
+      },
+      on_finish: function(data) {
+        console.log(data.response);
+        console.log(data.answered);
+      },
+    };
+*/
+
+  var stims = [{color: 'blue'}, {color: 'purple'}];
+
+  var trial_1 = {
+    timeline_variables: stims,
+    timeline: [{
+      type: 'html-slider-response',
+      stimulus: function(){return '<div style="width: 100px; height: 100px; background-color: ' + jsPsych.timelineVariable('color', true) + ';"></div>'},
+      labels: ['Purple', 'Blue'],
+      prompt: '<p>Is this color closer to purple or blue? Use the slider above.</p>'
+    }],
+    loop_function: function(data){ 
+      var answered = data.values()[0].answered;
+      console.log(answered);
+      if(!answered){
+        alert("please answer the question"); 
+        return true; 
+      } 
+    }
+  }
+
+
+  jsPsych.init({
+    timeline: [trial_1],
+    on_finish: function() {
+      jsPsych.data.displayData();
+    },
+    default_iti: 250
+  });
+</script>
+
+</html>
