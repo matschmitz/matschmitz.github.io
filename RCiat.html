@@ -1,0 +1,540 @@
+<!-- TO DO -->
+<!-- WINDOW RESTRICTION! -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>exp</title>
+    <script src="jspsych-6.0.3/jspsych.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-multi-choice.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-iat-html.js"></script>
+    <script src="js/jspsych-html-mouse-response.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/firebase.js"></script>
+    <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        * {
+            /* border: 1px solid red; */
+        }
+
+        body {
+            cursor: default;
+        }
+
+        .rcimg-02,
+        .rcimg-12 {
+            cursor: pointer;
+        }
+
+        .rcimg-02 {
+            margin-top: 25px;
+            margin-bottom: 25px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .rcimg-12 {
+            margin: 10px;
+        }
+
+        .rcimg-02:hover,
+        .rcimg-12:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .jspsych-content-wrapper {
+            width: 900px;
+            height: 700px;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
+    /* Parameters */
+    var numOfPairsRC02 = 550;  // Total number of pair images images (inv & ori)
+    var numOfPairsRC12 = 1500; // Total number of pair images images (inv & ori)
+    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_b96oKCD3OPhU3UF';
+
+    /* Initial variables */
+    var timeline = [];
+    var preloadimagesRC12 = [];
+    var preloadimagesRC02 = [];
+    var id = jsPsych.data.getURLVariable("id");
+    var cond = jsPsych.data.getURLVariable("cond");
+
+    // Consent ---------------------------------------------------------------------------------------------------------------
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: function () {
+            html = "";
+            html += "<h1>CONSENTEMENT ÉCLAIRÉ</h1>";
+            html += "<p class='justify'>Merci de votre intérêt et de votre participation à cette étude ";
+            html += "administrée par Mathias Schmitz et Marine Rougier. ";
+            html += "L'expérience dure approximativement 30 minutes.</br></br>";
+            html += "Vous avez le droit de vous retirer de l'expérience à tout moment, ";
+            html += "sans devoir vous justifier et sans subir aucun préjudice. Nous vous rappelons également ";
+            html += "que si vous vous retirez de l'étude, vous conserverez le bénéfice obtenu des crédits ";
+            html += "attribués pour cette participation. Par ailleurs, nous garantissons également la ";
+            html += "confidentialité et l'anonymat de vos réponses. Des informations complémentaires peuvent ";
+            html += "être obtenues à tout moment auprès du chercheur responsable.</br></br>";
+            html += "Sachez que vous pouvez contacter Monsieur Jan de Mol pour rapporter ou discuter ";
+            html += "des problèmes liés à votre participation à la recherche.</p>";
+            return html;
+        },
+        button_label: "Je donne mon consentement libre et éclairé pour participer en tant que sujet à cette recherche",
+        type: 'fullscreen',
+        fullscreen_mode: true,
+        delay_after: 200,
+    };
+
+    // RC ---------------------------------------------------------------------------------------------------------------
+    /* Generate RC trials */
+    var imgsRC02 = _.range(1, numOfPairsRC02 + 1); // generate numerical sequence
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
+
+    imgsRC02 = imgsRC02.map(function (e) { return ['imgIAT/faceOri' + e + '.png', 'imgIAT/faceInv' + e + '.png'] });
+    imgsRC12 = imgsRC12.map(function (e) { return ['imgIAT/faceOri' + e + 's.png', 'imgIAT/faceInv' + e + 's.png'] });
+
+    imgsRC02 = _.flattenDeep(imgsRC02);
+    imgsRC12 = _.flattenDeep(imgsRC12);
+
+    preloadimagesRC02 = imgsRC02;
+    preloadimagesRC12 = imgsRC12;
+
+    // imgsRC = _.shuffle(imgsRC); // full randomization
+    // imgsRC = _.flattenDeep(_.shuffle(_.chunk(imgsRC12, 2))); // full randomization but keep inv ori in the same trial
+    imgsRC12 = _.chunk(imgsRC12, 12); // 250 trials (6 ori + 6 anti = 12  faces per trial)
+    imgsRC02 = _.chunk(imgsRC02, 02); // 550 trials (1 ori + 1 inv per trial)
+
+    var RC02_stim = [];
+    var RC12_stim = [];
+    imgsRC02.map(function (e) { RC02_stim.push({ trialImgs: e }) });
+    imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
+
+    /* Randomize RC conditions */
+    var RCcondition = cond != null ? cond : _.sample(["RC02", "RC12"]);
+
+    /* RC instructions & fullscreen */
+    switch (RCcondition) {
+        case "RC02":
+            var estimatedTimePerTrial = "1 second";
+            var cssRC = "rcimg-02";
+            var imgWidth = 512;
+            var RCstim = RC02_stim;
+            var numOfPairs = numOfPairsRC02;
+            var preloadimages = preloadimagesRC02;
+            break;
+        case "RC12":
+            var estimatedTimePerTrial = "3 secondes";
+            var cssRC = "rcimg-12";
+            var imgWidth = 150;
+            var RCstim = RC12_stim;
+            var numOfPairs = numOfPairsRC12 / 6;
+            var preloadimages = preloadimagesRC12;
+            break;
+    };
+
+    var RCinst = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Catégorisation des visages</h1>";
+            html += "<p class = 'justify'>Dans cette tâche, plusieurs visages vous seront présentés. ";
+            html += "Ces visages ont été bruités afin de préserver l'anonymat des personnes.</br></br>";
+            html += "Votre tâche consiste à ";
+            html += "<b>choisir le visage qui ressemble le plus à une personne d'origine maghrébine</b></br>";
+            html += " (autrement dit, le visage le plus « maghrébin ») à chaque essai. ";
+            html += "Utilisez la souris pour faire votre choix.</br></br>";
+            html += "En moyenne, les participant·e·s prennent environ <b>" + estimatedTimePerTrial + "</b> par essai. ";
+            html += "Essayez de maintenir un temps similaire.</br></br>"
+            html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
+            html += "Essayez de vous fier à votre <b> intuition</b> pour faire le meilleur choix.</br></br>";
+            html += "Veuillez rester concentré·e.</p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        }
+    };
+
+    /* RC */
+    var i = 1;
+    var RC = {
+        timeline_variables: RCstim,
+        repetitions: 1,
+        randomize_order: false,
+        data: {
+            cond: RCcondition,
+            task: 'RC',
+            numOfPairs: numOfPairs
+        },
+        timeline: [{
+            type: 'html-mouse-response',
+            on_load: function () {
+                if (RCcondition == 'RC02') {
+                    $('.jspsych-content-wrapper').css({ "width": "1100px" });
+                    $('.jspsych-content').css({ "max-width": "100%" });
+                };
+            },
+            stimulus: function () {
+                html = "";
+                html += "<p>choisissez le visage qui vous semble le plus <b>« maghrébin »</b> :</p>";
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='" + cssRC + "' src='" + e + "'>";
+                });
+                html += "</br>Essai : " + i + "/" + numOfPairs + "</br>";
+                i += 1;
+                return html;
+            },
+        }]
+    };
+
+    // IAT --------------------------------------------------------------------------------------------------------------
+    var IATinst_1 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Tâche de catégorization de mots et prénoms</h1>";
+            html += "<p class='justify'>Dans la tâche suivante, un ensemble de mots ou prénoms vous sera présenté et ";
+            html += "vous devrez classer ceux-ci dans des groupes.";
+            html += "Cette tâche requiert que vousclassiez ces items aussi <b>vite</b> que vous pouvez ";
+            html += "tout en faisant aussi <b>peu d’erreurs</b> que possible. Aller trop lentement ou ";
+            html += "faire trop d’erreurs rendra votre résultat ininterprétable.</br></br>";
+            html += "Comme vous le verrez, vous devrez trier les mots selon que ceux-ci sont bons ou mauvais; ";
+            html += "et les prénoms selon que ceux-ci sont généralement associés aux Maghrébins ou aux Français.";
+            html += "Sur la slide suivante nous vous présenterons une liste de labels désignant ";
+            html += "les catégories et les items qui forment chacune de ces catégories.</p></br>";
+            html += "<h3 style='text-align: left'>Gardez à l’esprit</h3>";
+            html += "<p class='justify'>•	Les deux labels au sommet vous indiquerons quels mots ou ";
+            html += "prénoms vont avec chaque touche.</br>";
+            html += "•	Gardez votre index gauche sur la touche <span class='light-keys'><kbd>S</span> et le droit ";
+            html += "sur la touche <span class='light-keys'><kbd>L</span> afin de pouvoir répondre rapidement.</br>";
+            html += "•	Chaque mot ou image a une classification correcte. La plupart de celles-ci sont faciles.</br>";
+            html += "•	Essayer d’aller le plus vite possible.</br>";
+            html += "•	Attendez-vous à faire quelques erreurs parce que vous allez vite. Ce n’est pas grave.</p>"
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
+            return html;
+        }
+    };
+
+    var IATinst_2 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Tâche de catégorization de mots et prénoms</h1>";
+            html += "<p class='justify'><center>Voici les quatre catégories et les items appartenant à chaque catégorie :</center></p></br>";
+            html += "<table>";
+            html += "<tr>";
+            html += "<th width='200px'>Category</th>";
+            html += "<th align='left'>Item</th>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>BON</td>";
+            html += "<td align='left'>Caresse, Liberté, Santé, Amour, Paix, Cheer, Ami, Cieux, Loyal, Plaisir, Diamant, Doux, Honnête, Chanceux, Arc en ciel, Diplôme, Cadeau, Honneur, Miracle, Lever du soleil, Famille, Heureux, Rire, Paradis, Vacances</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>MAUVAIS</td>";
+            html += "<td align='left'>Abuse, Crash, Filth, Murder, Sickness, Accident, Death, Grief, Poison, Stink, Assault, Disaster, Hatred, Pollute, Tragedy, Bomb, Divorce, Jail, Poverty, Ugly, Cancer, Evil, Kill, Rotten, Vomit</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>MAGHREBINS</td>";
+            html += "<td align='left'>Adam, Chip, Harry, Josh, Roger, Alan, Franck, Ian, Justin, Ryan, Andrew, Fred, Jack, Matthew, Stephen, Brad, Greg, Jed, Paul, Todd, Brandon, Hank, Jonathan, Peter, Wilbur</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>FRANCAIS</td>";
+            html += "<td align='left'>Alonzo, Jamel, Lerone, Percell, Theo, Alphonse, Jerome, Leroy, Rasaan, Rorrance, Darnell, Lamar, Lionel, Rashaun, Tyree, Deion, Lamont, Malik, Terrence, Tyrone, Everol, Lavon, Marcellus, Terryl, Wardell</td>";
+            html += "</tr>";
+            html += "</table>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
+            return html;
+        }
+    };
+
+    // Label -----------------------------------
+    // block    trials  Function        Left key        Right key
+    // 1        20      Practice        White           Black
+    // 2        20      Practice        Good            Bad
+    // 3        20      Practice        Good & White    Bad & Black
+    // 4        40      Test            Good & White    Bad & Black
+    // 5        20      Practice        Black           White
+    // 6        20      Practice        Good & Black    Bad & White
+    // 7        40      Test            Good & Black    Bad & White
+    // Note. For half the subjects, the positions of Blocks 1, 3, and 4 are 
+    // switched with those of Blocks 5, 6, and 7, respectively. 
+    // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
+    // a pleasant or an unpleasant word with trials that presented either a White or Black image.
+
+    // randomize label side
+    var label_good_bad = _.shuffle(['good', 'bad']);
+    var label_black_white = _.shuffle(['black', 'white']);
+
+    // generate labels
+    var block_1_label_left = label_black_white[0];
+    var block_1_label_right = label_black_white[1];
+
+    var block_2_label_left = label_good_bad[0];
+    var block_2_label_right = label_good_bad[1];
+
+    var block_3_label_left_top = label_good_bad[0];
+    var block_3_label_right_top = label_black_white[0];
+    var block_3_label_left_bot = label_good_bad[1];
+    var block_3_label_right_bot = label_black_white[1];
+
+    var block_4_label_left_top = block_3_label_left_top;
+    var block_4_label_right_top = block_3_label_right_top;
+    var block_4_label_left_bot = block_3_label_left_bot;
+    var block_4_label_right_bot = block_3_label_right_bot;
+
+    var block_5_label_left = label_black_white[1];
+    var block_5_label_right = label_black_white[0];
+
+    var block_6_label_left_top = label_good_bad[0];
+    var block_6_label_right_top = label_black_white[1];
+    var block_6_label_left_bot = label_good_bad[1];
+    var block_6_label_right_bot = label_black_white[0];
+
+    var block_7_label_left_top = block_6_label_left_top;
+    var block_7_label_right_top = block_6_label_right_top;
+    var block_7_label_left_bot = block_6_label_left_bot;
+    var block_7_label_right_bot = block_6_label_right_bot;
+
+    var IATstims = [
+        { categories: "good_bad", category: "good", stimulus: "good1" },
+        { categories: "good_bad", category: "good", stimulus: "good2" },
+        { categories: "good_bad", category: "good", stimulus: "good3" },
+        { categories: "good_bad", category: "bad", stimulus: "bad1" },
+        { categories: "good_bad", category: "bad", stimulus: "bad2" },
+        { categories: "good_bad", category: "bad", stimulus: "bad3" },
+        { categories: "black_white", category: "black", stimulus: "black1" },
+        { categories: "black_white", category: "black", stimulus: "black2" },
+        { categories: "black_white", category: "black", stimulus: "black3" },
+        { categories: "black_white", category: "white", stimulus: "white1" },
+        { categories: "black_white", category: "white", stimulus: "white2" },
+        { categories: "black_white", category: "white", stimulus: "white3" }
+    ]
+
+
+    // TO DO: shuffle trials:
+    // alternate trials that present either a pleasant or an
+    // unpleasant word with trials that presented either a Bush or Gore image
+
+    var block_1 = _.filter(IATstims, function (x) { return x.category == block_1_label_left | x.category == block_1_label_right });
+    block_1.map(function (x) {
+        x.label_left_top = block_1_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_1_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_1_label_left];
+        x.labels_right = [block_1_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 1;
+    });
+
+    var block_2 = _.filter(IATstims, function (x) { return x.category == block_2_label_left | x.category == block_2_label_right });
+    block_2.map(function (x) {
+        x.label_left_top = block_2_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_2_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_2_label_left];
+        x.labels_right = [block_2_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 2;
+    });
+
+    var block_3 = IATstims;
+    block_3.map(function (x) {
+        x.label_left_top = block_3_label_left_top;
+        x.label_left_bot = block_3_label_left_bot;
+        x.label_right_top = block_3_label_right_top;
+        x.label_right_bot = block_3_label_right_bot;
+        x.labels_left = [block_3_label_left_top, block_3_label_left_bot];
+        x.labels_right = [block_3_label_right_top, block_3_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 3;
+    });
+
+    var block_4 = IATstims;
+    block_4.map(function (x) {
+        x.label_left_top = block_4_label_left_top;
+        x.label_left_bot = block_4_label_left_bot;
+        x.label_right_top = block_4_label_right_top;
+        x.label_right_bot = block_4_label_right_bot;
+        x.labels_left = [block_4_label_left_top, block_4_label_left_bot];
+        x.labels_right = [block_4_label_right_top, block_4_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 4;
+    });
+
+    var block_5 = _.filter(IATstims, function (x) { return x.category == block_5_label_left | x.category == block_5_label_right });
+    block_5.map(function (x) {
+        x.label_left_top = block_5_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_5_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_5_label_left];
+        x.labels_right = [block_5_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 5;
+    });
+
+    var block_6 = IATstims;
+    block_6.map(function (x) {
+        x.label_left_top = block_6_label_left_top;
+        x.label_left_bot = block_6_label_left_bot;
+        x.label_right_top = block_6_label_right_top;
+        x.label_right_bot = block_6_label_right_bot;
+        x.labels_left = [block_6_label_left_top, block_6_label_left_bot];
+        x.labels_right = [block_6_label_right_top, block_6_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 6;
+    });
+
+    var block_7 = IATstims;
+    block_7.map(function (x) {
+        x.label_left_top = block_7_label_left_top;
+        x.label_left_bot = block_7_label_left_bot;
+        x.label_right_top = block_7_label_right_top;
+        x.label_right_bot = block_7_label_right_bot;
+        x.labels_left = [block_7_label_left_top, block_7_label_left_bot];
+        x.labels_right = [block_7_label_right_top, block_7_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 7;
+    });
+
+    var genIATblock = function (stims) {
+        var trial_block = {
+            timeline_variables: stims,
+            randomize_order: true,
+            timeline: [{
+                type: 'iat-html',
+                stimulus: jsPsych.timelineVariable('stimulus'),
+                html_when_wrong: '<span style="color: red; font-size: 80px">X</span>',
+                stim_key_association: jsPsych.timelineVariable('correct_key'),
+                bottom_instructions: "<p>Si vous appuyez sur la mauvaise touche, un X rouge apparaîtra. Appuyez sur l'autre touche pour continuer</p>",
+                force_correct_key_press: jsPsych.timelineVariable('type') == 'practice' ? true : false,
+                display_feedback: true,
+                left_category_key: 'S',
+                right_category_key: 'L',
+                left_category_label: jsPsych.timelineVariable('labels_left'),
+                right_category_label: jsPsych.timelineVariable('labels_right'),
+                response_ends_trial: true
+            }],
+            data: {
+                label_left_top: jsPsych.timelineVariable('label_left_top'),
+                label_left_bot: jsPsych.timelineVariable('label_left_bot'),
+                label_right_top: jsPsych.timelineVariable('label_right_top'),
+                label_right_bot: jsPsych.timelineVariable('label_right_bot'),
+                blockNum: jsPsych.timelineVariable('blockNum'),
+                type: jsPsych.timelineVariable('type'),
+                category: jsPsych.timelineVariable('category'),
+                categories: jsPsych.timelineVariable('categories')
+            },
+            on_load: function () {
+                // $('.jspsych-content').css({ "max-width": "100%" });
+                // $('#jspsych-content').css({ "width": "900px" });
+                // $('#jspsych-content').css({ "height": "700px" });
+                // $('#jspsych-content').css({ "margin": "0" });
+                // $('#jspsych-content').css({ "border": "1px solid green" });
+                // $('#trial_left_right').css({ "position": "relative" });
+                // $('#trial_right_align').css({ "position": "relative" });
+            },
+            on_finish: function (data) {
+                console.log(jsPsych.data.getLastTrialData().json());
+            },
+        }
+        return trial_block;
+    };
+
+    var test_iat = genIATblock(block_3);
+
+
+
+
+    /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+    // timeline.push(activeFullscreen);
+    // timeline.push(RCinst);
+    // timeline.push(RC);
+    // timeline.push(IATinst_1);
+    timeline.push(IATinst_2);
+    timeline.push(test_iat);
+
+    /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
+    jsPsych.init({
+        timeline: _.flattenDeep(timeline),
+        // preload_images: preloadimages,
+        max_load_time: 1000 * 900,
+        exclusions: {
+            // min_width: 1100,
+            // min_height: 700,
+        },
+        on_interaction_data_update: function (data) {
+            // console.log(JSON.stringify(data))
+        },
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+            /* Initialize Firebase */
+            var config = {
+                apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+                databaseURL: "https://biatw-68fe6.firebaseio.com/"
+            };
+
+            firebase.initializeApp(config);
+            var database = firebase.database();
+
+            // if no id provided, generate a new id
+            if (id == null) { id = jsPsych.randomization.randomID(15) };
+
+            /* Qualtrics url parameters */
+            qlink += "?id=" + id;
+            qlink += "&cond=" + RCcondition;
+            qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            qlink += "&screenWidth=" + screen.width || 0;
+            qlink += "&screenHeight=" + screen.height || 0;
+            qlink += "&userAgent=" + navigator.userAgent;
+            qlink += "&totalTime=" + jsPsych.totalTime();
+
+            /* jsPsych: add data to every trial */
+            jsPsych.data.addProperties({
+                id: id
+            });
+
+            var dataRC = data.filter({ task: 'RC' }).csv();
+            jsPsych.data.displayData();
+
+            /* Send data to Firebase and redirect to Qualtrics */
+            database
+                .ref("RCiat/" + id + "/")
+                .update({ dataRC })
+                .then(function () {
+                    console.log("Data sent!");
+                    // window.location = qlink;
+                    //jsPsych.data.displayData();
+                });
+        }
+    });
+</script>
+
+</html>

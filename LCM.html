@@ -182,28 +182,6 @@
         on_finish: function () { $('body').css('cursor', 'none') },
     };
 
-    /* Consentement */
-    var consent = {
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function () {
-            html = "";
-            html += "<h1>CONSENTEMENT ÉCLAIRÉ</h1>";
-            html += "<p class='justify'>Un autre avantage important de ce test est qu'il ";
-            html += "permet de classer les personnes en deux groupes différents. ";
-            html += "Les membres de chaque groupe ont tendance à être très similaires les uns aux autres : ";
-            html += "ils sont souvent issus de milieux semblables, et partagent des opinions et croyances similaires. ";
-            html += "Afin d'éviter l'utilisation d'un langage trop technique et spécifique à ce test, ";
-            html += "nous les appellerons ici simplement le groupe des ";
-            html += "« " + HcolorHtml + " » et des « " + LcolorHtml + " ».</br></br>";
-            html += "En ce qui vous concerne, l’analyse de vos réponses au test indique ";
-            html += "que <b>vous faites partie du groupe des " + HcolorHtml + "</b>.</br></p>";
-            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
-            return html;
-        },
-    };
-
     /* Sta rdm instructions */
     var staRdmInst1 = {
         type: "html-keyboard-response",

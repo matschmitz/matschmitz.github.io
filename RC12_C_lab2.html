@@ -177,36 +177,6 @@
   stimStaOrd = []; // Ordered statements by group color
   staOrd.map(function (sta) { stimStaOrd.push({ stimulus: staStim[sta] }) });
 
-
-  /* Consentement */
-  var consent = {
-    type: "html-keyboard-response",
-    post_trial_gap: 200,
-    choices: [32],
-    stimulus: function () {
-      html = "";
-      html += "<h1>CONSENTEMENT ÉCLAIRÉ</h1>";
-      html += "<p class='justify'>Merci de votre intérêt et de votre participation à cette étude ";
-      html += "administrée par Mathias Schmitz. L'expérience se déroulera en ligne et dure approximativement ";
-      html += "<b>30 minutes</b></p>. ";
-      html += "<p class='justify'>vous avez le droit de vous retirer de l'expérience à tout moment, ";
-      html += "sans devoir vous justifier et sans subir aucun préjudice. Nous vous rappelons également ";
-      html += "que si vous vous retirez de l'étude, vous conserverez le bénéfice obtenu des crédits ";
-      html += "attribués pour cette participation. Par ailleurs, nous garantissons également la ";
-      html += "confidentialité et l'anonymat de vos réponses. Des informations complémentaires peuvent ";
-      html += "être obtenues à tout moment auprès du chercheur responsable.";
-      html += "Les membres de chaque groupe ont tendance à être très similaires les uns aux autres : ";
-      html += "ils sont souvent issus de milieux semblables, et partagent des opinions et croyances similaires. ";
-      html += "Afin d'éviter l'utilisation d'un langage trop technique et spécifique à ce test, ";
-      html += "nous les appellerons ici simplement le groupe des ";
-      html += "« " + HcolorHtml + " » et des « " + LcolorHtml + " ».</br></br>";
-      html += "En ce qui vous concerne, l’analyse de vos réponses au test indique ";
-      html += "que <b>vous faites partie du groupe des " + HcolorHtml + "</b>.</br></p>";
-      html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
-      return html;
-    },
-  };
-
   /* Fullscreen mode */
   var activeFullscreen = {
     message: function () {
@@ -404,7 +374,7 @@
         H = _.chunk(H, chunks);
         L = _.chunk(L, chunks);
 
-        var HL = H.map(function (e, i) {
+        var HL = H.map(function (e, i) { // merge two arrays so that the values alternate
           return [e, L[i]];
         })
         var LH = L.map(function (e, i) {
