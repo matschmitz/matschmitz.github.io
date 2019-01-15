@@ -376,13 +376,13 @@
 
         var HL = H.map(function (e, i) { // merge two arrays so that the values alternate
           return [e, L[i]];
-        })
+        });
         var LH = L.map(function (e, i) {
           return [e, H[i]];
-        })
+        });
 
         t = _.sample([HL, LH]);
-        t = _.flattenDeep(t)
+        t = _.flattenDeep(t);
 
         return t;
       }

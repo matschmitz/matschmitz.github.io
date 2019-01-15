@@ -13,7 +13,7 @@
     <script src="jspsych-6.0.3/plugins/jspsych-survey-multi-choice.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
-    <script src="jspsych-6.0.3/plugins/jspsych-iat-html.js"></script>
+    <script src="js/jspsych-iat-html-mat.js"></script>
     <script src="js/jspsych-html-mouse-response.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/lodash.min.js"></script>
@@ -52,6 +52,31 @@
         .jspsych-content-wrapper {
             width: 900px;
             height: 700px;
+        }
+
+        /* .iat_table {
+            margin-bottom: 150px;
+            width: 100%;
+            table-layout: fixed;
+        } */
+
+        td {
+            /* width: 20%; */
+            border: 1px solid blue;
+        }
+
+        .td_left {
+            /* text-align: left; */
+            /* padding-left: 50px; */
+        }
+
+        .td_right {
+            /* text-align: right; */
+            /* padding-right: 50px; */
+        }
+
+        div {
+            border: 1px solid green;
         }
     </style>
 </head>
@@ -263,6 +288,267 @@
         }
     };
 
+
+
+    // randomize label side
+    var label_good_bad = _.shuffle(['good', 'bad']);
+    var label_black_white = _.shuffle(['black', 'white']);
+
+    // generate labels
+    var block_1_label_left = label_black_white[0];
+    var block_1_label_right = label_black_white[1];
+
+    var block_2_label_left = label_good_bad[0];
+    var block_2_label_right = label_good_bad[1];
+
+    var block_3_label_left_top = label_good_bad[0];
+    var block_3_label_left_bot = label_black_white[0];
+    var block_3_label_right_top = label_good_bad[1];
+    var block_3_label_right_bot = label_black_white[1];
+
+    var block_4_label_left_top = block_3_label_left_top;
+    var block_4_label_left_bot = block_3_label_left_bot;
+    var block_4_label_right_top = block_3_label_right_top;
+    var block_4_label_right_bot = block_3_label_right_bot;
+
+    var block_5_label_left = label_black_white[1];
+    var block_5_label_right = label_black_white[0];
+
+    var block_6_label_left_top = label_good_bad[0];
+    var block_6_label_left_bot = label_black_white[1];
+    var block_6_label_right_top = label_good_bad[1];
+    var block_6_label_right_bot = label_black_white[0];
+
+    var block_7_label_left_top = block_6_label_left_top;
+    var block_7_label_left_bot = block_6_label_left_bot;
+    var block_7_label_right_top = block_6_label_right_top;
+    var block_7_label_right_bot = block_6_label_right_bot;
+
+    var iat_instructions_block_1 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus:
+            "<table class='iat_table'>" +
+            "<tr><td class='td_left'>Appuyez sur <span class='light-keys'><kbd>S</kbd></span> pour :</td>" + 
+            "<td class='td_right'>Appuyez sur <span class='light-keys'><kbd>L</kbd></span> pour :</td></tr>" +
+            "<tr><td class='td_left'>" + block_1_label_left + "</td>" +
+            "<td class='td_right'>" + block_1_label_right + "</td></tr>" +
+            "</table>"
+            // "<div style='position: relative; top: 20%; left: 20%'>" +
+            // "<p>Press <span class='light-keys'><kbd>S</kbd></span> for:<br><span class='iat-category self-other'>" +
+            // block_1_label_left +
+            // "</span></p>" +
+            // "</div>" +
+            // "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
+            // " <span class='light-keys'><kbd>L</kbd></span> for:<br><span class='iat-category self-other'>" +
+            // block_1_label_right +
+            // "</span></p>" +
+            // "</div>" +
+            // "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
+            // "<p class='instructions'>" +
+            // "In the next task, you will have to put your middle or index fingers on the <span class='key'>E</span> " +
+            // "and <span class='key'>I</span> keys of your keyboard. Words representing the categories at the top " +
+            // "will appear one-by-one in the middle of the screen. " +
+            // "When the item belongs to a category on the left, press the <span class='key'>E</span> key; when the item " +
+            // "belongs to a category on the right, press the <span class='key'>I</span> key. Items belong to only one category. " +
+            // "If you make an error, an X will appear – fix the error by hitting the other key." +
+            // "</p>" +
+            // "<p class='instructions'>" +
+            // "This is a timed sorting task. GO AS FAST AS YOU CAN while making as few mistakes as possible. " +
+            // "</p>" +
+            // "</div> " +
+            // "<br>" +
+            // "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    };
+
+    // var iat_instructions_block_2 = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'> <p>Press " +
+    //         "<span class='key'>E</span> for:<br><span class='iat-category maths-arts'>" +
+    //         block_2_left_label +
+    //         "</span></p>" +
+    //         "</div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
+    //         "<span class='key'>I</span> for:<br><span class='iat-category maths-arts'>" +
+    //         block_2_right_label +
+    //         "</span></p>" +
+    //         "</div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
+    //         "<p class='instructions'>" +
+    //         "See above, the categories have changed. The items for sorting have changed as well. " +
+    //         "The rules, however, are the same." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "When the items belong to a category to the left, press the <span class='key'>E</span> key; " +
+    //         "when the item belongs to a category on the right, press the <span class='key'>I</span> key. " +
+    //         "Items belong to only one category. " +
+    //         "An X will appear after an error – fix the error by hitting the other key. " +
+    //         "GO AS FAST AS YOU CAN. " +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br>" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
+    // var iat_instructions_block_3 = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
+    //         "Press <span class='key'>E</span> for:<br> " +
+    //         "<span class='iat-category self-other'>" + block_3_left_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_3_left_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
+    //         "Press <span class='key'>I</span>  for:<br>" +
+    //         "<span class='iat-category self-other'>" + block_3_right_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_3_right_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
+    //         "<p class='instructions'>" +
+    //         "See above, the four categories you saw separately now appear together. " +
+    //         "Remember, each item belongs to only one group." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
+    //         "and items may help to identify the appropriate category. " +
+    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
+    //         "items into the four groups left and right, and correct errors by hitting the other key." +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br />" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
+    // var iat_instructions_block_3_test = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
+    //         "Press <span class='key'>E</span> for:<br> " +
+    //         "<span class='iat-category self-other'>" + block_3_left_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_3_left_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
+    //         "Press <span class='key'>I</span>  for:<br>" +
+    //         "<span class='iat-category self-other'>" + block_3_right_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_3_right_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
+    //         "<p class='instructions'>" +
+    //         "Sort the same four categories again. Remember to go as fast as you can while " +
+    //         "making as few mistakes as possible." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
+    //         "and items may help to identify the appropriate category. " +
+    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
+    //         "items into the four groups left and right, and correct errors by hitting the other key." +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br />" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
+    // var iat_instructions_block_4 = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'> <p>Press " +
+    //         "<span class='key'>E</span> for:<br><span class='iat-category maths-arts'>" +
+    //         block_4_left_label +
+    //         "</span></p>" +
+    //         "</div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
+    //         "<span class='key'>I</span> for:<br><span class='iat-category maths-arts'>" +
+    //         block_4_right_label +
+    //         "</span></p>" +
+    //         "</div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
+    //         "<p class='instructions'>" +
+    //         "Notice above, there are only two categories and they have switched positions. " +
+    //         "The concept that was previously on the left is now on the right, and the concept " +
+    //         "that was on the right is now on the left. Practice this new configuration." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys " +
+    //         "to categorize items left and right, and correct error " +
+    //         "by hitting the other key." +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br>" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
+    // var iat_instructions_block_5 = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
+    //         "Press <span class='key'>E</span> for:<br> " +
+    //         "<span class='iat-category self-other'>" + block_5_left_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_5_left_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
+    //         "Press <span class='key'>I</span>  for:<br>" +
+    //         "<span class='iat-category self-other'>" + block_5_right_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_5_right_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
+    //         "<p class='instructions'>" +
+    //         "See above, the four categories now appear together in a new configuration. " +
+    //         "Remember, each item belongs to only one group." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys " +
+    //         "to categorize items into the four groups left and right, and correct error " +
+    //         "by hitting the other key." +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br />" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
+    // var iat_instructions_block_5_test = {
+    //     type: 'html-keyboard-response',
+    //     stimulus:
+    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
+    //         "Press <span class='key'>E</span> for:<br> " +
+    //         "<span class='iat-category self-other'>" + block_5_left_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_5_left_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
+    //         "Press <span class='key'>I</span>  for:<br>" +
+    //         "<span class='iat-category self-other'>" + block_5_right_label_top + "</span>" +
+    //         "<br>or<br>" +
+    //         "<span class='iat-category maths-arts'>" + block_5_right_label_bottom + "</span>" +
+    //         "</p></div>" +
+    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
+    //         "<p class='instructions'>" +
+    //         "Sort the same four categories again. Remember to go as fast as you can while " +
+    //         "making as few mistakes as possible." +
+    //         "</p>" +
+    //         "<p class='instructions'>" +
+    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
+    //         "and items may help to identify the appropriate category. " +
+    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
+    //         "items into the four groups left and right, and correct errors by hitting the other key." +
+    //         "</p>" +
+    //         "</div> " +
+    //         "<br />" +
+    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+    //     choices: [32]
+    // };
+
     // Label -----------------------------------
     // block    trials  Function        Left key        Right key
     // 1        20      Practice        White           Black
@@ -277,150 +563,43 @@
     // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
     // a pleasant or an unpleasant word with trials that presented either a White or Black image.
 
-    // randomize label side
-    var label_good_bad = _.shuffle(['good', 'bad']);
-    var label_black_white = _.shuffle(['black', 'white']);
-
-    // generate labels
-    var block_1_label_left = label_black_white[0];
-    var block_1_label_right = label_black_white[1];
-
-    var block_2_label_left = label_good_bad[0];
-    var block_2_label_right = label_good_bad[1];
-
-    var block_3_label_left_top = label_good_bad[0];
-    var block_3_label_right_top = label_black_white[0];
-    var block_3_label_left_bot = label_good_bad[1];
-    var block_3_label_right_bot = label_black_white[1];
-
-    var block_4_label_left_top = block_3_label_left_top;
-    var block_4_label_right_top = block_3_label_right_top;
-    var block_4_label_left_bot = block_3_label_left_bot;
-    var block_4_label_right_bot = block_3_label_right_bot;
-
-    var block_5_label_left = label_black_white[1];
-    var block_5_label_right = label_black_white[0];
-
-    var block_6_label_left_top = label_good_bad[0];
-    var block_6_label_right_top = label_black_white[1];
-    var block_6_label_left_bot = label_good_bad[1];
-    var block_6_label_right_bot = label_black_white[0];
-
-    var block_7_label_left_top = block_6_label_left_top;
-    var block_7_label_right_top = block_6_label_right_top;
-    var block_7_label_left_bot = block_6_label_left_bot;
-    var block_7_label_right_bot = block_6_label_right_bot;
-
-    var IATstims = [
-        { categories: "good_bad", category: "good", stimulus: "good1" },
-        { categories: "good_bad", category: "good", stimulus: "good2" },
-        { categories: "good_bad", category: "good", stimulus: "good3" },
-        { categories: "good_bad", category: "bad", stimulus: "bad1" },
-        { categories: "good_bad", category: "bad", stimulus: "bad2" },
-        { categories: "good_bad", category: "bad", stimulus: "bad3" },
+    var IATstims_blackWhite = [
         { categories: "black_white", category: "black", stimulus: "black1" },
         { categories: "black_white", category: "black", stimulus: "black2" },
         { categories: "black_white", category: "black", stimulus: "black3" },
         { categories: "black_white", category: "white", stimulus: "white1" },
         { categories: "black_white", category: "white", stimulus: "white2" },
         { categories: "black_white", category: "white", stimulus: "white3" }
-    ]
+    ];
 
+    var IATstims_goodBad = [
+        { categories: "good_bad", category: "good", stimulus: "good1" },
+        { categories: "good_bad", category: "good", stimulus: "good2" },
+        { categories: "good_bad", category: "good", stimulus: "good3" },
+        { categories: "good_bad", category: "bad", stimulus: "bad1" },
+        { categories: "good_bad", category: "bad", stimulus: "bad2" },
+        { categories: "good_bad", category: "bad", stimulus: "bad3" },
+    ];
 
-    // TO DO: shuffle trials:
-    // alternate trials that present either a pleasant or an
-    // unpleasant word with trials that presented either a Bush or Gore image
+    var shuffleIATstims = function (stims) {
+        // Alterenate categories blackWhite vs. goodBad
+        var n = stims.length / 2;
+        var chunkedStims = _.chunk(stims, n);
+        var stims1 = _.shuffle(chunkedStims[0]);
+        var stims2 = _.shuffle(chunkedStims[1]);
 
-    var block_1 = _.filter(IATstims, function (x) { return x.category == block_1_label_left | x.category == block_1_label_right });
-    block_1.map(function (x) {
-        x.label_left_top = block_1_label_left;
-        x.label_left_bot = undefined;
-        x.label_right_top = block_1_label_right;
-        x.label_right_bot = undefined;
-        x.labels_left = [block_1_label_left];
-        x.labels_right = [block_1_label_right];
-        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
-        x.type = 'practice';
-        x.blockNum = 1;
-    });
+        var stims12 = stims1.map(function (e, i) { // merge two arrays so that the values alternate
+            return [e, stims2[i]];
+        });
+        var stims21 = stims2.map(function (e, i) {
+            return [e, stims1[i]];
+        });
 
-    var block_2 = _.filter(IATstims, function (x) { return x.category == block_2_label_left | x.category == block_2_label_right });
-    block_2.map(function (x) {
-        x.label_left_top = block_2_label_left;
-        x.label_left_bot = undefined;
-        x.label_right_top = block_2_label_right;
-        x.label_right_bot = undefined;
-        x.labels_left = [block_2_label_left];
-        x.labels_right = [block_2_label_right];
-        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
-        x.type = 'practice';
-        x.blockNum = 2;
-    });
+        var t = _.sample([stims12, stims21]);
+        t = _.flattenDeep(t);
 
-    var block_3 = IATstims;
-    block_3.map(function (x) {
-        x.label_left_top = block_3_label_left_top;
-        x.label_left_bot = block_3_label_left_bot;
-        x.label_right_top = block_3_label_right_top;
-        x.label_right_bot = block_3_label_right_bot;
-        x.labels_left = [block_3_label_left_top, block_3_label_left_bot];
-        x.labels_right = [block_3_label_right_top, block_3_label_right_bot];
-        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
-        x.type = 'practice';
-        x.blockNum = 3;
-    });
-
-    var block_4 = IATstims;
-    block_4.map(function (x) {
-        x.label_left_top = block_4_label_left_top;
-        x.label_left_bot = block_4_label_left_bot;
-        x.label_right_top = block_4_label_right_top;
-        x.label_right_bot = block_4_label_right_bot;
-        x.labels_left = [block_4_label_left_top, block_4_label_left_bot];
-        x.labels_right = [block_4_label_right_top, block_4_label_right_bot];
-        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
-        x.type = 'test';
-        x.blockNum = 4;
-    });
-
-    var block_5 = _.filter(IATstims, function (x) { return x.category == block_5_label_left | x.category == block_5_label_right });
-    block_5.map(function (x) {
-        x.label_left_top = block_5_label_left;
-        x.label_left_bot = undefined;
-        x.label_right_top = block_5_label_right;
-        x.label_right_bot = undefined;
-        x.labels_left = [block_5_label_left];
-        x.labels_right = [block_5_label_right];
-        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
-        x.type = 'practice';
-        x.blockNum = 5;
-    });
-
-    var block_6 = IATstims;
-    block_6.map(function (x) {
-        x.label_left_top = block_6_label_left_top;
-        x.label_left_bot = block_6_label_left_bot;
-        x.label_right_top = block_6_label_right_top;
-        x.label_right_bot = block_6_label_right_bot;
-        x.labels_left = [block_6_label_left_top, block_6_label_left_bot];
-        x.labels_right = [block_6_label_right_top, block_6_label_right_bot];
-        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
-        x.type = 'practice';
-        x.blockNum = 6;
-    });
-
-    var block_7 = IATstims;
-    block_7.map(function (x) {
-        x.label_left_top = block_7_label_left_top;
-        x.label_left_bot = block_7_label_left_bot;
-        x.label_right_top = block_7_label_right_top;
-        x.label_right_bot = block_7_label_right_bot;
-        x.labels_left = [block_7_label_left_top, block_7_label_left_bot];
-        x.labels_right = [block_7_label_right_top, block_7_label_right_bot];
-        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
-        x.type = 'test';
-        x.blockNum = 7;
-    });
+        return t;
+    };
 
     var genIATblock = function (stims) {
         var trial_block = {
@@ -451,13 +630,9 @@
                 categories: jsPsych.timelineVariable('categories')
             },
             on_load: function () {
-                // $('.jspsych-content').css({ "max-width": "100%" });
-                // $('#jspsych-content').css({ "width": "900px" });
-                // $('#jspsych-content').css({ "height": "700px" });
-                // $('#jspsych-content').css({ "margin": "0" });
-                // $('#jspsych-content').css({ "border": "1px solid green" });
-                // $('#trial_left_right').css({ "position": "relative" });
-                // $('#trial_right_align').css({ "position": "relative" });
+                $('#jspsych-content').css({ "max-width": "100%" });
+                $('#jspsych-content').css({ "margin": "0px" });
+                $('#jspsych-content').css({ "width": "900px" });
             },
             on_finish: function (data) {
                 console.log(jsPsych.data.getLastTrialData().json());
@@ -466,9 +641,111 @@
         return trial_block;
     };
 
-    var test_iat = genIATblock(block_3);
+    var block_1 = _.cloneDeep(IATstims_blackWhite);
+    block_1 = _.shuffle(block_1);
+    block_1.map(function (x) {
+        x.label_left_top = block_1_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_1_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_1_label_left];
+        x.labels_right = [block_1_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 1;
+    });
 
+    var block_2 = _.cloneDeep(IATstims_goodBad);
+    block_2 = _.shuffle(block_2);
+    block_2.map(function (x) {
+        x.label_left_top = block_2_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_2_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_2_label_left];
+        x.labels_right = [block_2_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 2;
+    });
 
+    var block_3 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad)]);
+    block_3 = shuffleIATstims(block_3);
+    block_3.map(function (x) {
+        x.label_left_top = block_3_label_left_top;
+        x.label_left_bot = block_3_label_left_bot;
+        x.label_right_top = block_3_label_right_top;
+        x.label_right_bot = block_3_label_right_bot;
+        x.labels_left = [block_3_label_left_top, block_3_label_left_bot];
+        x.labels_right = [block_3_label_right_top, block_3_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 3;
+    });
+
+    var block_4 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad), _.cloneDeep(IATstims_goodBad)]);
+    block_4 = shuffleIATstims(block_4);
+    block_4.map(function (x) {
+        x.label_left_top = block_4_label_left_top;
+        x.label_left_bot = block_4_label_left_bot;
+        x.label_right_top = block_4_label_right_top;
+        x.label_right_bot = block_4_label_right_bot;
+        x.labels_left = [block_4_label_left_top, block_4_label_left_bot];
+        x.labels_right = [block_4_label_right_top, block_4_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 4;
+    });
+
+    var block_5 = _.cloneDeep(IATstims_blackWhite);
+    block_5 = _.shuffle(block_5);
+    block_5.map(function (x) {
+        x.label_left_top = block_5_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_5_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_5_label_left];
+        x.labels_right = [block_5_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 5;
+    });
+
+    var block_6 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad)]);
+    block_6 = shuffleIATstims(block_6);
+    block_6.map(function (x) {
+        x.label_left_top = block_6_label_left_top;
+        x.label_left_bot = block_6_label_left_bot;
+        x.label_right_top = block_6_label_right_top;
+        x.label_right_bot = block_6_label_right_bot;
+        x.labels_left = [block_6_label_left_top, block_6_label_left_bot];
+        x.labels_right = [block_6_label_right_top, block_6_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 6;
+    });
+
+    var block_7 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad), _.cloneDeep(IATstims_goodBad)]);
+    block_7 = shuffleIATstims(block_7);
+    block_7.map(function (x) {
+        x.label_left_top = block_7_label_left_top;
+        x.label_left_bot = block_7_label_left_bot;
+        x.label_right_top = block_7_label_right_top;
+        x.label_right_bot = block_7_label_right_bot;
+        x.labels_left = [block_7_label_left_top, block_7_label_left_bot];
+        x.labels_right = [block_7_label_right_top, block_7_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 7;
+    });
+
+    var IAT_block_1 = genIATblock(block_1);
+    var IAT_block_2 = genIATblock(block_2);
+    var IAT_block_3 = genIATblock(block_3);
+    var IAT_block_4 = genIATblock(block_4);
+    var IAT_block_5 = genIATblock(block_5);
+    var IAT_block_6 = genIATblock(block_6);
+    var IAT_block_7 = genIATblock(block_7);
 
 
     /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
@@ -476,8 +753,15 @@
     // timeline.push(RCinst);
     // timeline.push(RC);
     // timeline.push(IATinst_1);
-    timeline.push(IATinst_2);
-    timeline.push(test_iat);
+    // timeline.push(IATinst_2);
+    // timeline.push(iat_instructions_block_1);
+    // timeline.push(IAT_block_1);
+    // timeline.push(IAT_block_2);
+    timeline.push(IAT_block_3);
+    // timeline.push(IAT_block_4);
+    // timeline.push(IAT_block_5);
+    // timeline.push(IAT_block_6);
+    // timeline.push(IAT_block_7);
 
     /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
     jsPsych.init({
@@ -532,7 +816,7 @@
                     console.log("Data sent!");
                     // window.location = qlink;
                     //jsPsych.data.displayData();
-                });
+                });;
         }
     });
 </script>
