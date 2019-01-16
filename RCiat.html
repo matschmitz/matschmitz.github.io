@@ -20,10 +20,6 @@
     <script src="js/firebase.js"></script>
     <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
     <style>
-        * {
-            /* border: 1px solid red; */
-        }
-
         body {
             cursor: default;
         }
@@ -54,30 +50,14 @@
             height: 700px;
         }
 
-        /* .iat_table {
-            margin-bottom: 150px;
-            width: 100%;
-            table-layout: fixed;
-        } */
-
-        td {
-            /* width: 20%; */
-            border: 1px solid blue;
+        .iat_color_black {
+            color: black;
         }
 
-        .td_left {
-            /* text-align: left; */
-            /* padding-left: 50px; */
+        .iat_color_green {
+            color: green;
         }
 
-        .td_right {
-            /* text-align: right; */
-            /* padding-right: 50px; */
-        }
-
-        div {
-            border: 1px solid green;
-        }
     </style>
 </head>
 
@@ -224,6 +204,82 @@
     };
 
     // IAT --------------------------------------------------------------------------------------------------------------
+    // parameters
+    var left_key = "S";
+    var right_key = "L";
+    var label_good_bad = ['good', 'bad'];
+    var label_black_white = ['black', 'white'];
+
+    var IATstims_blackWhite = [
+        { categories: "black_white", category: "black", stimulus: "black1" },
+        { categories: "black_white", category: "black", stimulus: "black2" },
+        { categories: "black_white", category: "black", stimulus: "black3" },
+        { categories: "black_white", category: "white", stimulus: "white1" },
+        { categories: "black_white", category: "white", stimulus: "white2" },
+        { categories: "black_white", category: "white", stimulus: "white3" }
+    ];
+
+    var IATstims_goodBad = [
+        { categories: "good_bad", category: "good", stimulus: "good1" },
+        { categories: "good_bad", category: "good", stimulus: "good2" },
+        { categories: "good_bad", category: "good", stimulus: "good3" },
+        { categories: "good_bad", category: "bad", stimulus: "bad1" },
+        { categories: "good_bad", category: "bad", stimulus: "bad2" },
+        { categories: "good_bad", category: "bad", stimulus: "bad3" },
+    ];
+
+    // block    trials  Function        Left key        Right key
+    // 1        20      Practice        White           Black
+    // 2        20      Practice        Good            Bad
+    // 3        20      Practice        Good & White    Bad & Black
+    // 4        40      Test            Good & White    Bad & Black
+    // 5        20      Practice        Black           White
+    // 6        20      Practice        Good & Black    Bad & White
+    // 7        40      Test            Good & Black    Bad & White
+    // Note. For half the subjects, the positions of Blocks 1, 3, and 4 are 
+    // switched with those of Blocks 5, 6, and 7, respectively. 
+    // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
+    // a pleasant or an unpleasant word with trials that presented either a White or Black image.
+
+    // keys html
+    var left_key_html = "<span class='light-keys'><kbd>" + left_key + "</kbd></span>";
+    var right_key_html = "<span class='light-keys'><kbd>" + right_key + "</kbd></span>";
+
+    // randomize label side
+    label_good_bad = _.shuffle(label_good_bad);
+    label_black_white = _.shuffle(label_black_white);
+
+    // generate labels
+    var block_1_label_left = label_black_white[0];
+    var block_1_label_right = label_black_white[1];
+
+    var block_2_label_left = label_good_bad[0];
+    var block_2_label_right = label_good_bad[1];
+
+    var block_3_label_left_top = label_black_white[0];
+    var block_3_label_left_bot = label_good_bad[0];
+    var block_3_label_right_top = label_black_white[1];
+    var block_3_label_right_bot = label_good_bad[1];
+
+    var block_4_label_left_top = block_3_label_left_top;
+    var block_4_label_left_bot = block_3_label_left_bot;
+    var block_4_label_right_top = block_3_label_right_top;
+    var block_4_label_right_bot = block_3_label_right_bot;
+
+    var block_5_label_left = label_black_white[1];
+    var block_5_label_right = label_black_white[0];
+
+    var block_6_label_left_top = label_black_white[1];
+    var block_6_label_left_bot = label_good_bad[0];
+    var block_6_label_right_top = label_black_white[0];
+    var block_6_label_right_bot = label_good_bad[1];
+
+    var block_7_label_left_bot = block_6_label_left_top;
+    var block_7_label_left_top = block_6_label_left_bot;
+    var block_7_label_right_bot = block_6_label_right_top;
+    var block_7_label_right_top = block_6_label_right_bot;
+
+    // general instructions
     var IATinst_1 = {
         type: "html-keyboard-response",
         post_trial_gap: 200,
@@ -232,12 +288,12 @@
             var html = "";
             html += "<h1>Tâche de catégorization de mots et prénoms</h1>";
             html += "<p class='justify'>Dans la tâche suivante, un ensemble de mots ou prénoms vous sera présenté et ";
-            html += "vous devrez classer ceux-ci dans des groupes.";
-            html += "Cette tâche requiert que vousclassiez ces items aussi <b>vite</b> que vous pouvez ";
+            html += "vous devrez classer ceux-ci dans des groupes. ";
+            html += "Cette tâche requiert que vous classiez ces items aussi <b>vite</b> que vous pouvez ";
             html += "tout en faisant aussi <b>peu d’erreurs</b> que possible. Aller trop lentement ou ";
             html += "faire trop d’erreurs rendra votre résultat ininterprétable.</br></br>";
             html += "Comme vous le verrez, vous devrez trier les mots selon que ceux-ci sont bons ou mauvais; ";
-            html += "et les prénoms selon que ceux-ci sont généralement associés aux Maghrébins ou aux Français.";
+            html += "et les prénoms selon que ceux-ci sont généralement associés aux Maghrébins ou aux Français. ";
             html += "Sur la slide suivante nous vous présenterons une liste de labels désignant ";
             html += "les catégories et les items qui forment chacune de ces catégories.</p></br>";
             html += "<h3 style='text-align: left'>Gardez à l’esprit</h3>";
@@ -288,299 +344,178 @@
         }
     };
 
-
-
-    // randomize label side
-    var label_good_bad = _.shuffle(['good', 'bad']);
-    var label_black_white = _.shuffle(['black', 'white']);
-
-    // generate labels
-    var block_1_label_left = label_black_white[0];
-    var block_1_label_right = label_black_white[1];
-
-    var block_2_label_left = label_good_bad[0];
-    var block_2_label_right = label_good_bad[1];
-
-    var block_3_label_left_top = label_good_bad[0];
-    var block_3_label_left_bot = label_black_white[0];
-    var block_3_label_right_top = label_good_bad[1];
-    var block_3_label_right_bot = label_black_white[1];
-
-    var block_4_label_left_top = block_3_label_left_top;
-    var block_4_label_left_bot = block_3_label_left_bot;
-    var block_4_label_right_top = block_3_label_right_top;
-    var block_4_label_right_bot = block_3_label_right_bot;
-
-    var block_5_label_left = label_black_white[1];
-    var block_5_label_right = label_black_white[0];
-
-    var block_6_label_left_top = label_good_bad[0];
-    var block_6_label_left_bot = label_black_white[1];
-    var block_6_label_right_top = label_good_bad[1];
-    var block_6_label_right_bot = label_black_white[0];
-
-    var block_7_label_left_top = block_6_label_left_top;
-    var block_7_label_left_bot = block_6_label_left_bot;
-    var block_7_label_right_top = block_6_label_right_top;
-    var block_7_label_right_bot = block_6_label_right_bot;
-
-    var iat_instructions_block_1 = {
+    // blocks instructions
+    var IATinst_block_1 = {
         type: 'html-keyboard-response',
         choices: [32],
-        stimulus:
-            "<table class='iat_table'>" +
-            "<tr><td class='td_left'>Appuyez sur <span class='light-keys'><kbd>S</kbd></span> pour :</td>" + 
-            "<td class='td_right'>Appuyez sur <span class='light-keys'><kbd>L</kbd></span> pour :</td></tr>" +
-            "<tr><td class='td_left'>" + block_1_label_left + "</td>" +
-            "<td class='td_right'>" + block_1_label_right + "</td></tr>" +
-            "</table>"
-            // "<div style='position: relative; top: 20%; left: 20%'>" +
-            // "<p>Press <span class='light-keys'><kbd>S</kbd></span> for:<br><span class='iat-category self-other'>" +
-            // block_1_label_left +
-            // "</span></p>" +
-            // "</div>" +
-            // "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
-            // " <span class='light-keys'><kbd>L</kbd></span> for:<br><span class='iat-category self-other'>" +
-            // block_1_label_right +
-            // "</span></p>" +
-            // "</div>" +
-            // "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
-            // "<p class='instructions'>" +
-            // "In the next task, you will have to put your middle or index fingers on the <span class='key'>E</span> " +
-            // "and <span class='key'>I</span> keys of your keyboard. Words representing the categories at the top " +
-            // "will appear one-by-one in the middle of the screen. " +
-            // "When the item belongs to a category on the left, press the <span class='key'>E</span> key; when the item " +
-            // "belongs to a category on the right, press the <span class='key'>I</span> key. Items belong to only one category. " +
-            // "If you make an error, an X will appear – fix the error by hitting the other key." +
-            // "</p>" +
-            // "<p class='instructions'>" +
-            // "This is a timed sorting task. GO AS FAST AS YOU CAN while making as few mistakes as possible. " +
-            // "</p>" +
-            // "</div> " +
-            // "<br>" +
-            // "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_1_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_1_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Mettez vos indexes ou majeurs sur les touches " + left_key_html + " et " +
+            right_key_html + " de votre clavier. Des <span class='iat_color_black'>prénoms</span> appartenant aux catégories indiquées au sommet vont apparaître " +
+            "au milieu de l'écran. Quand l'item appartient à une catégorie sur la gauche, appuyez sur la touche " + left_key_html + "; " +
+            "lorsque l'item appartient à une catégorie sur la droite, appuyez sur la touche " + right_key_html + ".</br></br>" +
+            "Les items appartiennent à une seule catégorie. Si vous faites une erreur, un " +
+            "<span style='color: red'>X</span> rouge apparaîtra; corrigez l'erreur en pressant l'autre touche.</br></br>" +
+            "La rapidité de vos réponses à cette tâche de classification est importante. " +
+            "Allez <b>aussi vite que possible</b> tout en faisant aussi <b>peu d'erreurs</b> que possible. " +
+            "Si vous allez trop lentement ou faites trop d'erreurs, cela produira un score ininterprétable. " +
+            "Cette tâche durera environ 5 minutes.</p>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+        on_load: function () {
+            $('#jspsych-content').css({ "max-width": "100%" });
+            $('#jspsych-content').css({ "margin": "0px" });
+            $('#jspsych-content').css({ "width": "900px" });
+        },
     };
 
-    // var iat_instructions_block_2 = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'> <p>Press " +
-    //         "<span class='key'>E</span> for:<br><span class='iat-category maths-arts'>" +
-    //         block_2_left_label +
-    //         "</span></p>" +
-    //         "</div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
-    //         "<span class='key'>I</span> for:<br><span class='iat-category maths-arts'>" +
-    //         block_2_right_label +
-    //         "</span></p>" +
-    //         "</div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
-    //         "<p class='instructions'>" +
-    //         "See above, the categories have changed. The items for sorting have changed as well. " +
-    //         "The rules, however, are the same." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "When the items belong to a category to the left, press the <span class='key'>E</span> key; " +
-    //         "when the item belongs to a category on the right, press the <span class='key'>I</span> key. " +
-    //         "Items belong to only one category. " +
-    //         "An X will appear after an error – fix the error by hitting the other key. " +
-    //         "GO AS FAST AS YOU CAN. " +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br>" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_2 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_green'>" + block_2_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_green'>" + block_2_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les <b>catégories ont changé</b>. Les <span class='iat_color_green'>mots</span> à classer ont changé également. " +
+            "La façon de procéder, par contre, est toujours la même.</br></br>" +
+            "Quand l'item appartient à une catégorie sur la gauche, appuyez sur la touche " + left_key_html + "; " +
+            "lorsque l'item appartient à une catégorie sur la droite, appuyez sur la touche " + right_key_html + ".</br></br>" +
+            "Les items appartiennent à une seule catégorie. Si vous faites une erreur, un " +
+            "<span style='color: red'>X</span> rouge apparaîtra; corrigez l'erreur en pressant l'autre touche.</br></br>" +
+            "La rapidité de vos réponses à cette tâche de classification est importante. " +
+            "Allez <b>aussi vite que possible</b> tout en faisant aussi peu d'erreurs que possible." +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // var iat_instructions_block_3 = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
-    //         "Press <span class='key'>E</span> for:<br> " +
-    //         "<span class='iat-category self-other'>" + block_3_left_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_3_left_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
-    //         "Press <span class='key'>I</span>  for:<br>" +
-    //         "<span class='iat-category self-other'>" + block_3_right_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_3_right_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
-    //         "<p class='instructions'>" +
-    //         "See above, the four categories you saw separately now appear together. " +
-    //         "Remember, each item belongs to only one group." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
-    //         "and items may help to identify the appropriate category. " +
-    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
-    //         "items into the four groups left and right, and correct errors by hitting the other key." +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br />" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_3 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_3_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_3_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_3_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_3_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les quatre catégories que vous avez vues séparément, apparaissent maintenant ensemble. " +
+            "Rappelez-vous que chaque item appartient seulement à un groupe.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noires</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // var iat_instructions_block_3_test = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
-    //         "Press <span class='key'>E</span> for:<br> " +
-    //         "<span class='iat-category self-other'>" + block_3_left_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_3_left_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
-    //         "Press <span class='key'>I</span>  for:<br>" +
-    //         "<span class='iat-category self-other'>" + block_3_right_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_3_right_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
-    //         "<p class='instructions'>" +
-    //         "Sort the same four categories again. Remember to go as fast as you can while " +
-    //         "making as few mistakes as possible." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
-    //         "and items may help to identify the appropriate category. " +
-    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
-    //         "items into the four groups left and right, and correct errors by hitting the other key." +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br />" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_4 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_4_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_4_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_4_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_4_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Classez à nouveau les quatres mêmes catégories. Rappelez-vous d'aller aussi vite que possible tout en faisant " +
+            "aussi peu d'erreurs que possible.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noires</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // var iat_instructions_block_4 = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'> <p>Press " +
-    //         "<span class='key'>E</span> for:<br><span class='iat-category maths-arts'>" +
-    //         block_4_left_label +
-    //         "</span></p>" +
-    //         "</div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>Press " +
-    //         "<span class='key'>I</span> for:<br><span class='iat-category maths-arts'>" +
-    //         block_4_right_label +
-    //         "</span></p>" +
-    //         "</div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%, width:80%;'> " +
-    //         "<p class='instructions'>" +
-    //         "Notice above, there are only two categories and they have switched positions. " +
-    //         "The concept that was previously on the left is now on the right, and the concept " +
-    //         "that was on the right is now on the left. Practice this new configuration." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys " +
-    //         "to categorize items left and right, and correct error " +
-    //         "by hitting the other key." +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br>" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_5 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_5_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_5_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Remarquez ci-dessus: il y a seulement <b>deux catéories</b> et <b>leurs positions ont changé</b>. " +
+            "Le concept qui précédemment était sur la gauche est maintenant sur la droite, et le concept qui " +
+            "qui était sur la droite est maintenant sur la gauche. Exercez cette nouvelle configuration.</br></br>" +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // var iat_instructions_block_5 = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
-    //         "Press <span class='key'>E</span> for:<br> " +
-    //         "<span class='iat-category self-other'>" + block_5_left_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_5_left_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
-    //         "Press <span class='key'>I</span>  for:<br>" +
-    //         "<span class='iat-category self-other'>" + block_5_right_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_5_right_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
-    //         "<p class='instructions'>" +
-    //         "See above, the four categories now appear together in a new configuration. " +
-    //         "Remember, each item belongs to only one group." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys " +
-    //         "to categorize items into the four groups left and right, and correct error " +
-    //         "by hitting the other key." +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br />" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_6 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_6_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_6_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_6_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_6_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les quatre catégories apparaissent maintenant ensemble dans une <b>nouvelle configuration</b>. " +
+            "Rappelez-vous que chaque item appartient seulement à un groupe.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noires</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // var iat_instructions_block_5_test = {
-    //     type: 'html-keyboard-response',
-    //     stimulus:
-    //         "<div style='position: absolute; top: 18%; left: 20%'><p>" +
-    //         "Press <span class='key'>E</span> for:<br> " +
-    //         "<span class='iat-category self-other'>" + block_5_left_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_5_left_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div style='position: absolute; top: 18%; right: 20%'><p>" +
-    //         "Press <span class='key'>I</span>  for:<br>" +
-    //         "<span class='iat-category self-other'>" + block_5_right_label_top + "</span>" +
-    //         "<br>or<br>" +
-    //         "<span class='iat-category maths-arts'>" + block_5_right_label_bottom + "</span>" +
-    //         "</p></div>" +
-    //         "<div class='iat-instructions' style='position: relative; top: 42%'> " +
-    //         "<p class='instructions'>" +
-    //         "Sort the same four categories again. Remember to go as fast as you can while " +
-    //         "making as few mistakes as possible." +
-    //         "</p>" +
-    //         "<p class='instructions'>" +
-    //         "The <span class='maths-arts'>green</span> and <span class='self-other'>black</span> labels " +
-    //         "and items may help to identify the appropriate category. " +
-    //         "Use the <span class='key'>E</span> and <span class='key'>I</span> keys to categorize " +
-    //         "items into the four groups left and right, and correct errors by hitting the other key." +
-    //         "</p>" +
-    //         "</div> " +
-    //         "<br />" +
-    //         "<p class = 'continue-instructions'>Press <span class='key'>space bar</span> when you are ready to start.</p>",
-    //     choices: [32]
-    // };
+    var IATinst_block_7 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_7_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_7_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_7_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_7_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Classez à nouveau les quatres mêmes catégories. Rappelez-vous d'aller aussi vite que possible tout en faisant " +
+            "aussi peu d'erreurs que possible.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noires</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
 
-    // Label -----------------------------------
-    // block    trials  Function        Left key        Right key
-    // 1        20      Practice        White           Black
-    // 2        20      Practice        Good            Bad
-    // 3        20      Practice        Good & White    Bad & Black
-    // 4        40      Test            Good & White    Bad & Black
-    // 5        20      Practice        Black           White
-    // 6        20      Practice        Good & Black    Bad & White
-    // 7        40      Test            Good & Black    Bad & White
-    // Note. For half the subjects, the positions of Blocks 1, 3, and 4 are 
-    // switched with those of Blocks 5, 6, and 7, respectively. 
-    // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
-    // a pleasant or an unpleasant word with trials that presented either a White or Black image.
-
-    var IATstims_blackWhite = [
-        { categories: "black_white", category: "black", stimulus: "black1" },
-        { categories: "black_white", category: "black", stimulus: "black2" },
-        { categories: "black_white", category: "black", stimulus: "black3" },
-        { categories: "black_white", category: "white", stimulus: "white1" },
-        { categories: "black_white", category: "white", stimulus: "white2" },
-        { categories: "black_white", category: "white", stimulus: "white3" }
-    ];
-
-    var IATstims_goodBad = [
-        { categories: "good_bad", category: "good", stimulus: "good1" },
-        { categories: "good_bad", category: "good", stimulus: "good2" },
-        { categories: "good_bad", category: "good", stimulus: "good3" },
-        { categories: "good_bad", category: "bad", stimulus: "bad1" },
-        { categories: "good_bad", category: "bad", stimulus: "bad2" },
-        { categories: "good_bad", category: "bad", stimulus: "bad3" },
-    ];
-
+    // IAT functions
     var shuffleIATstims = function (stims) {
         // Alterenate categories blackWhite vs. goodBad
         var n = stims.length / 2;
@@ -608,13 +543,13 @@
             timeline: [{
                 type: 'iat-html',
                 stimulus: jsPsych.timelineVariable('stimulus'),
-                html_when_wrong: '<span style="color: red; font-size: 80px">X</span>',
+                html_when_wrong: '<span style="color: red; font-size: 50px">X</span>',
                 stim_key_association: jsPsych.timelineVariable('correct_key'),
-                bottom_instructions: "<p>Si vous appuyez sur la mauvaise touche, un X rouge apparaîtra. Appuyez sur l'autre touche pour continuer</p>",
+                bottom_instructions: "<p>Si vous appuyez sur la mauvaise touche, un <span style='color: red'>X</span> rouge apparaîtra. Appuyez sur l'autre touche pour continuer</p>",
                 force_correct_key_press: jsPsych.timelineVariable('type') == 'practice' ? true : false,
                 display_feedback: true,
-                left_category_key: 'S',
-                right_category_key: 'L',
+                left_category_key: left_key,
+                right_category_key: right_key,
                 left_category_label: jsPsych.timelineVariable('labels_left'),
                 right_category_label: jsPsych.timelineVariable('labels_right'),
                 response_ends_trial: true
@@ -641,9 +576,14 @@
         return trial_block;
     };
 
+    // block stims
     var block_1 = _.cloneDeep(IATstims_blackWhite);
     block_1 = _.shuffle(block_1);
     block_1.map(function (x) {
+        var left_top = "<span class='iat_color_black'>" + block_1_label_left + "</span>";
+        var left_bot = undefined;
+        var right_top = "<span class='iat_color_black'>" + block_1_label_right + "</span>";
+        var right_bot = undefined;
         x.label_left_top = block_1_label_left;
         x.label_left_bot = undefined;
         x.label_right_top = block_1_label_right;
@@ -739,6 +679,7 @@
         x.blockNum = 7;
     });
 
+    // generate IAT blocks
     var IAT_block_1 = genIATblock(block_1);
     var IAT_block_2 = genIATblock(block_2);
     var IAT_block_3 = genIATblock(block_3);
@@ -752,16 +693,22 @@
     // timeline.push(activeFullscreen);
     // timeline.push(RCinst);
     // timeline.push(RC);
-    // timeline.push(IATinst_1);
-    // timeline.push(IATinst_2);
-    // timeline.push(iat_instructions_block_1);
-    // timeline.push(IAT_block_1);
-    // timeline.push(IAT_block_2);
+    timeline.push(IATinst_1);
+    timeline.push(IATinst_2);
+    timeline.push(IATinst_block_1);
+    timeline.push(IAT_block_1);
+    timeline.push(IATinst_block_2);
+    timeline.push(IAT_block_2);
+    timeline.push(IATinst_block_3);
     timeline.push(IAT_block_3);
-    // timeline.push(IAT_block_4);
-    // timeline.push(IAT_block_5);
-    // timeline.push(IAT_block_6);
-    // timeline.push(IAT_block_7);
+    timeline.push(IATinst_block_4);
+    timeline.push(IAT_block_4);
+    timeline.push(IATinst_block_5);
+    timeline.push(IAT_block_5);
+    timeline.push(IATinst_block_6);
+    timeline.push(IAT_block_6);
+    timeline.push(IATinst_block_7);
+    timeline.push(IAT_block_7);
 
     /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
     jsPsych.init({

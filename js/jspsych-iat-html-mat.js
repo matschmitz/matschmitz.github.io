@@ -105,19 +105,19 @@ jsPsych.plugins['iat-html'] = (function () {
 
   plugin.trial = function (display_element, trial) {
 
-    var left_labels = "<p>Press <span class='light-keys'><kbd>" + trial.left_category_key + "</kbd></span> for:</br>";
-    var right_labels = "<p>Press <span class='light-keys'><kbd>" + trial.right_category_key + "</kbd></span> for:</br>";
+    var left_labels = "<p>Appuyez sur <span class='light-keys'><kbd>" + trial.left_category_key + "</kbd></span> pour :</br>";
+    var right_labels = "<p>Appuyez sur <span class='light-keys'><kbd>" + trial.right_category_key + "</kbd></span> pour :</br>";
 
     if (trial.left_category_label.length == 1) {
       left_labels += trial.left_category_label[0].bold() + "</p>";
     } else {
-      left_labels += trial.left_category_label[0].bold() + "</br>or</br>" + trial.left_category_label[1].bold() + "</p>";
+      left_labels += trial.left_category_label[0].bold() + "</br>ou</br>" + trial.left_category_label[1].bold() + "</p>";
     }
 
     if (trial.right_category_label.length == 1) {
       right_labels += trial.right_category_label[0].bold() + "</p>";
     } else {
-      right_labels += trial.right_category_label[0].bold() + "</br>or</br>" + trial.right_category_label[1].bold() + "</p>";
+      right_labels += trial.right_category_label[0].bold() + "</br>ou</br>" + trial.right_category_label[1].bold() + "</p>";
     }
 
     var html_str = "";
