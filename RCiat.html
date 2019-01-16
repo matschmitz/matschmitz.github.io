@@ -57,7 +57,6 @@
         .iat_color_green {
             color: green;
         }
-
     </style>
 </head>
 
@@ -539,19 +538,66 @@
     var genIATblock = function (stims) {
         var trial_block = {
             timeline_variables: stims,
-            randomize_order: true,
             timeline: [{
                 type: 'iat-html',
-                stimulus: jsPsych.timelineVariable('stimulus'),
+                stimulus: function () {
+                    if (jsPsych.timelineVariable('category', true) == label_good_bad[0] | jsPsych.timelineVariable('category', true) == label_good_bad[1]) {
+                        return "<span class='iat_color_green'>" + jsPsych.timelineVariable('stimulus', true) + "</span>";
+                    } else {
+                        return "<span class='iat_color_black'>" + jsPsych.timelineVariable('stimulus', true) + "</span>";
+                    };
+                },
                 html_when_wrong: '<span style="color: red; font-size: 50px">X</span>',
                 stim_key_association: jsPsych.timelineVariable('correct_key'),
                 bottom_instructions: "<p>Si vous appuyez sur la mauvaise touche, un <span style='color: red'>X</span> rouge apparaîtra. Appuyez sur l'autre touche pour continuer</p>",
-                force_correct_key_press: jsPsych.timelineVariable('type') == 'practice' ? true : false,
+                force_correct_key_press: true,
                 display_feedback: true,
                 left_category_key: left_key,
                 right_category_key: right_key,
-                left_category_label: jsPsych.timelineVariable('labels_left'),
-                right_category_label: jsPsych.timelineVariable('labels_right'),
+                left_category_label: function () {
+                    var label = jsPsych.timelineVariable('labels_left', true);
+                    if (label.length == 1) {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                    } else {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                        if (label[1] == label_good_bad[0] | label[1] == label_good_bad[1]) {
+                            label[1] = "<span class='iat_color_green'>" + label[1] + "</span>";
+                        } else {
+                            label[1] = "<span class='iat_color_black'>" + label[1] + "</span>";
+                        };
+                    };
+                    return label;
+                },
+                right_category_label: function () {
+                    var label = jsPsych.timelineVariable('labels_right', true);
+                    if (label.length == 1) {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                    } else {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                        if (label[1] == label_good_bad[0] | label[1] == label_good_bad[1]) {
+                            label[1] = "<span class='iat_color_green'>" + label[1] + "</span>";
+                        } else {
+                            label[1] = "<span class='iat_color_black'>" + label[1] + "</span>";
+                        };
+                    };
+                    return label;
+                },
                 response_ends_trial: true
             }],
             data: {
@@ -562,7 +608,8 @@
                 blockNum: jsPsych.timelineVariable('blockNum'),
                 type: jsPsych.timelineVariable('type'),
                 category: jsPsych.timelineVariable('category'),
-                categories: jsPsych.timelineVariable('categories')
+                categories: jsPsych.timelineVariable('categories'),
+                task: "IAT",
             },
             on_load: function () {
                 $('#jspsych-content').css({ "max-width": "100%" });
@@ -580,10 +627,6 @@
     var block_1 = _.cloneDeep(IATstims_blackWhite);
     block_1 = _.shuffle(block_1);
     block_1.map(function (x) {
-        var left_top = "<span class='iat_color_black'>" + block_1_label_left + "</span>";
-        var left_bot = undefined;
-        var right_top = "<span class='iat_color_black'>" + block_1_label_right + "</span>";
-        var right_bot = undefined;
         x.label_left_top = block_1_label_left;
         x.label_left_bot = undefined;
         x.label_right_top = block_1_label_right;
@@ -753,6 +796,7 @@
             });
 
             var dataRC = data.filter({ task: 'RC' }).csv();
+            var dataIAT = data.filter({ task: 'IAT' }).csv();
             jsPsych.data.displayData();
 
             /* Send data to Firebase and redirect to Qualtrics */
@@ -760,9 +804,15 @@
                 .ref("RCiat/" + id + "/")
                 .update({ dataRC })
                 .then(function () {
-                    console.log("Data sent!");
-                    // window.location = qlink;
-                    //jsPsych.data.displayData();
+                    console.log("Data RC sent!");
+                    database
+                        .ref("RCiat/" + id + "/")
+                        .update({ dataIAT })
+                        .then(function () {
+                            console.log("Data IAT sent!");
+                            // window.location = qlink;
+                            //jsPsych.data.displayData();
+                        });;
                 });;
         }
     });

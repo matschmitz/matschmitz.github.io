@@ -136,9 +136,9 @@ jsPsych.plugins['iat-html'] = (function () {
     html_str += "<div id='wrongImgID'>";
     if (trial.display_feedback === true) {
       html_str += "<div id='wrongImgContainer' style='visibility: hidden;'><p>" + trial.html_when_wrong + "</p></div>";
+      html_str += "<p id='bottom_instructions'>" + trial.bottom_instructions + "</p>";
     };
 
-    html_str += "<p id='bottom_instructions'>" + trial.bottom_instructions + "</p>";
     html_str += "</div>";
 
     display_element.innerHTML = html_str;
