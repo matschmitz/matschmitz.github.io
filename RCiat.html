@@ -66,7 +66,7 @@
     /* Parameters */
     var numOfPairsRC02 = 550;  // Total number of pair images images (inv & ori)
     var numOfPairsRC12 = 1500; // Total number of pair images images (inv & ori)
-    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_b96oKCD3OPhU3UF';
+    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eFM8wo1wCZbiWAB';
 
     /* Initial variables */
     var timeline = [];
@@ -206,26 +206,63 @@
     // parameters
     var left_key = "S";
     var right_key = "L";
-    var label_good_bad = ['good', 'bad'];
-    var label_black_white = ['black', 'white'];
+    var label_good_bad = ['bon', 'mauvais'];
+    var label_black_white = ['Maghrébins', 'Français'];
 
-    var IATstims_blackWhite = [
-        { categories: "black_white", category: "black", stimulus: "black1" },
-        { categories: "black_white", category: "black", stimulus: "black2" },
-        { categories: "black_white", category: "black", stimulus: "black3" },
-        { categories: "black_white", category: "white", stimulus: "white1" },
-        { categories: "black_white", category: "white", stimulus: "white2" },
-        { categories: "black_white", category: "white", stimulus: "white3" }
+    var IATstims_black = [
+        { categories: "black_white", category: label_black_white[0], stimulus: "Mustafa" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Farid" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Zahir" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Youssef" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Kader" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Hassan" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Ahmed" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Mustafa" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Hamid" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Ali" },
     ];
 
-    var IATstims_goodBad = [
-        { categories: "good_bad", category: "good", stimulus: "good1" },
-        { categories: "good_bad", category: "good", stimulus: "good2" },
-        { categories: "good_bad", category: "good", stimulus: "good3" },
-        { categories: "good_bad", category: "bad", stimulus: "bad1" },
-        { categories: "good_bad", category: "bad", stimulus: "bad2" },
-        { categories: "good_bad", category: "bad", stimulus: "bad3" },
+    var IATstims_white = [
+        { categories: "black_white", category: label_black_white[1], stimulus: "Benoît" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Thibault" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Blaise" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Bastien" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Gautier" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Rémy" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Matthieu" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Fabrice" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Sylvain" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Clément" },
     ];
+
+    var IATstims_good = [
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "amour" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "magnifique" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "plaisir" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "rires" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "merveilleux" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "joie" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "heureux" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "paix" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "liberté" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "vacances" },
+    ];
+
+    var IATstims_bad = [
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "blessure" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "épouvantable" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "horrible" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "mal" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "affreux" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "échec" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "méchant" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "douleur" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "prison" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "malade" },
+    ];
+
+    var IATstims_blackWhite = _.flattenDeep([IATstims_black, IATstims_white]);
+    var IATstims_goodBad = _.flattenDeep([IATstims_good, IATstims_bad]);
 
     // block    trials  Function        Left key        Right key
     // 1        20      Practice        White           Black
@@ -239,6 +276,9 @@
     // switched with those of Blocks 5, 6, and 7, respectively. 
     // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
     // a pleasant or an unpleasant word with trials that presented either a White or Black image.
+
+
+    // dscore = rating * cond * time + (1 | id)
 
     // keys html
     var left_key_html = "<span class='light-keys'><kbd>" + left_key + "</kbd></span>";
@@ -273,10 +313,10 @@
     var block_6_label_right_top = label_black_white[0];
     var block_6_label_right_bot = label_good_bad[1];
 
-    var block_7_label_left_bot = block_6_label_left_top;
-    var block_7_label_left_top = block_6_label_left_bot;
-    var block_7_label_right_bot = block_6_label_right_top;
-    var block_7_label_right_top = block_6_label_right_bot;
+    var block_7_label_left_top = block_6_label_left_top;
+    var block_7_label_left_bot = block_6_label_left_bot;
+    var block_7_label_right_top = block_6_label_right_top;
+    var block_7_label_right_bot = block_6_label_right_bot;
 
     // general instructions
     var IATinst_1 = {
@@ -322,20 +362,20 @@
             html += "<th align='left'>Item</th>";
             html += "</tr>";
             html += "<tr>";
-            html += "<td>BON</td>";
-            html += "<td align='left'>Caresse, Liberté, Santé, Amour, Paix, Cheer, Ami, Cieux, Loyal, Plaisir, Diamant, Doux, Honnête, Chanceux, Arc en ciel, Diplôme, Cadeau, Honneur, Miracle, Lever du soleil, Famille, Heureux, Rire, Paradis, Vacances</td>";
+            html += "<td>Bon</td>";
+            html += "<td align='left'>" + IATstims_good.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
             html += "</tr>";
             html += "<tr>";
-            html += "<td>MAUVAIS</td>";
-            html += "<td align='left'>Abuse, Crash, Filth, Murder, Sickness, Accident, Death, Grief, Poison, Stink, Assault, Disaster, Hatred, Pollute, Tragedy, Bomb, Divorce, Jail, Poverty, Ugly, Cancer, Evil, Kill, Rotten, Vomit</td>";
+            html += "<td>Mauvais</td>";
+            html += "<td align='left'>" + IATstims_bad.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
             html += "</tr>";
             html += "<tr>";
-            html += "<td>MAGHREBINS</td>";
-            html += "<td align='left'>Adam, Chip, Harry, Josh, Roger, Alan, Franck, Ian, Justin, Ryan, Andrew, Fred, Jack, Matthew, Stephen, Brad, Greg, Jed, Paul, Todd, Brandon, Hank, Jonathan, Peter, Wilbur</td>";
+            html += "<td>Maghrébins</td>";
+            html += "<td align='left'>" + IATstims_black.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
             html += "</tr>";
             html += "<tr>";
-            html += "<td>FRANCAIS</td>";
-            html += "<td align='left'>Alonzo, Jamel, Lerone, Percell, Theo, Alphonse, Jerome, Leroy, Rasaan, Rorrance, Darnell, Lamar, Lionel, Rashaun, Tyree, Deion, Lamont, Malik, Terrence, Tyrone, Everol, Lavon, Marcellus, Terryl, Wardell</td>";
+            html += "<td>Français</td>";
+            html += "<td align='left'>" + IATstims_white.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
             html += "</tr>";
             html += "</table>";
             html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
@@ -519,8 +559,8 @@
         // Alterenate categories blackWhite vs. goodBad
         var n = stims.length / 2;
         var chunkedStims = _.chunk(stims, n);
-        var stims1 = _.shuffle(chunkedStims[0]);
-        var stims2 = _.shuffle(chunkedStims[1]);
+        var stims1 = jsPsych.randomization.shuffleNoRepeats(chunkedStims[0]);
+        var stims2 = jsPsych.randomization.shuffleNoRepeats(chunkedStims[1]);
 
         var stims12 = stims1.map(function (e, i) { // merge two arrays so that the values alternate
             return [e, stims2[i]];
@@ -609,6 +649,7 @@
                 type: jsPsych.timelineVariable('type'),
                 category: jsPsych.timelineVariable('category'),
                 categories: jsPsych.timelineVariable('categories'),
+                stimulus: jsPsych.timelineVariable('stimulus'),
                 task: "IAT",
             },
             on_load: function () {
@@ -732,10 +773,57 @@
     var IAT_block_7 = genIATblock(block_7);
 
 
+    // DEMO --------------------------------------------------------------------------------------------------------------
+    var age = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: "Veuillez indiquer votre âge :", rows: 1, columns: 10 }],
+            button_label: "Continuer",
+        }],
+        loop_function: function (data) {
+            var age = data.values()[0].responses;
+            var age = JSON.parse(age).Q0;
+            if (age == "") {
+                alert("Veuillez indiquer votre âge !");
+                return true;
+            }
+        },
+        on_load: function () {
+            $('#jspsych-content').css({ "margin": "100px" });
+        },
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                age: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
+    var gender = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "Veuillez indiquer votre genre :", options: ['homme', 'femme', 'autre'], required: true }],
+        button_label: "Continuer",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                gender: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
+    var origin = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "De quelle origine vous estimez-vous ?", options: ["D'origine belge", "D'origine française", "D'origine maghrébine", "D'une autre origine"], required: true }],
+        button_label: "Continuer",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                origin: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
     /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
-    // timeline.push(activeFullscreen);
-    // timeline.push(RCinst);
-    // timeline.push(RC);
+    timeline.push(activeFullscreen);
+    timeline.push(RCinst);
+    timeline.push(RC);
     timeline.push(IATinst_1);
     timeline.push(IATinst_2);
     timeline.push(IATinst_block_1);
@@ -752,15 +840,18 @@
     timeline.push(IAT_block_6);
     timeline.push(IATinst_block_7);
     timeline.push(IAT_block_7);
+    timeline.push(age);
+    timeline.push(gender);
+    timeline.push(origin);
 
     /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
     jsPsych.init({
         timeline: _.flattenDeep(timeline),
-        // preload_images: preloadimages,
+        preload_images: preloadimages,
         max_load_time: 1000 * 900,
         exclusions: {
-            // min_width: 1100,
-            // min_height: 700,
+            min_width: 1100,
+            min_height: 700,
         },
         on_interaction_data_update: function (data) {
             // console.log(JSON.stringify(data))
@@ -781,14 +872,14 @@
             if (id == null) { id = jsPsych.randomization.randomID(15) };
 
             /* Qualtrics url parameters */
-            qlink += "?id=" + id;
-            qlink += "&cond=" + RCcondition;
-            qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-            qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            qlink += "&screenWidth=" + screen.width || 0;
-            qlink += "&screenHeight=" + screen.height || 0;
-            qlink += "&userAgent=" + navigator.userAgent;
-            qlink += "&totalTime=" + jsPsych.totalTime();
+            // qlink += "?id=" + id;
+            // qlink += "&cond=" + RCcondition;
+            // qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            // qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            // qlink += "&screenWidth=" + screen.width || 0;
+            // qlink += "&screenHeight=" + screen.height || 0;
+            // qlink += "&userAgent=" + navigator.userAgent;
+            // qlink += "&totalTime=" + jsPsych.totalTime();
 
             /* jsPsych: add data to every trial */
             jsPsych.data.addProperties({
@@ -797,21 +888,21 @@
 
             var dataRC = data.filter({ task: 'RC' }).csv();
             var dataIAT = data.filter({ task: 'IAT' }).csv();
-            jsPsych.data.displayData();
+            // jsPsych.data.displayData();
 
             /* Send data to Firebase and redirect to Qualtrics */
             database
-                .ref("RCiat/" + id + "/")
+                .ref("RCiat/" + "RC/" + id + "/")
                 .update({ dataRC })
                 .then(function () {
                     console.log("Data RC sent!");
                     database
-                        .ref("RCiat/" + id + "/")
+                        .ref("RCiat/" + "IAT/" + id + "/")
                         .update({ dataIAT })
                         .then(function () {
                             console.log("Data IAT sent!");
-                            // window.location = qlink;
-                            //jsPsych.data.displayData();
+                            window.location = qlink;
+                            // jsPsych.data.displayData();
                         });;
                 });;
         }
