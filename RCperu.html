@@ -1,0 +1,189 @@
+<!-- TO DO -->
+<!-- WINDOW RESTRICTION! -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>exp</title>
+    <script src="jspsych-6.0.3/jspsych.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="js/jspsych-html-mouse-response.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/firebase.js"></script>
+    <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            cursor: default;
+        }
+
+        .rcimg-12 {
+            cursor: pointer;
+        }
+
+        .rcimg-12 {
+            margin: 10px;
+        }
+
+        .rcimg-12:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .jspsych-content-wrapper {
+            width: 900px;
+            height: 700px;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
+    /* Parameters */
+    var numOfPairsRC12 = 600; // Total number of pair images images (inv & ori)
+    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eFM8wo1wCZbiWAB';
+    var gitImg = "https://matschmitz.github.io/noisyFaces/noisyFacesPeru/";
+
+    /* Initial variables */
+    var timeline = [];
+    var preloadimages = [];
+    var id = jsPsych.data.getURLVariable("id");
+
+    // Consent ---------------------------------------------------------------------------------------------------------------
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: function () {
+            html = "";
+            html += "<h1>Consentimiento informado</h1>";
+            html += "<p class='justify'>Aquí va el consentimiento informado.</p>";
+            return html;
+        },
+        button_label: "Deseo participar en este estudio",
+        type: 'fullscreen',
+        fullscreen_mode: true,
+        delay_after: 200,
+    };
+
+    // RC ---------------------------------------------------------------------------------------------------------------
+    /* Generate RC trials */
+    var RC12_stim = [];
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
+    imgsRC12 = imgsRC12.map(function (e) { return [gitImg + 'faceOri' + e + 's.png', gitImg + 'faceInv' + e + 's.png'] });
+    imgsRC12 = _.flattenDeep(imgsRC12);
+    preloadimages = imgsRC12;
+    imgsRC12 = _.chunk(imgsRC12, 12); // 100 trials (6 ori + 6 anti = 12 faces per trial)
+    imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
+
+    var RCinst = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Categorización de rostros</h1>";
+            html += "<p class = 'justify'>A continuación, varios rostros le serán presentados. ";
+            html += "Estos rostros se ven borrosos para mantener el anonimato de estas personas. ";
+            html += "Usted notará que estos rostros son similares entre sí, ";
+            html += "pero en realidad son diferentes personas.</br></br>";
+            html += "En total usted deberá completar 100 ensayos. En cada uno de ellos, se le pedirá que:</br>";
+            html += '<b>Seleccione el rostro que se parezca más al de un "agresor sexual"</b>.</br></br>';
+            html += "Utilice el mouse (o mousepad) para hacer su selección. ";
+            html += "Tome en cuenta que la mayoría de participantes tarda aproximadamente ";
+            html += "<b>3 segundos</b> en cada ensayo. Trate de mantener un tiempo similar. ";
+            html += "Lo mejor es que usted seleccione los rostros de manera <b>intuitiva</b>.</br></br>";
+            html += "Por favor trate de mantenerse concentrado.</p>";
+            html += "<p></br>presione <span class='light-keys'><kbd>espacio</kbd></span> pour empezar</p>";
+            return html;
+        }
+    };
+
+    /* RC */
+    var i = 1;
+    var RC = {
+        timeline_variables: RC12_stim,
+        repetitions: 1,
+        randomize_order: true,
+        data: { task: 'RC' },
+        timeline: [{
+            type: 'html-mouse-response',
+            stimulus: function () {
+                html = "";
+                html += '<p>Seleccione el rostro que se parezca más al de un <b>"agresor sexual"</b> :</p>';
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='rcimg-12' src='" + e + "'>";
+                });
+                html += "</br>Ensayo : " + i + "/100</br>";
+                i += 1;
+                return html;
+            },
+        }]
+    };
+
+
+    /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+    // timeline.push(activeFullscreen);
+    timeline.push(RCinst);
+    timeline.push(RC);
+
+    /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
+    jsPsych.init({
+        timeline: _.flattenDeep(timeline),
+        preload_images: preloadimages,
+        max_load_time: 10000 * 900,
+        exclusions: {
+            min_width: 900,
+            min_height: 700,
+        },
+        on_interaction_data_update: function (data) {
+            // console.log(JSON.stringify(data))
+        },
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+            /* Initialize Firebase */
+            var config = {
+                apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+                databaseURL: "https://biatw-68fe6.firebaseio.com/"
+            };
+
+            firebase.initializeApp(config);
+            var database = firebase.database();
+
+            // if no id provided, generate a new id
+            if (id == null) { id = jsPsych.randomization.randomID(15) };
+
+            /* Qualtrics url parameters */
+            qlink += "?id=" + id;
+            qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            qlink += "&screenWidth=" + screen.width || 0;
+            qlink += "&screenHeight=" + screen.height || 0;
+            qlink += "&userAgent=" + navigator.userAgent;
+            qlink += "&totalTime=" + jsPsych.totalTime();
+
+            /* jsPsych: add data to every trial */
+            jsPsych.data.addProperties({
+                id: id
+            });
+
+            var dataRC = data.filter({ task: 'RC' }).csv();
+            // jsPsych.data.displayData();
+
+            /* Send data to Firebase and redirect to Qualtrics */
+            database
+                .ref("RCperu/" + id + "/")
+                .update({ dataRC })
+                .then(function () {
+                    console.log("Data RC sent!");
+                    // window.location = qlink;
+                    jsPsych.data.displayData();
+                });;
+        }
+    });
+</script>
+
+</html>
