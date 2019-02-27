@@ -142,7 +142,8 @@
             // console.log(JSON.stringify(data))
         },
         on_finish: function (data) {
-            $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+            // $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+            $("#jspsych-content").html("END OF SURVEY. You can now close thiw window.");
 
             /* Initialize Firebase */
             var config = {
@@ -180,7 +181,7 @@
                 .then(function () {
                     console.log("Data RC sent!");
                     // window.location = qlink;
-                    jsPsych.data.displayData();
+                    // jsPsych.data.displayData();
                 });;
         }
     });
