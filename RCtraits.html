@@ -1,0 +1,218 @@
+<!-- TO DO -->
+<!-- WINDOW RESTRICTION! -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>exp</title>
+  <script src="jspsych-6.0.3/jspsych.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="js/jspsych-html-mouse-response.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/lodash.min.js"></script>
+  <script src="js/firebase.js"></script>
+  <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+  <style>
+    body {
+      cursor: default;
+    }
+
+    .rcimg {
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .rcimg:hover {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .nomargin {
+      margin: 0;
+    }
+
+    .jspsych-content-wrapper {
+      width: 800px;
+      height: 600px;
+    }
+  </style>
+</head>
+
+<body></body>
+
+<script>
+  /* Parameters */
+  var numOfPairsRC = 600; // [100 trials] Total number of pair images images (inv & ori)
+  var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_1FinR6pM2iUjGZL';
+  var gitImg = "img/";
+
+  /* Initial variables */
+  var timeline = [];
+  var preloadimages = [];
+  var id = jsPsych.data.getURLVariable("id");
+  var RCdim = jsPsych.data.getURLVariable("RCdim");
+
+  // Consent ---------------------------------------------------------------------------------------------------------------
+  /* Fullscreen mode */
+  var activeFullscreen = {
+    message: function () {
+      html = "";
+      html += "<h1>Informed Consent</h1>";
+      html += "<p class='justify'>In this study about face recognition ";
+      html += "you will be asked to select a series of faces several times. ";
+      html += "This should take you about <b>10 minutes</b>. "
+      html += "During this time, it is important that you remain <b>concentrated</b>.</br></br>";
+      html += "Your participation is voluntary, does not imply any risks, your answers will be ";
+      html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
+      html += "you will receive a <b>monetary compensation</b> as stated in the Prolific ";
+      html += "description of this experiment.</br></br>";
+      html += "This study is administrated by Mathias Schmitz, reasearcher at the UCLouvain (Belgium). ";
+      html += "If you have any question or comment please contact me at <b>mathias.schmitz@uclouvain.be</b></p>";
+      return html;
+    },
+    button_label: "I understand and would like to take part in this study",
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    delay_after: 200,
+  };
+
+  // RC ---------------------------------------------------------------------------------------------------------------
+  /* Randomize conditions: Warmth vs. Competence */
+  var RCdim = RCdim != null ? RCdim : _.sampleSize(["CH", "CL", "WH", "WL"], 1);
+  RCdim = RCdim[0];
+
+  switch (RCdim) {
+    case "CH":
+      var adjectives = "competent, intelligent or hard-working";
+      break;
+    case "CL":
+      var adjectives = "incompetent, dumb or lazy";
+      break;
+    case "WH":
+      var adjectives = "warm, sociable or friendly";
+      break;
+    case "WL":
+      var adjectives = "cold, unsociable or unfriendly";
+      break;
+  }
+
+  /* Generate RC trials */
+  var RC_stim = [];
+  var imgsRC = _.range(1, numOfPairsRC + 1); // generate numerical sequence
+  imgsRC = imgsRC.map(function (e) { return [gitImg + 'faceOri' + e + '.png', gitImg + 'faceInv' + e + '.png'] });
+  imgsRC = _.flattenDeep(imgsRC);
+  preloadimages = imgsRC;
+  imgsRC = _.chunk(imgsRC, 12); // 100 trials (6 ori + 6 anti = 12 faces per trial)
+  imgsRC.map(function (e) { RC_stim.push({ trialImgs: e }) });
+
+  var RCinst = {
+    type: "html-button-response",
+    post_trial_gap: 200,
+    choices: ['start'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Recognition task</h1>";
+      html += "<p class='justify'>In this task, you will be presented a series of faces ";
+      html += "that have been blurred in order to preserve the anonymity of the persons and";
+      html += " to make the recognition task a bit more difficult. Your task is simple: </br></br>";
+      html += 'For each of the 100 trials, <i>"choose the most <b>' + adjectives + '</b> looking-face</i>".</br></br>';
+      html += "To do so, use your mouse to make a choice. ";
+      html += "It usually take participants about <b>5 seconds</b> to complete each trial. ";
+      html += "Note also that faces may look similar to each other, yet <b>they are different</b>. ";
+      html += "Try to rely on your <b>intuition</b> to make the best choice.</br></br>";
+      html += "Feel free to take a short break (1 or 2 mins) during the task if you feel so.</br></p>";
+      return html;
+    }
+  };
+
+  /* RC */
+  var i = 1;
+  var RC = {
+    timeline_variables: RC_stim,
+    repetitions: 1,
+    randomize_order: true,
+    data: { task: 'RC' },
+    timeline: [{
+      type: 'html-mouse-response',
+      stimulus: function () {
+        html = "";
+        html += '<p class="nomargin">Choose the most <b>' + adjectives + '</b> looking-face:</p>';
+        jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+          html += "<img class='rcimg' src='" + e + "'>";
+        });
+        html += "<p class='nomargin'>Trials : " + i + "/100</p>";
+        i += 1;
+        return html;
+      },
+      on_load: function () { $('.jspsych-content').css({ "max-width": "100%" }); },
+    }]
+  };
+
+
+  /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+  timeline.push(activeFullscreen);
+  timeline.push(RCinst);
+  timeline.push(RC);
+
+  /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
+  jsPsych.init({
+    timeline: _.flattenDeep(timeline),
+    preload_images: preloadimages,
+    max_load_time: 10000 * 900,
+    exclusions: {
+      min_width: 900,
+      min_height: 700,
+    },
+    on_interaction_data_update: function (data) {
+      // console.log(JSON.stringify(data))
+    },
+    on_finish: function (data) {
+      $("#jspsych-content").html("<img src='img/loading.gif'>");
+
+      /* Initialize Firebase */
+      var config = {
+        apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+        databaseURL: "https://biatw-68fe6.firebaseio.com/"
+      };
+
+      firebase.initializeApp(config);
+      var database = firebase.database();
+
+      // if no id provided, generate a new id
+      if (id == null) { id = jsPsych.randomization.randomID(15) };
+
+      /* Qualtrics url parameters */
+      qlink += "?id=" + id;
+      qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      qlink += "&screenWidth=" + screen.width || 0;
+      qlink += "&screenHeight=" + screen.height || 0;
+      qlink += "&userAgent=" + navigator.userAgent;
+      qlink += "&totalTime=" + jsPsych.totalTime();
+
+      /* jsPsych: add data to every trial */
+      jsPsych.data.addProperties({
+        id: id,
+        dim: RCdim
+      });
+
+      var dataRC = data.filter({ task: 'RC' }).csv();
+      // jsPsych.data.displayData();
+
+      /* Send data to Firebase and redirect to Qualtrics */
+      database
+        .ref("RCpure/" + id + "/")
+        .update({ dataRC })
+        .then(function () {
+          console.log("Data RC sent!");
+          window.location = qlink;
+          // jsPsych.data.displayData();
+        });;
+    }
+  });
+</script>
+
+</html>
