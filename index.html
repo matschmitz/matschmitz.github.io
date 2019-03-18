@@ -80,7 +80,7 @@
     var isFirefox = typeof InstallTrigger !== 'undefined';
     var browserInst = "";
 
-    if (!isChrome || !isFirefox) {
+    if (!isChrome && !isFirefox) {
         browserInst += "</br></br><span style='color:#8e1d1d'>Veuillez réouvrire cette page web sur ";
         browserInst += "Google Chrome ou Mozilla Firefox pour éviter tout problème technique.</span>";
     }
