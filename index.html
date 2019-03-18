@@ -75,6 +75,16 @@
     var id = jsPsych.data.getURLVariable("id");
     var cond = jsPsych.data.getURLVariable("cond");
 
+    // Check browser ---------------------------------------------------------------------------------------------------------
+    var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    var browserInst = "";
+
+    if (!isChrome || !isFirefox) {
+        browserInst += "</br></br><span style='color:#8e1d1d'>Veuillez réouvrire cette page web sur ";
+        browserInst += "Google Chrome ou Mozilla Firefox pour éviter tout problème technique.</span>";
+    }
+
     // Consent ---------------------------------------------------------------------------------------------------------------
     /* Fullscreen mode */
     var activeFullscreen = {
@@ -90,8 +100,9 @@
             html += "confidentialité et l'anonymat de vos réponses. Des informations complémentaires peuvent ";
             html += "être obtenues à tout moment auprès du chercheur responsable (mathias.schmitz@uclouvain.be).</br></br>";
             html += "A la fin de l'étude, vous aurez la possibilité de participer à un ";
-            html += "<b>tirage au sort et peut-être gagner 100€</b>.</br></br>";
-            html += "<i>Merci d'utiliser Google Chrome ou Mozilla Firefox pour ouvrir ce lien.</i></p>";
+            html += "<b>tirage au sort et peut-être gagner 100€</b>.";
+            html += browserInst;
+            html += "</p>";
             return html;
         },
         button_label: "Je donne mon consentement libre et éclairé pour participer en tant que sujet à cette recherche",
@@ -100,7 +111,7 @@
         delay_after: 200,
     };
 
-    // RC ---------------------------------------------------------------------------------------------------------------
+    // RC -------------------------------------------------------------------------------------------------------------------
     /* Generate RC trials */
     var imgsRC02 = _.range(1, numOfPairsRC02 + 1); // generate numerical sequence
     var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
@@ -202,7 +213,7 @@
         }]
     };
 
-    // IAT --------------------------------------------------------------------------------------------------------------
+    // IAT ------------------------------------------------------------------------------------------------------------------
     // parameters
     var left_key = "S";
     var right_key = "L";
