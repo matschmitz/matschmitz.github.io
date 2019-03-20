@@ -10,6 +10,9 @@
     <script src="jspsych-6.0.3/jspsych.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-likert.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-multi-choice.js"></script>
     <script src="js/jspsych-html-mouse-response.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/lodash.min.js"></script>
@@ -33,8 +36,20 @@
         }
 
         .jspsych-content-wrapper {
-            width: 900px;
-            height: 700px;
+            width: 750px;
+            height: 600px;
+        }
+
+        #jspsych-survey-likert-next {
+            margin: 15px 0px 15px 0px;
+        }
+
+        label.jspsych-survey-likert-statement {
+            padding: 25px 0px 0px 0px;
+        }
+
+        ul.jspsych-survey-likert-opts {
+            padding: 0px 0px 20px 0px;
         }
     </style>
 </head>
@@ -90,16 +105,16 @@
 
     var RCinst = {
         type: "html-button-response",
-        post_trial_gap: 200,
+        post_trial_gap: 300,
         choices: ['empezar'],
         stimulus: function () {
             var html = "";
-            html += "<h1>Categorización de rostros</h1>";
+            html += "<h1>Selección de rostros</h1>";
             html += "<p class = 'justify'>A continuación, varios rostros le serán presentados. ";
             html += "Usted notará que estos rostros se ven borrosos y son similares entre sí, ";
             html += "pero en realidad son diferentes.</br></br>";
             html += "En total usted deberá completar 100 ensayos. En cada uno de ellos, se le pedirá que:</br>";
-            html += '<b>Seleccione el rostro que se parezca más al de un "agresor sexual"</b>.</br></br>';
+            html += '<i><b>Seleccione el rostro que se parezca más al de un "agresor sexual"</b></i>.</br></br>';
             html += "Utilice el mouse (o mousepad) para hacer su selección. ";
             html += "Tome en cuenta que la mayoría de participantes tarda aproximadamente ";
             html += "<b>5 segundos</b> para elegir cada rostro. Trate de mantener un tiempo similar. ";
@@ -115,27 +130,245 @@
         timeline_variables: RC12_stim,
         repetitions: 1,
         randomize_order: true,
-        data: { task: 'RC' },
         timeline: [{
             type: 'html-mouse-response',
             stimulus: function () {
                 html = "";
-                html += '<p>Seleccione el rostro que se parezca más al de un <b>"agresor sexual"</b> :</p>';
+                html += '<p style="margin:0">Seleccione el rostro que se parezca más al de un <b>"agresor sexual"</b>:</p>';
                 jsPsych.timelineVariable('trialImgs', true).map(function (e) {
                     html += "<img class='rcimg-12' src='" + e + "'>";
                 });
-                html += "</br>Ensayo : " + i + "/100</br>";
+                html += '<p style="margin:0">Ensayo:' + i + '/100</p>';
                 i += 1;
                 return html;
             },
+            on_load: function () { $('.jspsych-content').css({ "max-width": "100%" }); },
+            on_finish: function () { $('.jspsych-content').css({ "max-width": "90%" }); },
         }]
     };
 
+    var likerPreamble = '<p class = "justify">Por favor indique su grado de acuerdo con respecto a los enunciados que se ' +
+        'le presentan a continuación. Para responder, utilice la siguiente escala que va desde ' +
+        '1 = “totalmente en desacuerdo” hasta 7 = “totalmente de acuerdo”</p>';
+
+    var scale = ["1</br>Totalmente en desacuerdo", "2", "3", "4", "5", "6", "7</br>Totalmente de acuerdo"];
+
+    var itemsMitos = [
+        'La violencia sexual se da sólo cuando se fuerza a otra persona a tener relaciones sexuales.',
+        'La violencia sexual siempre implica un contacto físico.',
+        'La única forma de que un hombre sea víctima de violencia sexual es estando inconsciente, ya que de otra forma podría defenderse.',
+        'Una mujer tiene cierta responsabilidad de ser víctima de violencia sexual si usa ropa seductora(faldas cortas, escotes, ropa apretada), pues está provocando a los hombres.',
+        'Una mujer tiene cierta responsabilidad de ser víctima de violencia sexual si está coqueteando con un hombre.',
+        'Una mujer tiene cierta responsabilidad de ser víctima de violencia sexual si camina sola por lugares oscuros y peligrosos.',
+        'Una mujer tiene cierta responsabilidad de ser víctima de violencia sexual si no se aleja del agresor después de una experiencia de violencia.',
+        'Las víctimas de violencia sexual son personas sumisas que no saben defenderse.',
+        'La razón por la que algunas personas cometen actos de violencia sexual es porque antes han sido víctimas de ello.',
+        'Los hombres tienen impulsos sexuales que, bajo el efecto del alcohol, son difíciles de controlar por eso pueden agredir sexualmente a otra persona.',
+        'La violencia sexual se presenta, sobretodo, en los estratos socioeconómicos bajos, ya que existe menos educación.',
+        'Los hombres que son víctimas de violencia sexual suelen ser o parecer homosexuales.',
+        'La violencia sexual tiene menos consecuencias psicológicas para un hombre que para una mujer.',
+        'Los silbidos y piropos en la calle no son violencia sexual.',
+        'Un silbido o sonido de besos son siempre halagos para la persona que los recibe.',
+        'Una mujer no podría agredir sexualmente a un hombre, pues no tiene la fuerza suficiente.',
+        'Una mujer no tiene necesidad de agredir sexualmente a un hombre, ya que los hombres siempre están dispuestos a tener relaciones sexuales.',
+        'Una mujer solo sería capaz de realizar actos de violencia sexual si antes ha sido víctima.',
+        'La única consecuencia que puede existir para un hombre que ha sido víctima de violencia sexual es la pérdida de su orgullo.',
+        'El acoso sexual callejero solo es violencia sexual cuando hay un contacto físico (ej.Tocamientos indebidos).',
+        'Los insultos o comentarios sexuales pueden tener un impacto negativo en la otra persona, pero no lo suficiente como para considerarlo un acto de violencia sexual.',
+        'Aquellas personas que realizan actos de violencia sexual tienen enfermedades mentales.',
+        'Las mujeres que realizan actos de violencia sexual suelen ser lesbianas que adoptar el papel “activo” en una relación.'
+    ];
+
+    var questionsMitos = [];
+    itemsMitos.map(function (item, i) { questionsMitos.push({ prompt: '<i>' + item + '</i>', labels: scale, required: true }); });
+
+    var mitos = {
+        type: 'survey-likert',
+        preamble: likerPreamble,
+        questions: questionsMitos,
+        post_trial_gap: 300,
+        button_label: 'continuar',
+        on_load: function () {
+            $(".jspsych-content-wrapper").css("overflow-y", "auto");
+            $(".jspsych-content-wrapper").scrollTop(0);
+        },
+        on_finish: function (data) {
+            var parsed_response = JSON.parse(data.responses);
+            data.scale = 'mitos';
+            data.mitos_1 = parsed_response.Q0 + 1;
+            data.mitos_2 = parsed_response.Q1 + 1;
+            data.mitos_3 = parsed_response.Q2 + 1;
+            data.mitos_4 = parsed_response.Q3 + 1;
+            data.mitos_5 = parsed_response.Q4 + 1;
+            data.mitos_6 = parsed_response.Q5 + 1;
+            data.mitos_7 = parsed_response.Q6 + 1;
+            data.mitos_8 = parsed_response.Q7 + 1;
+            data.mitos_9 = parsed_response.Q8 + 1;
+            data.mitos_10 = parsed_response.Q9 + 1;
+            data.mitos_11 = parsed_response.Q10 + 1;
+            data.mitos_12 = parsed_response.Q11 + 1;
+            data.mitos_13 = parsed_response.Q12 + 1;
+            data.mitos_14 = parsed_response.Q13 + 1;
+            data.mitos_15 = parsed_response.Q14 + 1;
+            data.mitos_16 = parsed_response.Q15 + 1;
+            data.mitos_17 = parsed_response.Q16 + 1;
+            data.mitos_18 = parsed_response.Q17 + 1;
+            data.mitos_19 = parsed_response.Q18 + 1;
+            data.mitos_20 = parsed_response.Q19 + 1;
+            data.mitos_21 = parsed_response.Q20 + 1;
+            data.mitos_22 = parsed_response.Q21 + 1;
+            data.mitos_23 = parsed_response.Q22 + 1;
+            console.log(data);
+
+        },
+    };
+
+
+    var itemsSexismo = [
+        'Es obligación de un hombre mantener a salvo a las mujeres de su casa.',
+        'Las mujeres se visten provocativamente para obtener ventajas en el trabajo.',
+        'En momentos difíciles, las mujeres son mucho más solidarias que los hombres.',
+        'Un hombre debe hacer todo lo posible con tal de conservar a la mujer que ama.',
+        'Un hombre debe establecer límites claros a las mujeres de su casa.',
+        'Las mujeres se visten provocativamente cuando quieren conseguir algún favor de los hombres.',
+        'Para que una mujer esté segura, debe permitir que un hombre la proteja.',
+        'La seguridad de una mujer es responsabilidad de los hombres que la acompañan.',
+        'Si he de tener un jefe prefiero que sea hombre a que sea mujer.',
+        'Un hombre debe señalar a la mujer sus errores para que los cambie.',
+        'Las mujeres son más honradas que los hombres.',
+        'Si tuviera que contratar a un ingeniero preferiría que fuera varón.',
+        'Un hombre sólo puede compartir sus miedos con la mujer que ama.',
+        'Las mujeres deben aceptar la protección masculina por su propio bien.',
+        'Las mujeres acostumbran seducir a los hombres para controlarlos.',
+        'Los hombres que no tienen a una mujer a su lado son tristes y solitarios.',
+        'Un hombre debe hacer hasta lo imposible para conquistar a la mujer que quiere.',
+        'Los hombres deben impedir que las mujeres corran cualquier riesgo.',
+        'Las mujeres, como jefas, son más fáciles de manipular que los hombres.',
+        'No votaría por una mujer para presidente.',
+        'El hombre de la casa debe vigilar que las mujeres no malgasten el dinero.',
+        'Las mujeres actúan como niñas para evitar que los hombres se enojen.',
+        'En momentos difíciles, las mujeres se sacrifican mucho más que los hombres.',
+        'La ternura es una de las mejores cualidades femeninas.'
+    ];
+
+    var questionsSexismo = [];
+    itemsSexismo.map(function (item) { questionsSexismo.push({ prompt: '<i>' + item + '</i>', labels: scale, required: true }); });
+
+    var sexismo = {
+        type: 'survey-likert',
+        preamble: likerPreamble,
+        questions: questionsSexismo,
+        post_trial_gap: 300,
+        button_label: 'continuar',
+        on_load: function () {
+            $(".jspsych-content-wrapper").scrollTop(0);
+            $(".jspsych-content-wrapper").css("overflow-y", "auto");
+        },
+        on_finish: function (data) {
+            var parsed_response = JSON.parse(data.responses);
+            data.scale = 'sexismo';
+            data.sexismo_1 = parsed_response.Q0 + 1;
+            data.sexismo_2 = parsed_response.Q1 + 1;
+            data.sexismo_3 = parsed_response.Q2 + 1;
+            data.sexismo_4 = parsed_response.Q3 + 1;
+            data.sexismo_5 = parsed_response.Q4 + 1;
+            data.sexismo_6 = parsed_response.Q5 + 1;
+            data.sexismo_7 = parsed_response.Q6 + 1;
+            data.sexismo_8 = parsed_response.Q7 + 1;
+            data.sexismo_9 = parsed_response.Q8 + 1;
+            data.sexismo_10 = parsed_response.Q9 + 1;
+            data.sexismo_11 = parsed_response.Q10 + 1;
+            data.sexismo_12 = parsed_response.Q11 + 1;
+            data.sexismo_13 = parsed_response.Q12 + 1;
+            data.sexismo_14 = parsed_response.Q13 + 1;
+            data.sexismo_15 = parsed_response.Q14 + 1;
+            data.sexismo_16 = parsed_response.Q15 + 1;
+            data.sexismo_17 = parsed_response.Q16 + 1;
+            data.sexismo_18 = parsed_response.Q17 + 1;
+            data.sexismo_19 = parsed_response.Q18 + 1;
+            data.sexismo_20 = parsed_response.Q19 + 1;
+            data.sexismo_21 = parsed_response.Q20 + 1;
+            data.sexismo_22 = parsed_response.Q21 + 1;
+            data.sexismo_23 = parsed_response.Q22 + 1;
+            data.sexismo_24 = parsed_response.Q23 + 1;
+            console.log(data);
+        },
+    };
+
+    var age = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: "Indique su edad:", rows: 1, columns: 10 }],
+            button_label: "continuar",
+        }],
+        loop_function: function (data) {
+            var age = data.values()[0].responses;
+            var age = JSON.parse(age).Q0;
+            if (age == "") {
+                alert("Por favor indique su edad");
+                return true;
+            }
+        },
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                age: JSON.parse(data.responses).Q0,
+            });
+        },
+    };
+
+    var genderOptions = ['hombre', 'mujer', 'otro'];
+    var gender = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "Indique su género:", options: genderOptions, required: true }],
+        button_label: "continuar",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                gender: JSON.parse(data.responses).Q0,
+            });
+            console.log(data);
+        },
+    };
+
+    var sesOptions = ["alto", "medio alto", "medio", "medio bajo", "bajo"];
+    var ses = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "Indique su nivel socio-económico:", options: sesOptions, required: true }],
+        button_label: "continuar",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                ses: JSON.parse(data.responses).Q0,
+            });
+            console.log(data);
+        },
+    };
+
+    var exitFullscreen = {
+        type: 'fullscreen',
+        fullscreen_mode: false,
+        delay_after: 300,
+    };
+
+    var debriefing = '<span style="color:#cc3300; font-weight: bold">Fin de la encuesta</span></br></br>' +
+        '<p class = "justify">' +
+        'El objetivo general de este estudio es analyzar la forma en que las personas se representan ' +
+        'a los agresores sexuales. Le pedimos no divulgar el objetivo de este estudio con otros participantes ' +
+        'ya que ello podría afectar los resultados de este estudio.</br></br>' +
+        'No dude en contactarnos (mathias.schmitz@pucp.pe) si tiene alguna ' +
+        'pregunta o comentario respecto a este estudio.</br></br>' +
+        '</p>' +
+        '<span style="color:#cc3300; font-weight: bold">¡Muchas gracias por su participación!</span>';
 
     /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
     timeline.push(activeFullscreen);
     timeline.push(RCinst);
     timeline.push(RC);
+    timeline.push(mitos);
+    timeline.push(sexismo);
+    timeline.push(age);
+    timeline.push(gender);
+    timeline.push(ses);
+    timeline.push(exitFullscreen);
+
 
     /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
     jsPsych.init({
@@ -143,8 +376,8 @@
         preload_images: preloadimages,
         max_load_time: 10000 * 900,
         //exclusions: {
-        //    min_width: 900,
-        //    min_height: 700,
+        //    min_width: 750,
+        //    min_height: 600,
         //},
         on_interaction_data_update: function (data) {
             // console.log(JSON.stringify(data))
@@ -178,16 +411,30 @@
                 id: id
             });
 
-            var dataRC = data.filter({ task: 'RC' }).csv();
+            var dataRC = data.filter({ trial_type: 'html-mouse-response' }).csv();
+            var dataMitos = data.filter({ scale: 'mitos' }).csv();
+            var dataSexismo = data.filter({ scale: 'sexismo' }).csv();
             // jsPsych.data.displayData();
 
-            /* Send data to Firebase and redirect to Qualtrics */
+            /* Send data to Firebase */
             database
-                .ref("RCperu/" + id + "/")
+                .ref("RCperu/RC/" + id + "/")
                 .update({ dataRC })
                 .then(function () {
-                    console.log("Data RC sent!");
-                    window.location.href = qlink;
+                    console.log("RC sent!");
+                    database
+                        .ref("RCperu/mitos/" + id + "/")
+                        .update({ dataMitos })
+                        .then(function () {
+                            console.log("dataMitos sent!");
+                            database
+                                .ref("RCperu/sexismo/" + id + "/")
+                                .update({ dataSexismo })
+                                .then(function () {
+                                    console.log("Data dataSexismo sent!");
+                                    $("#jspsych-content").html(debriefing);
+                                });;
+                        });;
                 });;
         }
     });
