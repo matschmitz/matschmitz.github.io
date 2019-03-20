@@ -472,7 +472,7 @@
       /* Send data to Firebase and redirect to Qualtrics */
       database.ref("RCClab/" + id + "/").update({ dataRC }).then(function () {
         console.log("Data sent!");
-        window.location = qlink; // redirect to qualtrics
+        window.location.href = qlink; // redirect to qualtrics
       });
     }
   });
