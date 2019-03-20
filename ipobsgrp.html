@@ -686,7 +686,7 @@ TO DO:
             database.ref("IP/" + id + "/").update({dataAll}).then(function() { console.log("dataAll sent!") });
             database.ref("IP/" + id + "/").update({dataClassNames}).then(function() { console.log("dataClassNames sent!") });
             database.ref("IP/" + id + "/").update({dataBiat}).then(function() { 
-                window.location = qlink; // redirect to qualtrics
+                window.location.href = qlink; // redirect to qualtrics
                 //jsPsych.data.displayData();
             });
         }

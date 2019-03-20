@@ -1,10 +1,5 @@
-<!--
-TO DO:
-- Update Qualtrics link
-- Update Qualtrics debriefing
-- remove display data
-- Adjust parameters
--->
+<!-- TO DO -->
+<!-- WINDOW RESTRICTION! -->
 
 <!DOCTYPE html>
 <html>
@@ -14,692 +9,939 @@ TO DO:
     <title>exp</title>
     <script src="jspsych-6.0.3/jspsych.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-survey-multi-choice.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
-    <script src="jspsych-6.0.3/plugins/jspsych-image-keyboard-response.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
-    <script src="js/jspsych-categorize-html-mat.js"></script>
-    <script src="js/jquery.min.js"></script> <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -->
-    <script src="js/lodash.min.js"></script> <!-- https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js -->
-    <script src="js/firebase.js"></script>   <!-- https://www.gstatic.com/firebasejs/5.0.4/firebase.js -->
+    <script src="js/jspsych-iat-html-mat.js"></script>
+    <script src="js/jspsych-html-mouse-response.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/firebase.js"></script>
     <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
-    <script>
+    <style>
+        body {
+            cursor: default;
+        }
+
+        .rcimg-02,
+        .rcimg-12 {
+            cursor: pointer;
+        }
+
+        .rcimg-02 {
+            margin-top: 25px;
+            margin-bottom: 25px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .rcimg-12 {
+            margin: 10px;
+        }
+
+        .rcimg-02:hover,
+        .rcimg-12:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .jspsych-content-wrapper {
+            width: 900px;
+            height: 700px;
+        }
+
+        .iat_color_black {
+            color: black;
+        }
+
+        .iat_color_green {
+            color: green;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
     /* Parameters */
-    var itiSta    = 400;          // 400; inter-trial-interval for statements
-    var delaySta  = 5500;         // 5500; how long is each statement displayed
-    var memoDelay = 45000;         // 45000; timer to memorize names
-    var biatRep   = 2;         // 2; number of BIAT repetitions
-    var qlink     = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_578XUB39jqAbg6p";
-    
+    var numOfPairsRC02 = 550;  // Total number of pair images images (inv & ori)
+    var numOfPairsRC12 = 1500; // Total number of pair images images (inv & ori)
+    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eFM8wo1wCZbiWAB';
+
     /* Initial variables */
     var timeline = [];
-    var HC = [];
-    var LC = [];
+    var preloadimagesRC12 = [];
+    var preloadimagesRC02 = [];
     var id = jsPsych.data.getURLVariable("id");
     var cond = jsPsych.data.getURLVariable("cond");
-    
-    /* Functions */
-    function flatten(arr) {
-        return arr.reduce(function (flat, toFlatten) {
-            return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-        }, []);
-    };
-    
-    function genBiatBlockStims(fclCat,   itemsFclCat,  
-                               fclAtt,   itemsFclAtt,
-                               unFclCat, itemsUnFclCat,
-                               unFclAtt, itemsUnFclAtt) {
-        // fclCat, fclAtt, unFclCat, unFclAtt: string
-        // itemsFclCat, itemsFclAtt, itemsUnFclCat, itemsUnFclAtt: array
-        var stims = jsPsych.randomization.factorial({
-            target:    flatten([itemsFclCat, itemsFclAtt, itemsUnFclCat, itemsUnFclAtt]),
-            attribute: [fclAtt],
-            category:  [fclCat],
-        });
-        
-        // add targetClass and correctkey
-        for (var i = 0; i < stims.length; i++) {
-            if($.inArray(stims[i].target, itemsFclCat)   != -1) {stims[i].targetClass = fclCat};
-            if($.inArray(stims[i].target, itemsFclAtt)   != -1) {stims[i].targetClass = fclAtt};
-            if($.inArray(stims[i].target, itemsUnFclCat) != -1) {stims[i].targetClass = unFclCat};
-            if($.inArray(stims[i].target, itemsUnFclAtt) != -1) {stims[i].targetClass = unFclAtt};
-            
-            var itemsBelongsToFclAtt = stims[i].targetClass == stims[i].attribute; // check if target is in focal attribute
-            var itemsBelongsToFclcat = stims[i].targetClass == stims[i].category;  // check if target is in focal category
-            if(itemsBelongsToFclAtt || itemsBelongsToFclcat) {stims[i].correctKey = 's'} else {stims[i].correctKey = 'l'};
-        };
-        return stims;
-    };
-    
-    function genBiatBlock(fclCat,   itemsFclCat,  
-                          fclAtt,   itemsFclAtt,
-                          unFclCat, itemsUnFclCat,
-                          unFclAtt, itemsUnFclAtt,
-                          rep = 1) {
-        
-        var stims = genBiatBlockStims(fclCat,   itemsFclCat,  
-                                      fclAtt,   itemsFclAtt,
-                                      unFclCat, itemsUnFclCat,
-                                      unFclAtt, itemsUnFclAtt);
-        var biatInst = {
-            type: "html-keyboard-response",
-            choices: [32],
-            stimulus: function(){
-                var html = "";
-                html += "<p><span class='emphasize'>"+fclCat +"</span>";
-                html += "</br><span class='italic'>"+itemsFclCat[0]+" &nbsp;"+itemsFclCat[1]+" &nbsp;"+itemsFclCat[2]+" &nbsp;"+itemsFclCat[3]+"</span></p>";
-                html += "<p><span class='emphasize'>"+fclAtt+"</span>";
-                html += "</br><span class='italic'>"+itemsFclAtt[0]+" &nbsp;"+itemsFclAtt[1]+" &nbsp;"+itemsFclAtt[2]+" &nbsp;"+itemsFclAtt[3]+"</span></p>";
-                html += "</br><p>Two <span class='emphasize'>categories</span>, and their <span class='italic'>items</span>, are displayed above.</br>";
-                html += "Keep the two cateogies in your mind as you do the task.</p>";
-                html += "<p>Press <span class='light-keys'><kbd>S</kbd></span> when an item matches EITHER category.";
-                html += "</br>Press <span class='light-keys'><kbd>L</kbd></span> for anything else</p>";
-                html += "<p>If you make an ERROR you will see a red <span style='color: red; font-weight: bold'>X</span>.</br>";
-                html += "When this happens, make the CORRECT response to proceed.</br>";
-                html += "Go FAST. A few errors are OK.</p>";
-                html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-                return html;
-            },
-        };
-        
-        var biatBlock = {
-            timeline_variables: stims,
-            repetitions: rep,
-            randomize_order: true,
-            timeline: [
-                {
-                    type: 'categorize-html',
-                    stimulus: function(){
-                        var html = "";
-                        html += "<p><span class='emphasize'>"+jsPsych.timelineVariable('category', true) +"</span></p>";
-                        html += "<p>or</p>";
-                        html += "<p><span class='emphasize'>"+jsPsych.timelineVariable('attribute', true)+"</span></p>";
-                        html += "<p class='italic'></br></br></br></br>"+jsPsych.timelineVariable('target', true);
-                        html += "</br></br></br></br></br></br></br></p>";
-                        return html;
-                    },
-                    key_answer: function(){return jsPsych.pluginAPI.convertKeyCharacterToKeyCode(jsPsych.timelineVariable('correctKey', true))},
-                    choices: ['s', 'l'],
-                    text_answer: '',
-                    correct_text: "<p>&nbsp</p>",
-                    correct_text_duration: 0,
-                    incorrect_text: "<p><span style='color: red; font-weight: bold'>X</span> press the correct key to continue</p>",
-                    prompt: function(){ return "<p>&nbsp</p>"; },
-                    trial_duration: 10000,
-                    timeout_message: "<p style='color: red;'>please respond faster.</p>",
-                    show_feedback_on_timeout: false,
-                    force_correct_button_press: true,
-                    feedback_duration: 600,
-                    data: {
-                        attribute:   jsPsych.timelineVariable('attribute'),
-                        category:    jsPsych.timelineVariable('category'),
-                        target:      jsPsych.timelineVariable('target'),
-                        correctKey:  jsPsych.timelineVariable('correctKey'),
-                        targetClass: jsPsych.timelineVariable('targetClass'),
-                        task:        'biat'
-                    },
-                }
-            ]
-        };
-        
-        return [biatInst, biatBlock];
-    };
 
-    /* Consent & Fullscreen mode */
-    timeline.push({
-        message: function() {
+    // Consent ---------------------------------------------------------------------------------------------------------------
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: function () {
             html = "";
-            html += "<h1>Informed Consent</h1>";
-            html += "<p class='justify'>In this study about perception and memory you will be asked to memorize some information, ";
-            html += "read some statements, write some text, complete a classification task and fill a survey. ";
-            html += "This should take you approximately <strong>18 minutes</strong>. During this period, ";
-            html += "it is important that you remain fully <strong>concentrated</strong>.</p>";
-            html += "<p class='justify'>Your participation is voluntary, does not imply any risks, your answers will be ";
-            html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
-            html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
-            html += "description of this experiment.</p>";
-            html += "<p class='justify'>This study is administrated by Mathias Schmitz, reasearcher at the UCLouvain (Belgium). ";
-            html += "If you have any question or comment please contact me at <strong>mathias.schmitz@uclouvain.be</strong></p>";
+            html += "<h1>CONSENTEMENT ÉCLAIRÉ</h1>";
+            html += "<p class='justify'>Merci de l'intérêt que vous portez à cette ";
+            html += "étude sur la perception des visages. Celle-ci est administrée par Mathias Schmitz et Marine Rougier, ";
+            html += "doctorant et post-doctorant en Psychologie Sociale à l'Université catholique de Louvain.</br></br>"
+            html += "L'expérience dure approximativement <b>20 minutes</b>. ";
+            html += "Vous avez le droit de vous retirer de l'expérience à tout moment, ";
+            html += "sans devoir vous justifier et sans subir aucun préjudice. Nous garantissons la ";
+            html += "confidentialité et l'anonymat de vos réponses. Des informations complémentaires peuvent ";
+            html += "être obtenues à tout moment auprès du chercheur responsable (mathias.schmitz@uclouvain.be).</br></br>";
+            html += "A la fin de l'étude, vous aurez la possibilité de participer à un ";
+            html += "<b>tirage au sort et peut-être gagner 100€</b>.</p>";
             return html;
         },
-        button_label: "I agree to take part in this study",
+        button_label: "Je donne mon consentement libre et éclairé pour participer en tant que sujet à cette recherche",
         type: 'fullscreen',
         fullscreen_mode: true,
-        delay_after: 500,
-        on_start: function() {$('body').css('cursor', 'default')},
-        on_finish: function() {$('body').css('cursor', 'none')},
-    });
-    
-    /*  ~~~~~~ Impression formation  ~~~~~~ */
-    /* Generate statements */
-    var CP = ['CP1', 'CP2', 'CP3', 'CP4', 'CP5', 'CP6', 'CP7', 'CP8']; // C+
-    var CN = ['CN1', 'CN2', 'CN3', 'CN4', 'CN5', 'CN6', 'CN7', 'CN8']; // C-
-    var WP = ['WP1', 'WP2', 'WP3', 'WP4', 'WP5', 'WP6', 'WP7', 'WP8']; // W+
-    var WN = ['WN1', 'WN2', 'WN3', 'WN4', 'WN5', 'WN6', 'WN7', 'WN8']; // w-
-
-    // HC: 6C+, 2C-, 2W+, 2W-
-    HC = HC.concat(_.sampleSize(CP, 6), _.sampleSize(CN, 2), _.sampleSize(WP, 2), _.sampleSize(WN, 2));
-    
-    // LC: 2C+, 6C-, 2W+, 2W-
-    var CPleft = _.difference(CP, HC);
-    var CNleft = _.difference(CN, HC);
-    var WPleft = _.difference(WP, HC);
-    var WNleft = _.difference(WN, HC);
-    LC = LC.concat(_.sampleSize(CPleft, 2), _.sampleSize(CNleft, 6), _.sampleSize(WPleft, 2), _.sampleSize(WNleft, 2));
-    
-    HC = _.shuffle(HC);
-    LC = _.shuffle(LC);
-    
-    // Assign group identity (B vs. G)
-    var hghGrp = _.sample(['B', 'G'])
-    var lowGrp = _.difference(['B', 'G'], [hghGrp])[0];
-    
-    HC = HC.map(function(e) {return e + hghGrp});
-    LC = LC.map(function(e) {return e + lowGrp});
-    
-    var hghFst = _.sample([true, false]);
-    if(hghFst) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) }
-    var staRdm = _.shuffle(staOrd);
-    
-    var CP = [
-        "X won the yearly award for the employee who contributes most to the company’s profit.",
-        "X practiced the violin piece 20 times a day and after a month felt that he/she had it right.",
-        "X wrote a small computer program that solved a tough calculus integration problem.",
-        "X speaks fluently three different languages.",
-        "X presented his/her research at a chemistry congress.",
-        "X published a short story in a literary magazine while still in college.",
-        "X worked hard on the extra-credit assignment in linear algebra.",
-        "X is very careful when it comes to savings so that buying that first house will be possible."
-    ];
-    var CN = [
-        "X went hiking in the mountains and had to be rescued because he/she wasn’t paying attention to where he/she was going.",
-        "X was fired from his/her job because he/she rarely got things done on time.",
-        "X’s bicycle was stolen several times because he/she forgets to set the lock.",
-        "X often gets lost when driving in the city, even though he/she has been living there for several years.",
-        "X’s electricity was turned off because he/she did not paid the bill on time.",
-        "X had trouble finding work because he/she was always late for job interviews.",
-        "X took almost an hour to find his/her car after parking it in a shopping mall.",
-        "X did not pass his/her driving test for the third time and ended up abandoning it."
-    ];
-    var WP = [
-        "X spent hours with a friend whose dog died.",
-        "X loves to be with other people.",
-        "X helped a blind woman cross the street.",
-        "X always greets friends with a big hug.",
-        "X always smiles at strangers on the street just to make their day better.",
-        "X loves to hold hands while walking.",
-        "X enjoys having long conversations with friends.",
-        "X gave up his/her seat on the crowded bus when an elderly woman got on."
-    ];
-    var WN = [
-        "X couldn’t be bothered to give directions to a stranger.",
-        "X decided that everyone at the party was pretty shallow and left early.",
-        "X prefers to go to the movie alone rather than with a friend.",
-        "X yelled at the driver who took the last parking space.",
-        "X rarely talked to the other people in the house that a bunch of them shared.",
-        "X did not want to congratulate the winner of the competition.",
-        "X didn’t go to his/her grandmother’s funeral because he/she was too busy with work.",
-        "X yelled at a little girl for coloring outside the lines."
-    ];
-    
-    staStim = {
-        CP1B: "<p id='blueSta'>"+CP[0]+"</p>", CP1G: "<p id='greenSta'>"+CP[0]+"</p>",
-        CP2B: "<p id='blueSta'>"+CP[1]+"</p>", CP2G: "<p id='greenSta'>"+CP[1]+"</p>",
-        CP3B: "<p id='blueSta'>"+CP[2]+"</p>", CP3G: "<p id='greenSta'>"+CP[2]+"</p>",
-        CP4B: "<p id='blueSta'>"+CP[3]+"</p>", CP4G: "<p id='greenSta'>"+CP[3]+"</p>",
-        CP5B: "<p id='blueSta'>"+CP[4]+"</p>", CP5G: "<p id='greenSta'>"+CP[4]+"</p>",
-        CP6B: "<p id='blueSta'>"+CP[5]+"</p>", CP6G: "<p id='greenSta'>"+CP[5]+"</p>",
-        CP7B: "<p id='blueSta'>"+CP[6]+"</p>", CP7G: "<p id='greenSta'>"+CP[6]+"</p>",
-        CP8B: "<p id='blueSta'>"+CP[7]+"</p>", CP8G: "<p id='greenSta'>"+CP[7]+"</p>",
-        
-        CN1B: "<p id='blueSta'>"+CN[0]+"</p>", CN1G: "<p id='greenSta'>"+CN[0]+"</p>",
-        CN2B: "<p id='blueSta'>"+CN[1]+"</p>", CN2G: "<p id='greenSta'>"+CN[1]+"</p>",
-        CN3B: "<p id='blueSta'>"+CN[2]+"</p>", CN3G: "<p id='greenSta'>"+CN[2]+"</p>",
-        CN4B: "<p id='blueSta'>"+CN[3]+"</p>", CN4G: "<p id='greenSta'>"+CN[3]+"</p>",
-        CN5B: "<p id='blueSta'>"+CN[4]+"</p>", CN5G: "<p id='greenSta'>"+CN[4]+"</p>",
-        CN6B: "<p id='blueSta'>"+CN[5]+"</p>", CN6G: "<p id='greenSta'>"+CN[5]+"</p>",
-        CN7B: "<p id='blueSta'>"+CN[6]+"</p>", CN7G: "<p id='greenSta'>"+CN[6]+"</p>",
-        CN8B: "<p id='blueSta'>"+CN[7]+"</p>", CN8G: "<p id='greenSta'>"+CN[7]+"</p>",
-        
-        WP1B: "<p id='blueSta'>"+WP[0]+"</p>", WP1G: "<p id='greenSta'>"+WP[0]+"</p>",
-        WP2B: "<p id='blueSta'>"+WP[1]+"</p>", WP2G: "<p id='greenSta'>"+WP[1]+"</p>",
-        WP3B: "<p id='blueSta'>"+WP[2]+"</p>", WP3G: "<p id='greenSta'>"+WP[2]+"</p>",
-        WP4B: "<p id='blueSta'>"+WP[3]+"</p>", WP4G: "<p id='greenSta'>"+WP[3]+"</p>",
-        WP5B: "<p id='blueSta'>"+WP[4]+"</p>", WP5G: "<p id='greenSta'>"+WP[4]+"</p>",
-        WP6B: "<p id='blueSta'>"+WP[5]+"</p>", WP6G: "<p id='greenSta'>"+WP[5]+"</p>",
-        WP7B: "<p id='blueSta'>"+WP[6]+"</p>", WP7G: "<p id='greenSta'>"+WP[6]+"</p>",
-        WP8B: "<p id='blueSta'>"+WP[7]+"</p>", WP8G: "<p id='greenSta'>"+WP[7]+"</p>",
-        
-        WN1B: "<p id='blueSta'>"+WN[0]+"</p>", WN1G: "<p id='greenSta'>"+WN[0]+"</p>",
-        WN2B: "<p id='blueSta'>"+WN[1]+"</p>", WN2G: "<p id='greenSta'>"+WN[1]+"</p>",
-        WN3B: "<p id='blueSta'>"+WN[2]+"</p>", WN3G: "<p id='greenSta'>"+WN[2]+"</p>",
-        WN4B: "<p id='blueSta'>"+WN[3]+"</p>", WN4G: "<p id='greenSta'>"+WN[3]+"</p>",
-        WN5B: "<p id='blueSta'>"+WN[4]+"</p>", WN5G: "<p id='greenSta'>"+WN[4]+"</p>",
-        WN6B: "<p id='blueSta'>"+WN[5]+"</p>", WN6G: "<p id='greenSta'>"+WN[5]+"</p>",
-        WN7B: "<p id='blueSta'>"+WN[6]+"</p>", WN7G: "<p id='greenSta'>"+WN[6]+"</p>",
-        WN8B: "<p id='blueSta'>"+WN[7]+"</p>", WN8G: "<p id='greenSta'>"+WN[7]+"</p>",
-    }
-    
-    /* ~~~~~~ Ingroup-name memorization ~~~~~~ */
-    var namesF = ['Sophia', 'Olivia', 'Emma', 'Isabella'];
-    var namesM = ['Liam', 'Lucas', 'Matthew', 'Michael'];
-    var itemsGF = _.sampleSize(namesF, 2);
-    var itemsGM = _.sampleSize(namesM, 2);
-    var itemsBF = _.difference(namesF, itemsGF)
-    var itemsBM = _.difference(namesM, itemsGM)
-    var itemsG = _.shuffle(flatten([itemsGF, itemsGM]));
-    var itemsB = _.shuffle(flatten([itemsBF, itemsBM]));
-
-    var inGrp = _.sample(['B', 'G', 'O']); // B: Blue group | G: Green group | O: Observer
-    if(cond != null) {inGrp = cond}; // manually set condition for testing
-    if(inGrp == hghGrp) {var status = "H"};
-    if(inGrp == lowGrp) {var status = "L"};
-    if(inGrp == 'O')    {var status = 'O'};
-    var inGrpLabel = '';
-    if(inGrp == 'G') {inGrpLabel = "<span id='green'>Green</span>"} else {inGrpLabel = "<span id='blue'>Blue</span>"};
-    if(inGrp == 'G') {var inGrpNames = itemsG} else {var inGrpNames = itemsB};
-    if(inGrp == 'O') {inGrpLabel = "some <span id='green'>Green</span> and <span id='blue'>Blue</span>"};
-    
-    /*instructions */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Memorization task</h1>";
-            html += "<p class='justify'>This experiment involves two groups of persons that we have called, just for the sake of simplicity, ";
-            html += "the <span id='green'>Green</span> and the <span id='blue'>Blue</span> group.</p>";
-            html += "<p class='justify'>Your first task will be to learn the names of "+inGrpLabel+" group-members.";
-            html += " This will be useful further on.</br>";
-            html += "<p class='justify'>These names will be presented on the following page for <span class='emphasize'>45 seconds</span>.";
-            html += "<p class='justify'>Please try to <span class='emphasize'>memorize</span> these names.</p>";
-            html += "<p id='continue'>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html;
-        },
-    });
-    
-    
-    timeline.push({
-        type: "html-keyboard-response",
-        choices: jsPsych.NO_KEYS,
-        trial_duration: memoDelay,
-        post_trial_gap: 200,
-        stimulus: function() {
-            var html = "";
-            if(inGrp == 'O') {
-                html += "<p><span id='green'>Green</span></br>group-members:<p>";
-                html += "<p>"+itemsGF[0]+"</br></br>";
-                html += itemsGM[0]+"</br></br></br></br>";
-                html += "<p><span id='blue'>Blue</span></br>group-members:<p>";
-                html += "<p>"+itemsBF[0]+"</br></br>";
-                html += itemsBM[0]+"</br></br>";
-            } else {
-                html += "<p>"+inGrpLabel+"</br>group-members:<p></br></br>";
-                html += "<p>"+inGrpNames[0]+"</br></br>";
-                html += inGrpNames[1]+"</br></br>";
-                html += inGrpNames[2]+"</br></br>";
-                html += inGrpNames[3]+"</p>";
-            };
-            return html
-        },
-    });
-    
-    /* ~~~~~~ Statements ~~~~~~ */
-    /* Sta rdm instructions */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Impression formation task</h1>";
-            html += "<p class='justify'>You will now be presented a series of ";
-            html += "anonymized behaviors that have been performed by members of ";
-            html += "the <span id='green'>Green</span> or <span id='blue'>Blue</span> group.</p>";
-            html += "<p class='justify'>Each behavior will be presented with a colored <span class='emphasize'>background, ";
-            html += "indicating the group membership</span> of the person who performed it.</p>";
-            html += "<p class='justify'>Your task is to simply <span class='emphasize'>read</span> each behavior ";
-            html += "and do your best to <span class='emphasize'>form an impression</span> about these two groups. ";
-            html += "Note that this is not a memory task and that the task will be automatically paced.</p>";
-            html += "<p class='justify'>Please remain concentrated.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html;
-        },
-    });
-    
-    /* Statements shuffled */
-    staRdm.map(function(sta) {
-        timeline.push({
-            type: 'html-keyboard-response',
-            stimulus: function() {return staStim[sta]},
-            choices: jsPsych.NO_KEYS,
-            trial_duration: delaySta,
-            post_trial_gap: itiSta,
-        })
-    });
-    
-    /* Sta ord instructions */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Impression formation task</h1>";
-            html += "<p class='justify'>We will now present you a last time each behavior.</p>";
-            html += "<p class='justify'>You will first see all the behaviors from one group and then from the other group.</p>";
-            html += "<p class='justify'>Your task is the same: <span class='emphasize'>read</span> each behavior ";
-            html += "and do your best to <span class='emphasize'>form an impression</span> about these two groups. ";
-            html += "Note that this is not a memory task and that the task will be automatically paced.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html;
-        },
-    });
-    
-    /* Statements ordered */
-    staOrd.map(function(sta) {
-        timeline.push({
-            type: 'html-keyboard-response',
-            stimulus: function() {return staStim[sta]},
-            choices: jsPsych.NO_KEYS,
-            trial_duration: delaySta - 500,
-            post_trial_gap: itiSta - 100,  
-        })
-    });
-    
-    /* Group description */
-    var hghFstDscrp = _.sample([true, false]);
-    
-    timeline.push({
-        type: 'survey-text',
-        preamble: 'Without thinking too much about it, please tell us your impressions about...',
-        questions: function() {
-            var G = "<span id='green'>Green</span>";
-            var B = "<span id='blue'>Blue</span>";
-            
-            function sendMsg(groupName) {return 'the '+groupName+' group:' +"</br><span id='min2lines'>(minimum: 2 lines)</span>";}
-            
-            if (hghGrp == 'B') { var HGname = B; var LGname = G; } else { var HGname = G; var LGname = B; };
-            
-            if (hghFstDscrp) {
-                return [{prompt: sendMsg(HGname), rows: 5, columns: 80}, {prompt: sendMsg(LGname), rows: 5, columns: 80}];
-            } else {
-                return [{prompt: sendMsg(LGname), rows: 5, columns: 80}, {prompt: sendMsg(HGname), rows: 5, columns: 80}];
-            };
-        },
-        on_start: function() {$('body').css('cursor', 'default')},
-        on_finish: function() {$('body').css('cursor', 'none')},
-    });
-    
-    /* ~~~~~~ Ingroup-name association task ~~~~~~ */
-    var namesStim = [
-        {target: itemsB[0], group: 'B', correctKeyBG: 's', correctKeyGB: 'l', color: 'blue',  lightColor: '#66b3ff'},
-        {target: itemsB[1], group: 'B', correctKeyBG: 's', correctKeyGB: 'l', color: 'blue',  lightColor: '#66b3ff'},
-        {target: itemsB[2], group: 'B', correctKeyBG: 's', correctKeyGB: 'l', color: 'blue',  lightColor: '#66b3ff'},
-        {target: itemsB[3], group: 'B', correctKeyBG: 's', correctKeyGB: 'l', color: 'blue',  lightColor: '#66b3ff'},
-        {target: itemsG[0], group: 'G', correctKeyBG: 'l', correctKeyGB: 's', color: 'green', lightColor: '#8cd98c'},
-        {target: itemsG[1], group: 'G', correctKeyBG: 'l', correctKeyGB: 's', color: 'green', lightColor: '#8cd98c'},
-        {target: itemsG[2], group: 'G', correctKeyBG: 'l', correctKeyGB: 's', color: 'green', lightColor: '#8cd98c'},
-        {target: itemsG[3], group: 'G', correctKeyBG: 'l', correctKeyGB: 's', color: 'green', lightColor: '#8cd98c'},
-    ];
-    
-    /* Instruction block 1 */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Categorization task</h1>";
-            html += "<p class='justify'>In this task you will learn to classify the names of ";
-            html += "<span id='green'>Green</span> and <span id='blue'>Blue</span> group members into their respective group. To do so:</p>";
-            html += "<p class='justify'>press <span class='light-keys'><kbd>S</kbd></span> if the target name belongs to the ";
-            html += "<span id='blue'>Blue</span> group</br>";
-            html += "press <span class='light-keys'><kbd>L</kbd></span> if the target name belongs to the ";
-            html += "<span id='green'>Green</span> group</p>";
-            html += "<p class='justify'>Note that in this first task, each name will be colored according to its group membership but ";
-            html += "later tasks will not have the names colored, so it is important that you learn ";
-            html += "which names go with which groups.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html
-        },
-    });
-    
-    var classNamesBlk1 = {
-        timeline_variables: namesStim,
-        repetitions: 3,
-        randomize_order: true,
-        timeline: [
-            {
-                type: 'categorize-html',
-                stimulus: function(){
-                    var html = "";
-                    html += "<div style='float: left; margin-right: 250px;'>";
-                    html += "<p>Blue group</p><span class='light-keys'><kbd>S</kbd></span></div>";
-                    html += "<div style='float: right'>";
-                    html += "<p>Green group</p><span class='light-keys'><kbd>L</kbd></span></div>";
-                    html += "<p class='italic' style='padding:250px 0 100px 0'><span style='color: "+jsPsych.timelineVariable('color', true)+"'>";
-                    html += jsPsych.timelineVariable('target', true)+"</span></p>";
-                    return html;
-                },
-                key_answer: function(){return jsPsych.pluginAPI.convertKeyCharacterToKeyCode(jsPsych.timelineVariable('correctKeyBG', true))},
-                choices: ['s', 'l'],
-                text_answer: '',
-                correct_text: "<p>&nbsp</p>",
-                correct_text_duration: 0,
-                incorrect_text: "<p><span style='color: red; font-weight: bold'>X</span> press the correct key to continue</p>",
-                prompt: function(){ return "<p>&nbsp</p>"; },
-                trial_duration: 10000,
-                timeout_message: "<p style='color: red;'>please respond faster</p>",
-                show_feedback_on_timeout: false,
-                force_correct_button_press: true,
-                feedback_duration: 600,
-                data: {
-                    target:       jsPsych.timelineVariable('target'),
-                    correctKeyBG: jsPsych.timelineVariable('correctKeyBG'),
-                    correctKeyGB: jsPsych.timelineVariable('correctKeyGB'),
-                    targetGroup:  jsPsych.timelineVariable('group'),
-                    task:         'classNames'
-                },      
-            }
-        ]
+        delay_after: 200,
     };
-    timeline.push(classNamesBlk1);
-    
-    
-    /* Instruction block 2 */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Categorization task</h1>";
-            html += "<p class='justify'>We will ask you to complete once more this task. ";
-            html += "Note however that the <span class='emphasize'>group names have swapped places</span>, you will have to: ";
-            html += "<p class='justify'>press <span class='light-keys'><kbd>S</kbd></span> if the target name belongs to the ";
-            html += "<span id='green'>Green</span> group</br>";
-            html += "press <span class='light-keys'><kbd>L</kbd></span> if the target name belongs to the <span id='blue'>Blue</span> group</p>";
-            html += "<p class='justify'>Note also that the colors associated with the groups are more similar now. This will make it more difficult ";
-            html += "for you to discriminate the groups on the basis of color. That is okay. Remember that in later tasks the color cues will disappear; ";
-            html += "thus, it is important that you learn which names go with which groups.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html
-        },
-    });
-    
-    var classNamesBlk2 = {
-        timeline_variables: namesStim,
-        repetitions: 3,
-        randomize_order: true,
-        timeline: [
-            {
-                type: 'categorize-html',
-                stimulus: function(){
-                    var html = "";
-                    html += "<div style='float: left; margin-right: 250px;'>";
-                    html += "<p>Green group</p><span class='light-keys'><kbd>S</kbd></span></div>";
-                    html += "<div style='float: right'>";
-                    html += "<p>Blue group</p><span class='light-keys'><kbd>L</kbd></span></div>";
-                    html += "<p class='italic' style='padding: 250px 0 100px 0'><span style='color: "+jsPsych.timelineVariable('lightColor', true)+"'>";
-                    html += jsPsych.timelineVariable('target', true)+"</span></p>";
-                    return html;
-                },
-                key_answer: function(){return jsPsych.pluginAPI.convertKeyCharacterToKeyCode(jsPsych.timelineVariable('correctKeyGB', true))},
-                choices: ['s', 'l'],
-                text_answer: '',
-                correct_text: "<p>&nbsp</p>",
-                correct_text_duration: 0,
-                incorrect_text: "<p><span style='color: red; font-weight: bold'>X</span> press the correct key to continue</p>",
-                prompt: function(){ return "<p>&nbsp</p>"; },
-                trial_duration: 10000,
-                timeout_message: "<p style='color: red;'>please respond faster</p>",
-                show_feedback_on_timeout: false,
-                force_correct_button_press: true,
-                feedback_duration: 600,
-                data: {
-                    target:       jsPsych.timelineVariable('target'),
-                    correctKeyBG: jsPsych.timelineVariable('correctKeyBG'),
-                    correctKeyGB: jsPsych.timelineVariable('correctKeyGB'),
-                    targetGroup:  jsPsych.timelineVariable('group'),
-                    task:         'classNames'
-                },      
-            }
-        ]
-    };
-    timeline.push(classNamesBlk2);
-    
-    /* ~~~~~~ BIAT ~~~~~~ */
-    /* BIAT training */
-    /* Instructions */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Categorization task</h1>";
-            html += "<p class='justify'>In the following tasks you will be asked to categorize several ";
-            html += "<span class='italic'>items</span> into <span class='emphasize'>categories</span>.</p>";
-            html += "<p class='justify'>This first task will be just for practice.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html
-        },
-    });
-    
-    timeline.push(
-        genBiatBlock('bird',     ['duck',      'eagle',    'parrot', 'pigeon' ], // FclCat
-                     'sweet',    ['chocolate', 'sugar',    'candy',  'dessert'], // FclAtt
-                     'reptile',  ['crocodile', 'turtle',   'lizard', 'snake'  ], // UnFclCat
-                     'salty',    ['salt',      'chips',    'pickles',  'nuts' ]) // UnFclAtt
-    );
-    
-    /* BIAT: attitude & identification */
-    /* Instructions */
-    timeline.push({
-        type: "html-keyboard-response",
-        post_trial_gap: 200,
-        choices: [32],
-        stimulus: function() {
-            var html = "";
-            html += "<h1>Categorization task</h1>";
-            html += "<p class='justify'>You have completed the practice task.</p>";
-            html += "<p class='justify'>Now you will be asked to complete the real categorization tasks.</br>";
-            html += "The rules are the same as in the practice task, but the <span class='italic'>items</span>";
-            html += " and <span class='emphasize'>categories</span> have changed.</p>";
-            html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
-            return html
-        },
-    });
-    
-    var catB = "blue group";
-    var catG = "green group";
-    var attC = "competence";
-    var attW = "warmth";
-    var itemsC = ['capable',  'skilled', 'organized', 'smart'];
-    var itemsW = ['sociable', 'caring',  'friendly',  'kind' ];
-    
-    var biatBC = genBiatBlock(catB, itemsB, attC, itemsC, catG, itemsG, attW, itemsW, rep = biatRep);
-    var biatGC = genBiatBlock(catG, itemsG, attC, itemsC, catB, itemsB, attW, itemsW, rep = biatRep);
-    var biatBW = genBiatBlock(catB, itemsB, attW, itemsW, catG, itemsG, attC, itemsC, rep = biatRep);
-    var biatGW = genBiatBlock(catG, itemsG, attW, itemsW, catB, itemsB, attC, itemsC, rep = biatRep);
-    
-    var biatOrderC = flatten(_.shuffle(['biatBC', 'biatGC']));
-    var biatOrderW = flatten(_.shuffle(['biatBW', 'biatGW']));
-    var biatOrder  = flatten(_.shuffle([biatOrderC, biatOrderW]));
-    
-    biatOrder.map(function(e) { timeline.push( eval(e) )} );
-    
-    timeline = flatten(timeline);
-    /*timeline = [timeline[2]];*/
-    console.log(inGrp)
-    
 
-    /* Initialise the experiment */
+    // RC ---------------------------------------------------------------------------------------------------------------
+    /* Generate RC trials */
+    var imgsRC02 = _.range(1, numOfPairsRC02 + 1); // generate numerical sequence
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
+
+    imgsRC02 = imgsRC02.map(function (e) { return ['imgIAT/faceOri' + e + '.png', 'imgIAT/faceInv' + e + '.png'] });
+    imgsRC12 = imgsRC12.map(function (e) { return ['imgIAT/faceOri' + e + 's.png', 'imgIAT/faceInv' + e + 's.png'] });
+
+    imgsRC02 = _.flattenDeep(imgsRC02);
+    imgsRC12 = _.flattenDeep(imgsRC12);
+
+    preloadimagesRC02 = imgsRC02;
+    preloadimagesRC12 = imgsRC12;
+
+    // imgsRC = _.shuffle(imgsRC); // full randomization
+    // imgsRC = _.flattenDeep(_.shuffle(_.chunk(imgsRC12, 2))); // full randomization but keep inv ori in the same trial
+    imgsRC12 = _.chunk(imgsRC12, 12); // 250 trials (6 ori + 6 anti = 12  faces per trial)
+    imgsRC02 = _.chunk(imgsRC02, 02); // 550 trials (1 ori + 1 inv per trial)
+
+    var RC02_stim = [];
+    var RC12_stim = [];
+    imgsRC02.map(function (e) { RC02_stim.push({ trialImgs: e }) });
+    imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
+
+    /* Randomize RC conditions */
+    var RCcondition = cond != null ? cond : _.sample(["RC02", "RC12"]);
+
+    /* RC instructions & fullscreen */
+    switch (RCcondition) {
+        case "RC02":
+            var estimatedTimePerTrial = "1 seconde";
+            var cssRC = "rcimg-02";
+            var imgWidth = 512;
+            var RCstim = RC02_stim;
+            var numOfPairs = numOfPairsRC02;
+            var preloadimages = preloadimagesRC02;
+            break;
+        case "RC12":
+            var estimatedTimePerTrial = "3 secondes";
+            var cssRC = "rcimg-12";
+            var imgWidth = 150;
+            var RCstim = RC12_stim;
+            var numOfPairs = numOfPairsRC12 / 6;
+            var preloadimages = preloadimagesRC12;
+            break;
+    };
+
+    var RCinst = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Catégorisation des visages</h1>";
+            html += "<p class = 'justify'>Dans cette tâche, plusieurs visages vous seront présentés. ";
+            html += "Ces visages ont été bruités afin de préserver l'anonymat des personnes.</br></br>";
+            html += "Votre tâche consiste à ";
+            html += "<b>choisir le visage qui ressemble le plus à une personne d'origine maghrébine</b></br>";
+            html += " (autrement dit, le visage le plus « maghrébin ») à chaque essai. ";
+            html += "Utilisez la souris pour faire votre choix.</br></br>";
+            html += "En moyenne, les participant·e·s prennent environ <b>" + estimatedTimePerTrial + "</b> par essai. ";
+            html += "Essayez de maintenir un temps similaire.</br></br>"
+            html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
+            html += "Essayez de vous fier à votre <b> intuition</b> pour faire le meilleur choix.</br></br>";
+            html += "Veuillez rester concentré·e.</p>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+            return html;
+        }
+    };
+
+    /* RC */
+    var i = 1;
+    var RC = {
+        timeline_variables: RCstim,
+        repetitions: 1,
+        randomize_order: false,
+        data: {
+            cond: RCcondition,
+            task: 'RC',
+            numOfPairs: numOfPairs
+        },
+        timeline: [{
+            type: 'html-mouse-response',
+            on_load: function () {
+                if (RCcondition == 'RC02') {
+                    $('.jspsych-content-wrapper').css({ "width": "1100px" });
+                    $('.jspsych-content').css({ "max-width": "100%" });
+                };
+            },
+            stimulus: function () {
+                html = "";
+                html += "<p>choisissez le visage qui vous semble le plus <b>« maghrébin »</b> :</p>";
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='" + cssRC + "' src='" + e + "'>";
+                });
+                html += "</br>Essai : " + i + "/" + numOfPairs + "</br>";
+                i += 1;
+                return html;
+            },
+        }]
+    };
+
+    // IAT --------------------------------------------------------------------------------------------------------------
+    // parameters
+    var left_key = "S";
+    var right_key = "L";
+    var label_good_bad = ['bon', 'mauvais'];
+    var label_black_white = ['Maghrébin', 'Français'];
+
+    var IATstims_black = [
+        { categories: "black_white", category: label_black_white[0], stimulus: "Mustafa" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Farid" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Zahir" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Youssef" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Kader" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Hassan" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Ahmed" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Mustafa" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Hamid" },
+        { categories: "black_white", category: label_black_white[0], stimulus: "Ali" },
+    ];
+
+    var IATstims_white = [
+        { categories: "black_white", category: label_black_white[1], stimulus: "Benoît" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Thibault" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Blaise" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Bastien" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Gautier" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Rémy" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Matthieu" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Fabrice" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Sylvain" },
+        { categories: "black_white", category: label_black_white[1], stimulus: "Clément" },
+    ];
+
+    var IATstims_good = [
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "amour" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "magnifique" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "plaisir" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "rires" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "merveilleux" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "joie" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "heureux" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "paix" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "liberté" },
+        { categories: "good_bad", category: label_good_bad[0], stimulus: "vacances" },
+    ];
+
+    var IATstims_bad = [
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "blessure" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "épouvantable" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "horrible" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "mal" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "affreux" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "échec" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "méchant" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "douleur" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "prison" },
+        { categories: "good_bad", category: label_good_bad[1], stimulus: "malade" },
+    ];
+
+    var IATstims_blackWhite = _.flattenDeep([IATstims_black, IATstims_white]);
+    var IATstims_goodBad = _.flattenDeep([IATstims_good, IATstims_bad]);
+
+    // block    trials  Function        Left key        Right key
+    // 1        20      Practice        White           Black
+    // 2        20      Practice        Good            Bad
+    // 3        20      Practice        Good & White    Bad & Black
+    // 4        40      Test            Good & White    Bad & Black
+    // 5        20      Practice        Black           White
+    // 6        20      Practice        Good & Black    Bad & White
+    // 7        40      Test            Good & Black    Bad & White
+    // Note. For half the subjects, the positions of Blocks 1, 3, and 4 are 
+    // switched with those of Blocks 5, 6, and 7, respectively. 
+    // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
+    // a pleasant or an unpleasant word with trials that presented either a White or Black image.
+
+
+    // dscore = rating * cond * time + (1 | id)
+
+    // keys html
+    var left_key_html = "<span class='light-keys'><kbd>" + left_key + "</kbd></span>";
+    var right_key_html = "<span class='light-keys'><kbd>" + right_key + "</kbd></span>";
+
+    // randomize label side
+    label_good_bad = _.shuffle(label_good_bad);
+    label_black_white = _.shuffle(label_black_white);
+
+    // generate labels
+    var block_1_label_left = label_black_white[0];
+    var block_1_label_right = label_black_white[1];
+
+    var block_2_label_left = label_good_bad[0];
+    var block_2_label_right = label_good_bad[1];
+
+    var block_3_label_left_top = label_black_white[0];
+    var block_3_label_left_bot = label_good_bad[0];
+    var block_3_label_right_top = label_black_white[1];
+    var block_3_label_right_bot = label_good_bad[1];
+
+    var block_4_label_left_top = block_3_label_left_top;
+    var block_4_label_left_bot = block_3_label_left_bot;
+    var block_4_label_right_top = block_3_label_right_top;
+    var block_4_label_right_bot = block_3_label_right_bot;
+
+    var block_5_label_left = label_black_white[1];
+    var block_5_label_right = label_black_white[0];
+
+    var block_6_label_left_top = label_black_white[1];
+    var block_6_label_left_bot = label_good_bad[0];
+    var block_6_label_right_top = label_black_white[0];
+    var block_6_label_right_bot = label_good_bad[1];
+
+    var block_7_label_left_top = block_6_label_left_top;
+    var block_7_label_left_bot = block_6_label_left_bot;
+    var block_7_label_right_top = block_6_label_right_top;
+    var block_7_label_right_bot = block_6_label_right_bot;
+
+    // general instructions
+    var IATinst_1 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Tâche de catégorisation de mots et prénoms</h1>";
+            html += "<p class='justify'>Dans la tâche suivante, un ensemble de mots ou prénoms vous sera présenté et ";
+            html += "vous devrez classer ceux-ci dans des groupes. ";
+            html += "Dans cette tâche, vous devrez classer ces mots/prénoms aussi <b>vite</b> que possible que vous pouvez ";
+            html += "tout en essayant de faire le <b>moins d’erreurs possible</b>. Aller trop lentement ou ";
+            html += "faire trop d’erreurs rendra votre résultat ininterprétable.</br></br>";
+            html += "Comme vous le verrez, vous devrez classer les mots en fonction du fait qu'ils soient bons ou mauvais. ";
+            html += "Aussi, vous devrez classer les prénoms en fonction du fait qu’ils soient d’origine maghrébine ou française. ";
+            html += "Sur la slide suivante nous vous présenterons ces catégories de mots et de prénoms.</p></br>";
+            html += "<h3 style='text-align: left'>Gardez à l’esprit</h3>";
+            html += "<p class='justify'>•	Les deux labels en haut de votre écran vous indiquerons quels mots ou ";
+            html += "prénoms vont avec chaque touche.</br>";
+            html += "•	Gardez votre index gauche sur la touche <span class='light-keys'><kbd>S</span> et le droit ";
+            html += "sur la touche <span class='light-keys'><kbd>L</span> afin de pouvoir répondre rapidement.</br>";
+            html += "•	Chaque mot ou prénom a une classification correcte. La plupart de celles-ci sont faciles.</br>";
+            html += "•	Essayez d’aller le plus vite possible.</br>";
+            html += "•	Attendez-vous à faire quelques erreurs parce que vous allez vite. Ce n’est pas grave.</p>"
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
+            return html;
+        },
+        on_load: function () {
+            $('.jspsych-content-wrapper').css({ "width": "900px" });
+            $('.jspsych-content').css({ "max-width": "90%" });
+        },
+    };
+
+    var IATinst_2 = {
+        type: "html-keyboard-response",
+        post_trial_gap: 200,
+        choices: [32],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Tâche de catégorization de mots et prénoms</h1>";
+            html += "<p class='justify'><center>Voici les quatre catégories et les mots/prénoms appartenant à chaque catégorie :</center></p></br>";
+            html += "<table>";
+            html += "<tr>";
+            html += "<th width='200px'>Catégorie</th>";
+            html += "<th align='left'>Mot/prénom</th>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>Bon</td>";
+            html += "<td align='left'>" + IATstims_good.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>Mauvais</td>";
+            html += "<td align='left'>" + IATstims_bad.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>Maghrébin</td>";
+            html += "<td align='left'>" + IATstims_black.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td>Français</td>";
+            html += "<td align='left'>" + IATstims_white.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+            html += "</tr>";
+            html += "</table>";
+            html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
+            return html;
+        }
+    };
+
+    // blocks instructions
+    var IATinst_block_1 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_1_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_1_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Mettez vos indexes ou majeurs sur les touches " + left_key_html + " et " +
+            right_key_html + " de votre clavier. Des <span class='iat_color_black'>prénoms</span> appartenant aux catégories indiquées en haut de votre écran vont apparaître " +
+            "au milieu de l'écran. Quand l'item appartient à une catégorie sur la gauche, appuyez sur la touche " + left_key_html + "; " +
+            "lorsque l'item appartient à une catégorie sur la droite, appuyez sur la touche " + right_key_html + ".</br></br>" +
+            "Les items appartiennent à une seule catégorie. Si vous faites une erreur, un " +
+            "<span style='color: red'>X</span> rouge apparaîtra; corrigez l'erreur en pressant l'autre touche.</br></br>" +
+            "La rapidité de vos réponses à cette tâche de classification est importante. " +
+            "Allez <b>aussi vite que possible</b> tout en faisant aussi <b>peu d'erreurs</b> que possible. " +
+            "Si vous allez trop lentement ou faites trop d'erreurs, cela produira un score ininterprétable. " +
+            "Cette tâche durera environ 5 minutes.</p>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+        on_load: function () {
+            $('#jspsych-content').css({ "max-width": "100%" });
+            $('#jspsych-content').css({ "margin": "0px" });
+            $('#jspsych-content').css({ "width": "900px" });
+        },
+    };
+
+    var IATinst_block_2 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_green'>" + block_2_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_green'>" + block_2_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les <b>catégories ont changé</b>. Les <span class='iat_color_green'>mots</span> à classer ont changé également. " +
+            "La façon de procéder, par contre, est toujours la même.</br></br>" +
+            "Quand l'item appartient à une catégorie sur la gauche, appuyez sur la touche " + left_key_html + "; " +
+            "lorsque l'item appartient à une catégorie sur la droite, appuyez sur la touche " + right_key_html + ".</br></br>" +
+            "Les items appartiennent à une seule catégorie. Si vous faites une erreur, un " +
+            "<span style='color: red'>X</span> rouge apparaîtra; corrigez l'erreur en pressant l'autre touche.</br></br>" +
+            "La rapidité de vos réponses à cette tâche de classification est importante. " +
+            "Allez <b>aussi vite que possible</b> tout en faisant aussi peu d'erreurs que possible." +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    var IATinst_block_3 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_3_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_3_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_3_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_3_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les quatre catégories que vous avez vues séparément apparaissent maintenant ensemble. " +
+            "Rappelez-vous que chaque item appartient seulement à un groupe.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noirs</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    var IATinst_block_4 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_4_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_4_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_4_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_4_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Classez à nouveau les quatres mêmes catégories. Rappelez-vous d'aller aussi vite que possible tout en faisant " +
+            "aussi peu d'erreurs que possible.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noirs</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    var IATinst_block_5 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_5_label_left.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_5_label_right.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Remarquez ci-dessus: il y a seulement <b>deux catéories</b> et <b>leurs positions ont changé</b>. " +
+            "Le concept qui précédemment était sur la gauche est maintenant sur la droite, et le concept qui " +
+            "qui était sur la droite est maintenant sur la gauche. Exercez cette nouvelle configuration.</br></br>" +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    var IATinst_block_6 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_6_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_6_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_6_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_6_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Regardez ci-dessus; les quatre catégories apparaissent maintenant ensemble dans une <b>nouvelle configuration</b>. " +
+            "Rappelez-vous que chaque item appartient seulement à un groupe.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noirs</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    var IATinst_block_7 = {
+        type: 'html-keyboard-response',
+        choices: [32],
+        stimulus: "<table class='iat_table' style='width: 100%; table-layout: fixed;'>" +
+            "<tr>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + left_key_html + " pour :</br><span class='iat_color_black'>" + block_7_label_left_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_7_label_left_bot.bold() + "</span></td>" +
+            "<td></td>" +
+            "<td style='width: 20%;'><p>Appuyez sur " + right_key_html + " pour :</br><span class='iat_color_black'>" + block_7_label_right_top.bold() +
+            "</span></br>ou</br><span class='iat_color_green'>" + block_7_label_right_bot.bold() + "</span></td>" +
+            "</tr>" +
+            "</table>" +
+            "</br></br></br></br></br></br></br></br>" +
+            "<p class='justify' style='padding: 0 40px 0 40px;'>" +
+            "Classez à nouveau les quatres mêmes catégories. Rappelez-vous d'aller aussi vite que possible tout en faisant " +
+            "aussi peu d'erreurs que possible.</br></br>" +
+            "Les labels et items <span class='iat_color_green'>verts</span> et <span class='iat_color_black'>noirs</span> " +
+            "devraient vous aider à identifier la catégorie pertinente. " +
+            "Utilisez les touches " + left_key_html + " et " + right_key_html + " pour catégoriser les items dans " +
+            "les quatres groupes figurant à <b>gauche</b> ou à <b>droite</b>, " +
+            "et corrigez les erreurs en pressant l'autre touche.</br></br>" +
+            "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>",
+    };
+
+    // IAT functions
+    var shuffleIATstims = function (stims) {
+        // Alterenate categories blackWhite vs. goodBad
+        var n = stims.length / 2;
+        var chunkedStims = _.chunk(stims, n);
+        var stims1 = jsPsych.randomization.shuffleNoRepeats(chunkedStims[0]);
+        var stims2 = jsPsych.randomization.shuffleNoRepeats(chunkedStims[1]);
+
+        var stims12 = stims1.map(function (e, i) { // merge two arrays so that the values alternate
+            return [e, stims2[i]];
+        });
+        var stims21 = stims2.map(function (e, i) {
+            return [e, stims1[i]];
+        });
+
+        var t = _.sample([stims12, stims21]);
+        t = _.flattenDeep(t);
+
+        return t;
+    };
+
+    var genIATblock = function (stims) {
+        var trial_block = {
+            timeline_variables: stims,
+            timeline: [{
+                type: 'iat-html',
+                stimulus: function () {
+                    if (jsPsych.timelineVariable('category', true) == label_good_bad[0] | jsPsych.timelineVariable('category', true) == label_good_bad[1]) {
+                        return "<span class='iat_color_green'>" + jsPsych.timelineVariable('stimulus', true) + "</span>";
+                    } else {
+                        return "<span class='iat_color_black'>" + jsPsych.timelineVariable('stimulus', true) + "</span>";
+                    };
+                },
+                html_when_wrong: '<span style="color: red; font-size: 50px">X</span>',
+                stim_key_association: jsPsych.timelineVariable('correct_key'),
+                bottom_instructions: "<p>Si vous appuyez sur la mauvaise touche, un <span style='color: red'>X</span> rouge apparaîtra. Appuyez sur l'autre touche pour continuer</p>",
+                force_correct_key_press: true,
+                display_feedback: true,
+                left_category_key: left_key,
+                right_category_key: right_key,
+                left_category_label: function () {
+                    var label = jsPsych.timelineVariable('labels_left', true);
+                    if (label.length == 1) {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                    } else {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                        if (label[1] == label_good_bad[0] | label[1] == label_good_bad[1]) {
+                            label[1] = "<span class='iat_color_green'>" + label[1] + "</span>";
+                        } else {
+                            label[1] = "<span class='iat_color_black'>" + label[1] + "</span>";
+                        };
+                    };
+                    return label;
+                },
+                right_category_label: function () {
+                    var label = jsPsych.timelineVariable('labels_right', true);
+                    if (label.length == 1) {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                    } else {
+                        if (label[0] == label_good_bad[0] | label[0] == label_good_bad[1]) {
+                            label[0] = "<span class='iat_color_green'>" + label[0] + "</span>";
+                        } else {
+                            label[0] = "<span class='iat_color_black'>" + label[0] + "</span>";
+                        };
+                        if (label[1] == label_good_bad[0] | label[1] == label_good_bad[1]) {
+                            label[1] = "<span class='iat_color_green'>" + label[1] + "</span>";
+                        } else {
+                            label[1] = "<span class='iat_color_black'>" + label[1] + "</span>";
+                        };
+                    };
+                    return label;
+                },
+                response_ends_trial: true
+            }],
+            data: {
+                label_left_top: jsPsych.timelineVariable('label_left_top'),
+                label_left_bot: jsPsych.timelineVariable('label_left_bot'),
+                label_right_top: jsPsych.timelineVariable('label_right_top'),
+                label_right_bot: jsPsych.timelineVariable('label_right_bot'),
+                blockNum: jsPsych.timelineVariable('blockNum'),
+                type: jsPsych.timelineVariable('type'),
+                category: jsPsych.timelineVariable('category'),
+                categories: jsPsych.timelineVariable('categories'),
+                stimulus: jsPsych.timelineVariable('stimulus'),
+                task: "IAT",
+            },
+            on_load: function () {
+                $('#jspsych-content').css({ "max-width": "100%" });
+                $('#jspsych-content').css({ "margin": "0px" });
+                $('#jspsych-content').css({ "width": "900px" });
+            },
+            on_finish: function (data) {
+                console.log(jsPsych.data.getLastTrialData().json());
+            },
+        }
+        return trial_block;
+    };
+
+    // block stims
+    var block_1 = _.cloneDeep(IATstims_blackWhite);
+    block_1 = _.shuffle(block_1);
+    block_1.map(function (x) {
+        x.label_left_top = block_1_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_1_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_1_label_left];
+        x.labels_right = [block_1_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 1;
+    });
+
+    var block_2 = _.cloneDeep(IATstims_goodBad);
+    block_2 = _.shuffle(block_2);
+    block_2.map(function (x) {
+        x.label_left_top = block_2_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_2_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_2_label_left];
+        x.labels_right = [block_2_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 2;
+    });
+
+    var block_3 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad)]);
+    block_3 = shuffleIATstims(block_3);
+    block_3.map(function (x) {
+        x.label_left_top = block_3_label_left_top;
+        x.label_left_bot = block_3_label_left_bot;
+        x.label_right_top = block_3_label_right_top;
+        x.label_right_bot = block_3_label_right_bot;
+        x.labels_left = [block_3_label_left_top, block_3_label_left_bot];
+        x.labels_right = [block_3_label_right_top, block_3_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 3;
+    });
+
+    var block_4 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad), _.cloneDeep(IATstims_goodBad)]);
+    block_4 = shuffleIATstims(block_4);
+    block_4.map(function (x) {
+        x.label_left_top = block_4_label_left_top;
+        x.label_left_bot = block_4_label_left_bot;
+        x.label_right_top = block_4_label_right_top;
+        x.label_right_bot = block_4_label_right_bot;
+        x.labels_left = [block_4_label_left_top, block_4_label_left_bot];
+        x.labels_right = [block_4_label_right_top, block_4_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 4;
+    });
+
+    var block_5 = _.cloneDeep(IATstims_blackWhite);
+    block_5 = _.shuffle(block_5);
+    block_5.map(function (x) {
+        x.label_left_top = block_5_label_left;
+        x.label_left_bot = undefined;
+        x.label_right_top = block_5_label_right;
+        x.label_right_bot = undefined;
+        x.labels_left = [block_5_label_left];
+        x.labels_right = [block_5_label_right];
+        x.correct_key = x.category == x.labels_left[0] ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 5;
+    });
+
+    var block_6 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad)]);
+    block_6 = shuffleIATstims(block_6);
+    block_6.map(function (x) {
+        x.label_left_top = block_6_label_left_top;
+        x.label_left_bot = block_6_label_left_bot;
+        x.label_right_top = block_6_label_right_top;
+        x.label_right_bot = block_6_label_right_bot;
+        x.labels_left = [block_6_label_left_top, block_6_label_left_bot];
+        x.labels_right = [block_6_label_right_top, block_6_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'practice';
+        x.blockNum = 6;
+    });
+
+    var block_7 = _.flattenDeep([_.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_blackWhite), _.cloneDeep(IATstims_goodBad), _.cloneDeep(IATstims_goodBad)]);
+    block_7 = shuffleIATstims(block_7);
+    block_7.map(function (x) {
+        x.label_left_top = block_7_label_left_top;
+        x.label_left_bot = block_7_label_left_bot;
+        x.label_right_top = block_7_label_right_top;
+        x.label_right_bot = block_7_label_right_bot;
+        x.labels_left = [block_7_label_left_top, block_7_label_left_bot];
+        x.labels_right = [block_7_label_right_top, block_7_label_right_bot];
+        x.correct_key = (x.category == x.labels_left[0] | x.category == x.labels_left[1]) ? 'left' : 'right';
+        x.type = 'test';
+        x.blockNum = 7;
+    });
+
+    // generate IAT blocks
+    var IAT_block_1 = genIATblock(block_1);
+    var IAT_block_2 = genIATblock(block_2);
+    var IAT_block_3 = genIATblock(block_3);
+    var IAT_block_4 = genIATblock(block_4);
+    var IAT_block_5 = genIATblock(block_5);
+    var IAT_block_6 = genIATblock(block_6);
+    var IAT_block_7 = genIATblock(block_7);
+
+
+    // DEMO --------------------------------------------------------------------------------------------------------------
+    var age = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: "Veuillez indiquer votre âge :", rows: 1, columns: 10 }],
+            button_label: "Continuer",
+        }],
+        loop_function: function (data) {
+            var age = data.values()[0].responses;
+            var age = JSON.parse(age).Q0;
+            if (age == "") {
+                alert("Veuillez indiquer votre âge !");
+                return true;
+            }
+        },
+        on_load: function () {
+            $('#jspsych-content').css({ "margin": "100px" });
+        },
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                age: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
+    var gender = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "Veuillez indiquer votre genre :", options: ['homme', 'femme', 'autre'], required: true }],
+        button_label: "Continuer",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                gender: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
+    var origin = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "De quelle origine vous estimez-vous ?", options: ["D'origine belge", "D'origine française", "D'origine maghrébine", "D'une autre origine"], required: true }],
+        button_label: "Continuer",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                origin: JSON.parse(data.responses)["Q0"],
+            });
+        },
+    };
+
+    var email = '';
+    var lotteryInst = "<h1>PARTICIPATION AU TIRAGE AU SORT</h1>";
+    lotteryInst += "<p>Veuillez introduire votre <b>email</b> afin de participer au tirage au sort et peut-être remporter 100€. ";
+    lotteryInst += "Nous garantissons la confidentialité et l'anonymat de vos réponses. Cette addresse mail sera uniquement utilisée ";
+    lotteryInst += "pour contacter le ou la gagnant.e.</p>";
+
+    var lottery = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: lotteryInst, rows: 1, columns: 15 }],
+            button_label: "Continuer",
+        }],
+        on_finish: function (data) {
+            email = JSON.parse(data.responses)["Q0"];
+        },
+    };
+
+    var debriefing = "";
+    debriefing += "<h1>FIN DE L'ETUDE</h1>";
+    debriefing += "<p class='justify'>Merci pour votre participation. ";
+    debriefing += "L'objectif de l'étude est d'analyser le lien entre les représentations visuelles des personnes d'origine maghrébine ";
+    debriefing += "et le niveau de préjugé des personnes ";
+    debriefing += "au travers d'une nouvelle technique basée sur la présentation de visages bruités.</br></br>";
+    debriefing += "N'hésitez pas à nous contacter pour toute question ou commentaire:</br>mathias.schmitz@uclouvain.be</br></br>";
+    debriefing += "<i>Note : vos données ont été enregistrée. Vous pouvez à présent fermer cette fenêtre.</i></p>";
+
+    /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+    timeline.push(activeFullscreen);
+    timeline.push(RCinst);
+    timeline.push(RC);
+    timeline.push(IATinst_1);
+    timeline.push(IATinst_2);
+    timeline.push(IATinst_block_1);
+    timeline.push(IAT_block_1);
+    timeline.push(IATinst_block_2);
+    timeline.push(IAT_block_2);
+    timeline.push(IATinst_block_3);
+    timeline.push(IAT_block_3);
+    timeline.push(IATinst_block_4);
+    timeline.push(IAT_block_4);
+    timeline.push(IATinst_block_5);
+    timeline.push(IAT_block_5);
+    timeline.push(IATinst_block_6);
+    timeline.push(IAT_block_6);
+    timeline.push(IATinst_block_7);
+    timeline.push(IAT_block_7);
+    timeline.push(age);
+    timeline.push(gender);
+    timeline.push(origin);
+    timeline.push(lottery);
+
+    /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
     jsPsych.init({
-        timeline: timeline,
-        max_load_time: 60*1000,
+        timeline: _.flattenDeep(timeline),
+        preload_images: preloadimages,
+        max_load_time: 1000 * 900,
         exclusions: {
-            min_width: 800,
-            min_height: 600,
+            min_width: 1100,
+            min_height: 700,
         },
-        on_interaction_data_update: function(data) {
-            //console.log(JSON.stringify(data)); // focus/blur data
+        on_interaction_data_update: function (data) {
+            // console.log(JSON.stringify(data))
         },
-        on_finish: function(data) { 
-            $("#jspsych-content").html("<img src='img/loading.gif'>");
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
 
             /* Initialize Firebase */
             var config = {
                 apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
                 databaseURL: "https://biatw-68fe6.firebaseio.com/"
             };
-            
+
             firebase.initializeApp(config);
             var database = firebase.database();
-            if(id == null) {id = database.ref("IP").push().key;}; // if no id provided, generate a Firebase id
-            
+
+            // if no id provided, generate a new id
+            if (id == null) { id = jsPsych.randomization.randomID(15) };
 
             /* Qualtrics url parameters */
-            qlink += "?id=" + id;
-            qlink += "&windWidth="    + window.innerWidth  || document.documentElement.clientWidth  || document.body.clientWidth;
-            qlink += "&windHeight="   + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            qlink += "&screenWidth="  + screen.width  || 0;
-            qlink += "&screenHeight=" + screen.height || 0;
-            qlink += "&userAgent="    + navigator.userAgent;
-            qlink += "&totalTime="    + jsPsych.totalTime();
-            
+            // qlink += "?id=" + id;
+            // qlink += "&cond=" + RCcondition;
+            // qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            // qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            // qlink += "&screenWidth=" + screen.width || 0;
+            // qlink += "&screenHeight=" + screen.height || 0;
+            // qlink += "&userAgent=" + navigator.userAgent;
+            // qlink += "&totalTime=" + jsPsych.totalTime();
+
             /* jsPsych: add data to every trial */
             jsPsych.data.addProperties({
-                id:          id,
-                hghGrp:      hghGrp,
-                inGrp:       inGrp, // "G", "B", "O"
-                status:      status, // codes for condition: "H", "L", "O"
-                hghFstSta:   hghFst,
-                hghFstDscrp: hghFstDscrp,
-                biatOrder:   biatOrder.join().replace(/biat/g, '').replace(/,/g, ''),
-                itemsB:      itemsB.join(),
-                itemsG:      itemsG.join(),
-                itemsO:      [itemsGF[0], itemsGM[0], itemsBF[0], itemsBM[0]].join()
+                id: id
             });
-           
-            if(jsPsych.data.getURLVariable("displayData")) {jsPsych.data.displayData()};
-            
-            var dataAll = data.csv();
-            var dataClassNames = data.filter({task: 'classNames'}).csv();
-            var dataBiat = data.filter({task: 'biat'}).csv();
+
+            var dataRC = data.filter({ task: 'RC' }).csv();
+            var dataIAT = data.filter({ task: 'IAT' }).csv();
 
             /* Send data to Firebase and redirect to Qualtrics */
-            database.ref("IP/" + id + "/").update({dataAll}).then(function() { console.log("dataAll sent!") });
-            database.ref("IP/" + id + "/").update({dataClassNames}).then(function() { console.log("dataClassNames sent!") });
-            database.ref("IP/" + id + "/").update({dataBiat}).then(function() { 
-                window.location = qlink; // redirect to qualtrics
-                //jsPsych.data.displayData();
-            });
+            database
+                .ref("RCiat/" + "RC/" + id + "/")
+                .update({ dataRC })
+                .then(function () {
+                    console.log("Data RC sent!");
+                    database
+                        .ref("RCiat/" + "IAT/" + id + "/")
+                        .update({ dataIAT })
+                        .then(function () {
+                            console.log("Data IAT sent!");
+                            database
+                                .ref("RCiat/" + "email/")
+                                .update({ email })
+                                .then(function () {
+                                    console.log("Email data sent!");
+                                    $("#jspsych-content").html(debriefing);
+                                    // window.location.href = qlink;
+                                    // jsPsych.data.displayData();
+                                });;
+                        });;
+                });;
         }
     });
-    </script>
-</head>
-<body>
-</body>
+</script>
+
 </html>
