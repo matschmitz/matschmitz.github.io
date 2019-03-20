@@ -180,7 +180,7 @@
     ];
 
     var questionsMitos = [];
-    itemsMitos.map(function (item, i) { questionsMitos.push({ prompt: '<i>' + item + '</i>', labels: scale, required: true }); });
+    itemsMitos.map(function (item, i) { questionsMitos.push({ prompt: '<i>' + item + '</i>', labels: scale }); });
 
     var mitos = {
         type: 'survey-likert',
@@ -189,10 +189,11 @@
         post_trial_gap: 300,
         button_label: 'continuar',
         on_load: function () {
-            $(".jspsych-content-wrapper").css("overflow-y", "auto");
+            $(".jspsych-content-wrapper").css("height", "auto");
             $(".jspsych-content-wrapper").scrollTop(0);
         },
         on_finish: function (data) {
+            $(".jspsych-content-wrapper").css("height", "600px");
             var parsed_response = JSON.parse(data.responses);
             data.scale = 'mitos';
             data.mitos_1 = parsed_response.Q0 + 1;
@@ -261,10 +262,11 @@
         post_trial_gap: 300,
         button_label: 'continuar',
         on_load: function () {
+            $(".jspsych-content-wrapper").css("height", "auto");
             $(".jspsych-content-wrapper").scrollTop(0);
-            $(".jspsych-content-wrapper").css("overflow-y", "auto");
         },
         on_finish: function (data) {
+            $(".jspsych-content-wrapper").css("height", "600px");
             var parsed_response = JSON.parse(data.responses);
             data.scale = 'sexismo';
             data.sexismo_1 = parsed_response.Q0 + 1;
@@ -359,9 +361,9 @@
         '<span style="color:#cc3300; font-weight: bold">¡Muchas gracias por su participación!</span>';
 
     /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
-    timeline.push(activeFullscreen);
-    timeline.push(RCinst);
-    timeline.push(RC);
+    // timeline.push(activeFullscreen);
+    // timeline.push(RCinst);
+    // timeline.push(RC);
     timeline.push(mitos);
     timeline.push(sexismo);
     timeline.push(age);
