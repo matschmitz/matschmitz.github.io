@@ -10,7 +10,6 @@
     <script src="jspsych-6.0.3/jspsych.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
-    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="js/jspsych-html-mouse-response.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/lodash.min.js"></script>
@@ -45,7 +44,7 @@
 <script>
     /* Parameters */
     var numOfPairsRC12 = 600; // Total number of pair images images (inv & ori)
-    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eFM8wo1wCZbiWAB';
+    var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_0udRZi3ThwbXoEt';
     var gitImg = "https://matschmitz.github.io/noisyFaces/noisyFacesPeru/";
 
     /* Initial variables */
@@ -59,10 +58,21 @@
         message: function () {
             html = "";
             html += "<h1>Consentimiento informado</h1>";
-            html += "<p class='justify'>Aquí va el consentimiento informado.</p>";
+            html += "<p class='justify'>";
+            html += "Estamos realizando una investigación en psicología social a cargo de Mathias Schmitz, ";
+            html += "miembro del <b>Grupo de Psicología Política y Social de la PUCP</b>. Con esa finalidad, ";
+            html += "le pedimos su colaboración con el llenado de este cuestionario de aproximadamente ";
+            html += "<b>15 minutos de duración</b>. Solo pueden participar peruanos y peruanas mayores de 18 años.</br></br>";
+            html += "El cuestionario busca conocer sus opiniones personales, es decir que no existen ";
+            html += "respuestas correctas o incorrectas. Es anónimo y garantizamos que la información que nos brinde será ";
+            html += "trabajada de manera confidencial y sólo con fines académicos. ";
+            html += "La participación es voluntaria y no implica riesgos.</br></br>";
+            html += "Agradecemos de antemano su colaboración y ante cualquier duda o comentario puede contactarse al ";
+            html += "siguiente correo electrónico: mathias.schmitz@pucp.pe";
+            html += "</p>";
             return html;
         },
-        button_label: "Deseo participar en este estudio",
+        button_label: "Entiendo el consentimiento informado y deseo participar en este estudio",
         type: 'fullscreen',
         fullscreen_mode: true,
         delay_after: 200,
@@ -79,24 +89,22 @@
     imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
 
     var RCinst = {
-        type: "html-keyboard-response",
+        type: "html-button-response",
         post_trial_gap: 200,
-        choices: [32],
+        choices: ['empezar'],
         stimulus: function () {
             var html = "";
             html += "<h1>Categorización de rostros</h1>";
             html += "<p class = 'justify'>A continuación, varios rostros le serán presentados. ";
-            html += "Estos rostros se ven borrosos para mantener el anonimato de estas personas. ";
-            html += "Usted notará que estos rostros son similares entre sí, ";
-            html += "pero en realidad son diferentes personas.</br></br>";
+            html += "Usted notará que estos rostros se ven borrosos y son similares entre sí, ";
+            html += "pero en realidad son diferentes.</br></br>";
             html += "En total usted deberá completar 100 ensayos. En cada uno de ellos, se le pedirá que:</br>";
             html += '<b>Seleccione el rostro que se parezca más al de un "agresor sexual"</b>.</br></br>';
             html += "Utilice el mouse (o mousepad) para hacer su selección. ";
             html += "Tome en cuenta que la mayoría de participantes tarda aproximadamente ";
-            html += "<b>3 segundos</b> en cada ensayo. Trate de mantener un tiempo similar. ";
+            html += "<b>5 segundos</b> para elegir cada rostro. Trate de mantener un tiempo similar. ";
             html += "Lo mejor es que usted seleccione los rostros de manera <b>intuitiva</b>.</br></br>";
             html += "Por favor trate de mantenerse concentrado.</p>";
-            html += "<p></br>presione <span class='light-keys'><kbd>espacio</kbd></span> pour empezar</p>";
             return html;
         }
     };
@@ -142,8 +150,7 @@
             // console.log(JSON.stringify(data))
         },
         on_finish: function (data) {
-            // $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
-            $("#jspsych-content").html("END OF SURVEY. You can now close thiw window.");
+            $("#jspsych-content").html("<img src='img/loading.gif'>");
 
             /* Initialize Firebase */
             var config = {
@@ -180,8 +187,7 @@
                 .update({ dataRC })
                 .then(function () {
                     console.log("Data RC sent!");
-                    // window.location = qlink;
-                    // jsPsych.data.displayData();
+                    window.location.href = qlink;
                 });;
         }
     });
