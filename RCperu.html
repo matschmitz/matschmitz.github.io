@@ -58,7 +58,7 @@
 
 <script>
     /* Parameters */
-    var numOfPairsRC12 = 600; // Total number of pair images images (inv & ori)
+    var numOfPairsRC12 = 300; // Total number of pair images images (inv & ori)
     var qlink = 'https://uclpsychology.co1.qualtrics.com/jfe/form/SV_0udRZi3ThwbXoEt';
     var gitImg = "https://matschmitz.github.io/noisyFaces/noisyFacesPeru/";
 
@@ -77,7 +77,7 @@
             html += "Estamos realizando una investigación en psicología social a cargo de Mathias Schmitz, ";
             html += "miembro del <b>Grupo de Psicología Política y Social de la PUCP</b>. Con esa finalidad, ";
             html += "le pedimos su colaboración con el llenado de este cuestionario de aproximadamente ";
-            html += "<b>15 minutos de duración</b>. Solo pueden participar peruanos y peruanas mayores de 18 años.</br></br>";
+            html += "<b>10 minutos de duración</b>. Solo pueden participar peruanos y peruanas mayores de 18 años.</br></br>";
             html += "El cuestionario busca conocer sus opiniones personales, es decir que no existen ";
             html += "respuestas correctas o incorrectas. Es anónimo y garantizamos que la información que nos brinde será ";
             html += "trabajada de manera confidencial y sólo con fines académicos. ";
@@ -97,7 +97,8 @@
     /* Generate RC trials */
     var RC12_stim = [];
     var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
-    imgsRC12 = imgsRC12.map(function (e) { return [gitImg + 'faceOri' + e + 's.png', gitImg + 'faceInv' + e + 's.png'] });
+    imgsRC12 = imgsRC12.map(function (e) { return [gitImg + 'faceOri' + e + '.png', gitImg + 'faceInv' + e + '.png'] });
+    imgsRC12 = _.shuffle(imgsRC12); // shuffle, but keep 
     imgsRC12 = _.flattenDeep(imgsRC12);
     preloadimages = imgsRC12;
     imgsRC12 = _.chunk(imgsRC12, 12); // 100 trials (6 ori + 6 anti = 12 faces per trial)
@@ -113,7 +114,7 @@
             html += "<p class = 'justify'>A continuación, varios rostros le serán presentados. ";
             html += "Usted notará que estos rostros se ven borrosos y son similares entre sí, ";
             html += "pero en realidad son diferentes.</br></br>";
-            html += "En total usted deberá completar 100 ensayos. En cada uno de ellos, se le pedirá que:</br>";
+            html += "En total usted deberá completar 50 ensayos. En cada uno de ellos, se le pedirá que:</br>";
             html += '<i><b>Seleccione el rostro que se parezca más al de un "agresor sexual"</b></i>.</br></br>';
             html += "Utilice el mouse (o mousepad) para hacer su selección. ";
             html += "Tome en cuenta que la mayoría de participantes tarda aproximadamente ";
@@ -134,11 +135,11 @@
             type: 'html-mouse-response',
             stimulus: function () {
                 html = "";
-                html += '<p style="margin:0">Seleccione el rostro que se parezca más al de un <b>"agresor sexual"</b>:</p>';
+                html += '<p style="margin:0">Seleccione el rostro que se parezca más al de un "<b>agresor sexual</b>":</p>';
                 jsPsych.timelineVariable('trialImgs', true).map(function (e) {
                     html += "<img class='rcimg-12' src='" + e + "'>";
                 });
-                html += '<p style="margin:0">Ensayo:' + i + '/100</p>';
+                html += '<p style="margin:0">Ensayo:' + i + '/50</p>';
                 i += 1;
                 return html;
             },
@@ -173,14 +174,14 @@
         'Una mujer no tiene necesidad de agredir sexualmente a un hombre, ya que los hombres siempre están dispuestos a tener relaciones sexuales.',
         'Una mujer solo sería capaz de realizar actos de violencia sexual si antes ha sido víctima.',
         'La única consecuencia que puede existir para un hombre que ha sido víctima de violencia sexual es la pérdida de su orgullo.',
-        'El acoso sexual callejero solo es violencia sexual cuando hay un contacto físico (ej.Tocamientos indebidos).',
+        'El acoso sexual callejero solo es violencia sexual cuando hay un contacto físico (ej. tocamientos indebidos).',
         'Los insultos o comentarios sexuales pueden tener un impacto negativo en la otra persona, pero no lo suficiente como para considerarlo un acto de violencia sexual.',
         'Aquellas personas que realizan actos de violencia sexual tienen enfermedades mentales.',
         'Las mujeres que realizan actos de violencia sexual suelen ser lesbianas que adoptar el papel “activo” en una relación.'
     ];
 
     var questionsMitos = [];
-    itemsMitos.map(function (item, i) { questionsMitos.push({ prompt: '<i>' + item + '</i>', labels: scale }); });
+    itemsMitos.map(function (item, i) { questionsMitos.push({ prompt: '<i>' + item + '</i>', labels: scale, required: true }); });
 
     var mitos = {
         type: 'survey-likert',
@@ -219,8 +220,6 @@
             data.mitos_21 = parsed_response.Q20 + 1;
             data.mitos_22 = parsed_response.Q21 + 1;
             data.mitos_23 = parsed_response.Q22 + 1;
-            console.log(data);
-
         },
     };
 
@@ -293,7 +292,28 @@
             data.sexismo_22 = parsed_response.Q21 + 1;
             data.sexismo_23 = parsed_response.Q22 + 1;
             data.sexismo_24 = parsed_response.Q23 + 1;
-            console.log(data);
+        },
+    };
+
+    var op = {
+        type: 'survey-likert',
+        preamble: '<p class = "justify">' +
+            'En general, en términos de orientación o simpatías políticas, la gente se ubica ' +
+            'en un continuo que va desde la <i>Izquierda</i> hasta la <i>Derecha</i>. ' +
+            'Quisiéramos que haga el ejercicio para ubicarse usted mismo en ese continuo según ' +
+            'la siguiente escala donde: 1 = "De izquierda" y 7 = "De derecha".</p>',
+        questions: [{
+            prompt: '',
+            labels: ["1</br>Orientación política de izquierda", "2", "3", "4", "5", "6", "7</br>Orientación política de derecha"],
+            required: true,
+        }],
+        post_trial_gap: 300,
+        button_label: 'continuar',
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                op: JSON.parse(data.responses).Q0 + 1,
+            });
+            console.log(JSON.parse(data.responses).Q0 + 1);
         },
     };
 
@@ -350,7 +370,8 @@
         delay_after: 300,
     };
 
-    var debriefing = '<span style="color:#cc3300; font-weight: bold">Fin de la encuesta</span></br></br>' +
+    var debriefing = '' +
+        '<span style="color:#cc3300; font-weight: bold">Fin de la encuesta</span></br></br>' +
         '<p class = "justify">' +
         'El objetivo general de este estudio es analyzar la forma en que las personas se representan ' +
         'a los agresores sexuales. Le pedimos no divulgar el objetivo de este estudio con otros participantes ' +
@@ -361,11 +382,12 @@
         '<span style="color:#cc3300; font-weight: bold">¡Muchas gracias por su participación!</span>';
 
     /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
-    // timeline.push(activeFullscreen);
-    // timeline.push(RCinst);
-    // timeline.push(RC);
+    timeline.push(activeFullscreen);
+    timeline.push(RCinst);
+    timeline.push(RC);
     timeline.push(mitos);
     timeline.push(sexismo);
+    timeline.push(op);
     timeline.push(age);
     timeline.push(gender);
     timeline.push(ses);
