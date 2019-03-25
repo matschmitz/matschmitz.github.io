@@ -67,6 +67,18 @@
     var preloadimages = [];
     var id = jsPsych.data.getURLVariable("id");
 
+
+    // Check browser ---------------------------------------------------------------------------------------------------------
+    var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    var browserInst = "";
+
+    if (!isChrome && !isFirefox) {
+        browserInst += "</br></br><span style='color:#8e1d1d'>Le recomendamos volver a cargar esta página en Google Chrome ";
+        browserInst += "o Mozilla Firefox para evitar todo problema ténico.</span>";
+    }
+
+
     // Consent ---------------------------------------------------------------------------------------------------------------
     /* Fullscreen mode */
     var activeFullscreen = {
@@ -84,6 +96,7 @@
             html += "La participación es voluntaria y no implica riesgos.</br></br>";
             html += "Agradecemos de antemano su colaboración y ante cualquier duda o comentario puede contactarse al ";
             html += "siguiente correo electrónico: mathias.schmitz@pucp.pe";
+            html += browserInst;
             html += "</p>";
             return html;
         },
@@ -399,10 +412,10 @@
         timeline: _.flattenDeep(timeline),
         preload_images: preloadimages,
         max_load_time: 10000 * 900,
-        //exclusions: {
-        //    min_width: 750,
-        //    min_height: 600,
-        //},
+        exclusions: {
+           min_width: 750,
+           min_height: 600,
+        },
         on_interaction_data_update: function (data) {
             // console.log(JSON.stringify(data))
         },
