@@ -42,8 +42,8 @@
 <script>
 
   // Parameters
-  var n = 1; // number of CIs randomly sampled for each cell (default: 10)
-  var rt_ci_preview = 250; // time that each CI is exposed (default: 1000)
+  var n = 10; // number of CIs randomly sampled for each cell (default: 10)
+  var rt_ci_preview = 1000; // time that each CI is exposed (default: 1000)
   var rt_inter_ci_preview = 200; // inter-CI time (default: 200)
   var githubCIs = 'https://matschmitz.github.io/noisyFaces/iat_cis/'; // github CIs path
 
@@ -51,6 +51,8 @@
   var timeline = [];
   var preloadimages = [];
   var prolificID = jsPsych.data.getURLVariable("prolificID"); // Need to add ?prolificID={{%PROLIFIC_PID%}} at the end of the prolific survey link!
+  var id = jsPsych.data.getURLVariable("id");
+  if (id == null) { id = jsPsych.randomization.randomID(15) };
 
   // PREVIEW IND CIS STIMS
   var preview_CIsIndStims = [
@@ -359,7 +361,7 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
-      html += "<p class='justify'>Dans cette étude, vous allez devoir <b>évaluer des visages</b> (40 visages en tout) et indiquer, "
+      html += "<p class='justify'>Dans cette étude, vous allez devoir <b>évaluer des visages</b> (52 visages en tout) et indiquer, "
       html += "pour chacun d'entre eux, à quel point celui-ci vous paraît <b>aggressif</b> et <b>digne de confiance</b>. ";
       html += "Comme vous allez le voir, les visages qui vous seront présentés ont été rendus ";
       html += "<b>flous</b> afin de rendre la tâche moins aisée.</br></br>";
@@ -487,7 +489,7 @@
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
       html += "<p class='justify'>Vous allez maintenant devoir évaluer le deuxième échantillon de ";
-      html += "<b>12 visages</b> qui vous a été présentés.</br></br>";
+      html += "<b>12 visages</b> qui vous a été présenté.</br></br>";
       html += "Les consignes ne changent pas : vous devrez indiquer pour chaque visage à quel point celui-ci vous paraît ";
       html += "<b>criminel</b> et <b>digne de confiance</b> (de -3 = pas du tout à +3 = totalement).</br></br>";
       html += "Comme précédemment, essayez de répondre aussi <b>honnêtement et spontanément</b> que possible.</p>";
@@ -600,6 +602,25 @@
     },
   };
 
+  var frOptions = [
+    "Langue maternelle",
+    'Très bon',
+    'bon',
+    'Moyen',
+    'Mauvais',
+    "Très mauvais"
+  ];
+  var fr = {
+    type: 'survey-multi-choice',
+    questions: [{ prompt: "Quel est votre niveau de français ?", options: frOptions, required: true }],
+    button_label: "continuer",
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        fr: JSON.parse(data.responses)["Q0"],
+      });
+    },
+  };
+
   var originOptions = [
     "D’origine française",
     'D’origine maghrébine',
@@ -648,6 +669,7 @@
   timeline.push(gender);
   timeline.push(ses);
   timeline.push(edu);
+  timeline.push(fr);
   timeline.push(origin);
   timeline.push(exitFullscreen);
 
@@ -674,7 +696,6 @@
 
       firebase.initializeApp(config);
       var database = firebase.database();
-      id = jsPsych.randomization.randomID(15); // short ID
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
