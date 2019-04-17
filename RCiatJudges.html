@@ -42,8 +42,8 @@
 <script>
 
   // Parameters
-  var n = 10; // number of CIs randomly sampled for each cell (default: 10)
-  var rt_ci_preview = 1000; // time that each CI is exposed (default: 1000)
+  var n = 1; // number of CIs randomly sampled for each cell (default: 10)
+  var rt_ci_preview = 250; // time that each CI is exposed (default: 1000)
   var rt_inter_ci_preview = 200; // inter-CI time (default: 200)
   var githubCIs = 'https://matschmitz.github.io/noisyFaces/iat_cis/'; // github CIs path
 
@@ -54,31 +54,11 @@
 
   // PREVIEW IND CIS STIMS
   var preview_CIsIndStims = [
-    'ind_RC12_5min_orm9uxhfyz2w5ed.png',
-    'ind_RC12_5min_hvqzknyv6kmd2cn.png',
-    'ind_RC12_5min_1pbe110yjx9wwjk.png',
-    'ind_RC12_5min_3lz5ukzkvume5pp.png',
-    'ind_RC12_5min_499672hna0xoc8u.png',
-    'ind_RC12_5min_bpdq3m80tl7nokd.png',
-    'ind_RC12_5min_rek3rfc0om3uor3.png',
-    'ind_RC12_5min_6t1obp27g66w6zo.png',
-    'ind_RC12_5min_66y780n5amt04l9.png',
-    'ind_RC12_5min_myxa2xypxxgv80v.png',
     'ind_RC12_5min_ewa2uot1us46jnt.png',
     'ind_RC12_5min_b5egmhnzvytrqe5.png',
     'ind_RC12_5min_mnwcunmzvk4at0v.png',
     'ind_RC12_5min_hck3a2h7dso2wf3.png',
     'ind_RC12_5min_uzwdp450bfz9nw4.png',
-    'ind_RC02_5min_1otwl1rmw7az7wv.png',
-    'ind_RC02_5min_cs1ek7ell441bnk.png',
-    'ind_RC02_5min_xr5gy1gg71bcc2m.png',
-    'ind_RC02_5min_aovgyms4bljht6j.png',
-    'ind_RC02_5min_ymhzj2r0s6akxtp.png',
-    'ind_RC02_5min_r283l6t5jzgttrt.png',
-    'ind_RC02_5min_wyzdj4ksq1ltj64.png',
-    'ind_RC02_5min_20uj04zqznvmg08.png',
-    'ind_RC02_5min_3wxd9ucdkhet29u.png',
-    'ind_RC02_5min_cb1rmdgewth48d7.png',
     'ind_RC02_5min_x2vr7z090zqbf5y.png',
     'ind_RC02_5min_5spmbuv3g0hjnm3.png',
     'ind_RC02_5min_tfedpdckrzu5vtg.png',
@@ -89,34 +69,15 @@
     'ind_RC12_10min_1pbe110yjx9wwjk.png',
     'ind_RC12_10min_3lz5ukzkvume5pp.png',
     'ind_RC12_10min_499672hna0xoc8u.png',
-    'ind_RC12_10min_bpdq3m80tl7nokd.png',
-    'ind_RC12_10min_rek3rfc0om3uor3.png',
-    'ind_RC12_10min_6t1obp27g66w6zo.png',
-    'ind_RC12_10min_66y780n5amt04l9.png',
-    'ind_RC12_10min_myxa2xypxxgv80v.png',
-    'ind_RC12_10min_ewa2uot1us46jnt.png',
-    'ind_RC12_10min_b5egmhnzvytrqe5.png',
-    'ind_RC12_10min_mnwcunmzvk4at0v.png',
-    'ind_RC12_10min_hck3a2h7dso2wf3.png',
-    'ind_RC12_10min_uzwdp450bfz9nw4.png',
     'ind_RC02_10min_1otwl1rmw7az7wv.png',
     'ind_RC02_10min_cs1ek7ell441bnk.png',
     'ind_RC02_10min_xr5gy1gg71bcc2m.png',
     'ind_RC02_10min_aovgyms4bljht6j.png',
     'ind_RC02_10min_ymhzj2r0s6akxtp.png',
-    'ind_RC02_10min_r283l6t5jzgttrt.png',
-    'ind_RC02_10min_wyzdj4ksq1ltj64.png',
-    'ind_RC02_10min_20uj04zqznvmg08.png',
-    'ind_RC02_10min_3wxd9ucdkhet29u.png',
-    'ind_RC02_10min_cb1rmdgewth48d7.png',
-    'ind_RC02_10min_x2vr7z090zqbf5y.png',
-    'ind_RC02_10min_5spmbuv3g0hjnm3.png',
-    'ind_RC02_10min_tfedpdckrzu5vtg.png',
-    'ind_RC02_10min_vgtq0rbandz7seo.png',
-    'ind_RC02_10min_ftcmac4412tm2km.png',
   ];
 
   preview_CIsIndStims = preview_CIsIndStims.map(function (e) { return githubCIs + e });
+  preloadimages.push(preview_CIsIndStims);
   preview_CIsIndStims = preview_CIsIndStims.map(function (e) { return { imgHtml: "<img class='imgJudge' src='" + e + "'>" } });
 
   // IND CIS STIMS
@@ -380,10 +341,12 @@
       html += "Dans cette étude, il vous sera demandé d'évaluer plusieurs visages. ";
       html += "Il est important que vous restiez pleinement <b>concentré·e.</b></br></br>";
       html += "Votre participation est volontaire, n'entraîne aucun risque, vos réponses seront anonymisées, ";
-      html += "et vous êtes libre de vous retirer de l'étude à tout moment.</br></br>";
+      html += "et vous êtes libre de vous retirer de l'étude à tout moment. ";
+      html += "Après avoir complété l'entièreté de l'étude, vous recevrez une <strong>compensation monétaire</strong> ";
+      html += "tel que décrit dans l'annonce Foule Factory.</br></br>";
       html += "Cette étude est administrée par Mathias Schmitz et Marine Rougier de l'UCLouvain (Belgique). ";
       html += "Si vous avez des questions ou des commentaires, ";
-      html += "n'hésitez pas à nous contacter à mathias.schmitz@uclouvain.be</p>";
+      html += "n'hésitez pas à nous contacter à :</br>mathias.schmitz@uclouvain.be</p>";
       return html;
     },
   };
@@ -396,14 +359,13 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
-      html += "<p class='justify'>Dans cette tâche vous allez devoir évaluer des visages et indiquer, pour "
-      html += "chaque visage, à quel point celui-ci vous paraît <b>criminel</b> et, ";
-      html += "par ailleurs, à quel point il vous paraît <b>digne de confiance</b>.</br></br>";
-      html += "Pour rendre la tâche moins évidente, ces visages ont été légèrement dégradés. ";
-      html += "Il est donc normal que ces visages vous paraissent flous.</br></br>"
-      html += "Avant la tâche d’évaluation, un échantillon de visages ";
-      html += "vous sera présenté un à un pendant une seconde chacun. Ceci vous permettra de mieux ";
-      html += "prendre en compte les similitudes / différences entre les visages avant leur évaluation.</br></br>";
+      html += "<p class='justify'>Dans cette étude, vous allez devoir <b>évaluer des visages</b> (40 visages en tout) et indiquer, "
+      html += "pour chacun d'entre eux, à quel point celui-ci vous paraît <b>aggressif</b> et <b>digne de confiance</b>. ";
+      html += "Comme vous allez le voir, les visages qui vous seront présentés ont été rendus ";
+      html += "<b>flous</b> afin de rendre la tâche moins aisée.</br></br>";
+      html += "Avant la tâche d’évaluation, un échantillon de 20 visages ";
+      html += "va vous être présenté (chaque visage apparaitra durant une seconde). Ceci vous permettra de mieux ";
+      html += "prendre en compte les similarités/différences entre les visages avant leur évaluation.</br></br>";
       html += "Les visages défileront automatiquement, veuillez être attentif.</p>";
       return html;
     },
@@ -430,18 +392,21 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
-      html += "<p class='justify'>Nous allons maintenant vous demander d'indiquer, "
-      html += "pour chaque visage (40 visages au total), à quel point celui-ci vous paraît <b>criminel</b> ";
-      html += "et par ailleurs, à quel point il vous paraît <b>digne de confiance</b> "
-      html += "sur une échelle allant de -3 (pas du tout) à +3 (très).</br></br>";
-      html += "Notez qu'il est extrêmement important que vous répondiez de façon honnête et spontanée.</p>";
+      html += "<p class='justify'>Maintenant que des exemples de visages vous ont été présentés, ";
+      html += "vous allez devoir évaluer un premier échantillon de <b>40 visages</b>.</br></br>";
+      html += "Pour rappel, vous devrez indiquer pour chaque visage à quel point celui-ci vous paraît ";
+      html += "<b>criminel</b> et <b>digne de confiance</b> (de -3 = pas du tout à +3 = totalement).</br></br>";
+      html += "Notez qu'il est extrêmement important que vous répondiez aussi <b>honnêtement et ";
+      html += "spontanément</b> que possible. La première réponse qui vient à l'esprit est généralement la meilleure.</br></br>";
+      html += "Une fois que vous aurez fini d'évaluer ce premier échantillon de visages, ";
+      html += "vous devrez ensuite évaluer un deuxième échantillon composé de 12 visages.</p>";
       return html;
     },
   };
 
   /* JUDGE IND CIS*/
-  var scaleCriminality = ["-3</br>Pas du tout criminel", "-2", "-1", "0", "+1", "+2", "+3</br>Très criminel"];
-  var scaleTrustworthiness = ["-3</br>Pas du tout digne de confiance", "-2", "-1", "0", "+1", "+2", "+3</br>Très digne de confiance"];
+  var scaleCriminality = ["-3</br>Pas du tout criminel", "-2", "-1", "0", "+1", "+2", "+3</br>Totalement criminel"];
+  var scaleTrustworthiness = ["-3</br>Pas du tout digne de confiance", "-2", "-1", "0", "+1", "+2", "+3</br>Totalement digne de confiance"];
 
   var judgeIndCIs = [];
 
@@ -486,14 +451,12 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
-      html += "<p class='justify'>Nous allons maintenant vous demander ";
-      html += "d'évaluer un autre échantillon de 12 visages. ";
-      html += "Comme dans la tâche précédente, vous devrez indiquer pour chaque visage à quel point celui-ci ";
-      html += "vous paraît <b>criminel</b> et, ";
-      html += "par ailleurs, à quel point il vous paraît <b>digne de confiance</b>.</br></br>";
-      html += "Avant la tâche d’évaluation, les 12 visages vous seront présentés un à un pendant une seconde chacun. ";
-      html += "Ceci vous permettra de mieux ";
-      html += "prendre en compte les similitudes / différences entre les visages avant leur évaluation.</br></br>";
+      html += "<p class='justify'>Vous allez maintenant devoir évaluer un deuxième échantillon de <b>12 visages</b> et ";
+      html += "indiquer pour chaque visage à quel point celui-ci vous paraît ";
+      html += "<b>criminel</b> et <b>digne de confiance</b>.</br></br>";
+      html += "Avant la tâche d’évaluation, les 12 visages ";
+      html += "vous seront présentés (chaque visage apparaitra durant une seconde). Ceci vous permettra de mieux ";
+      html += "prendre en compte les similarités/différences entre les visages avant leur évaluation.</br></br>";
       html += "Les visages défileront automatiquement, veuillez être attentif.</p>";
       return html;
     },
@@ -523,11 +486,11 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Evaluation des visages</h1>";
-      html += "<p class='justify'>Nous allons maintenant vous demander d'indiquer, "
-      html += "pour chaque visage (12 visages au total), à quel point celui-ci vous paraît <b>criminel</b> ";
-      html += "et par ailleurs, à quel point il vous paraît <b>digne de confiance</b> "
-      html += "sur une échelle allant de -3 (pas du tout) à +3 (très).</br></br>";
-      html += "Notez qu'il est extrêmement important que vous répondiez de façon honnête et spontanée.</p>";
+      html += "<p class='justify'>Vous allez maintenant devoir évaluer le deuxième échantillon de ";
+      html += "<b>12 visages</b> qui vous a été présentés.</br></br>";
+      html += "Les consignes ne changent pas : vous devrez indiquer pour chaque visage à quel point celui-ci vous paraît ";
+      html += "<b>criminel</b> et <b>digne de confiance</b> (de -3 = pas du tout à +3 = totalement).</br></br>";
+      html += "Comme précédemment, essayez de répondre aussi <b>honnêtement et spontanément</b> que possible.</p>";
       return html;
     },
   };
@@ -660,13 +623,13 @@
   };
 
   /* DEBRIEF */
-  var debrief = [];
+  var debrief = "";
   debrief += "<h1>Fin de l'expérience</h1>";
-  debrief += "<p class='justify'>Merci pour votre participation ! Cette étude avait pour but d'étudier la perception générale ";
+  debrief += "<p class='justify'>";
+  debrief += "Merci pour votre participation! Cette étude avait pour but d'étudier la perception générale ";
   debrief += "qu'ont les individus de visages inconnus et ambigus.</br></br> "
-  debrief += "<b>Veuillez copier le code suivant sur Foule Factory pour valider votre participation :</b></p> ";
-  debrief += "<h1>PAZ1P9L4</h1>";
-  //debrief += "<a href='https://www.google.com/' target='_blank'>cliquer ici pour valider votre expérience</a>";
+  debrief += "Veuillez copier le code suivant sur Foule Factory pour valider votre participation :</p>";
+  debrief += '<span style="color:#cc3300; font-weight: bold">PAZ1P9L4</span>';
 
   preloadimages = _.flattenDeep(preloadimages);
 
