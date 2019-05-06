@@ -275,14 +275,14 @@
     var IATstims_blackWhite = _.flattenDeep([IATstims_black, IATstims_white]);
     var IATstims_goodBad = _.flattenDeep([IATstims_good, IATstims_bad]);
 
-    // block    trials  Function        Left key        Right key
-    // 1        20      Practice        White           Black
-    // 2        20      Practice        Good            Bad
-    // 3        20      Practice        Good & White    Bad & Black
-    // 4        40      Test            Good & White    Bad & Black
-    // 5        20      Practice        Black           White
-    // 6        20      Practice        Good & Black    Bad & White
-    // 7        40      Test            Good & Black    Bad & White
+    // block    trials  Function        Left key        Right key       Compatibility
+    // 1        20      Practice        White           Black           
+    // 2        20      Practice        Good            Bad             
+    // 3        20      Practice        Good & White    Bad & Black     compatible
+    // 4        40      Test            Good & White    Bad & Black     compatible
+    // 5        20      Practice        Black           White           
+    // 6        20      Practice        Good & Black    Bad & White     incompatible
+    // 7        40      Test            Good & Black    Bad & White     incompatible
     // Note. For half the subjects, the positions of Blocks 1, 3, and 4 are 
     // switched with those of Blocks 5, 6, and 7, respectively. 
     // The procedure in Blocks 3, 4, 6, and 7 is to alternate trials that present either 
