@@ -24,10 +24,10 @@ TO DO:
     <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
     <script>
     /* Parameters */
-    var itiSta    = 100;          // 400; inter-trial-interval for statements
-    var delaySta  = 1000;         // 5500; how long is each statement displayed
-    var memoDelay = 2000;         // 45000; timer to memorize names
-    var biatRep   = 2;         // 2; number of BIAT repetitions
+    var itiSta    = 400;    // 400; inter-trial-interval for statements
+    var delaySta  = 5500;   // 5500; how long is each statement displayed
+    var memoDelay = 45000;  // 45000; timer to memorize names
+    var biatRep   = 2;      // 2; number of BIAT repetitions
     var qlink     = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_578XUB39jqAbg6p";
     
     /* Initial variables */
@@ -282,7 +282,7 @@ TO DO:
     var itemsG = _.shuffle(_.flattenDeep([itemsGF, itemsGM]));
     var itemsB = _.shuffle(_.flattenDeep([itemsBF, itemsBM]));
 
-    var inGrp = _.sample(['B', 'G', 'O']); // B: Blue group | G: Green group | O: Observer
+    var inGrp = _.sample(['B', 'G']); // _.sample(['B', 'G', 'O']);  B: Blue group | G: Green group | O: Observer
     if(cond != null) {inGrp = cond}; // manually set condition for testing
     if(inGrp == hghGrp) {var status = "H"};
     if(inGrp == lowGrp) {var status = "L"};
@@ -300,10 +300,10 @@ TO DO:
         stimulus: function() {
             var html = "";
             html += "<h1>Memorization task</h1>";
-            html += "<p class='justify'>This experiment involves two groups of persons that we have called, just for the sake of simplicity, ";
+            html += "<p class='justify'>This experiment involves two groups of persons that we have called, for the sake of simplicity, ";
             html += "the <span id='green'>Green</span> and the <span id='blue'>Blue</span> group.</p>";
-            html += "<p class='justify'>Your first task will be to learn the names of "+inGrpLabel+" group-members.";
-            html += " This will be useful further on.</br>";
+            html += "<p class='justify'>Your first task will be to learn the names of "+inGrpLabel+" group-members. ";
+            html += "This will be useful further on.</br>";
             html += "<p class='justify'>These names will be presented on the following page for <span class='emphasize'>45 seconds</span>.";
             html += "<p class='justify'>Please try to <span class='emphasize'>memorize</span> these names.</p>";
             html += "<p id='continue'>press <span class='light-keys'><kbd>spacebar</kbd></span> to continue</p>";
