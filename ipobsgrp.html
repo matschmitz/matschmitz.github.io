@@ -650,7 +650,7 @@ TO DO:
             
             firebase.initializeApp(config);
             var database = firebase.database();
-            if(id == null) {id = database.ref("IP").push().key;}; // if no id provided, generate a Firebase id
+            if (id == null) { id = jsPsych.randomization.randomID(15) }; // if no id provided, generate a Firebase id
             
 
             /* Qualtrics url parameters */
