@@ -46,19 +46,23 @@ Adjust presentation time
 
 <script>
   /* Parameters */
-  var itiSta = 0;  // 400; inter-trial-interval for statements
-  var delaySta = 200; // 5500; how long is each statement displayed
+  var itiSta = 100;  // 400; inter-trial-interval for statements
+  var delaySta = 1000; // 5500; how long is each statement displayed
   var dotTaskTrialDuration = 3000; // 3000
-  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_brvOna00mzKQVil";
+  var loadingDuration = 7000; // 7000
+  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eJvpxSXGyrj0f9r";
 
   /* Initial variables */
   var timeline = [];
   var HC = [];
   var LC = [];
-  var preloadimagesRC = [];
+  var preloadimages = [];
   var id = jsPsych.data.getURLVariable("id");
-  var hghGrp = jsPsych.data.getURLVariable("hghGrp");  // high group
-  var cond = jsPsych.data.getURLVariable("cond");      // permeability condition
+  var hghGrp = jsPsych.data.getURLVariable("hghGrp");           // high group
+  var permeaCond = jsPsych.data.getURLVariable("permeaCond");   // permeability condition
+  var underOver = jsPsych.data.getURLVariable("cond");          // "under" or "over" estimator
+  var inGrpClr = jsPsych.data.getURLVariable("inGrpClr");       // "B" or "G" group
+
 
   /*  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Impression formation  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* Generate statements */
@@ -94,11 +98,11 @@ Adjust presentation time
   var hghFstSta = _.sample([true, false]);
   if (hghFstSta) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) };
   if (hghGrp == 'B') {
-    var HcolorHtml = "<span id='blue'>BLUE GROUP</span>";
-    var LcolorHtml = "<span id='green'>GREEN GROUP</span>";
+    var HcolorHtml = "<span id='blue'>Blue group</span>";
+    var LcolorHtml = "<span id='green'>Green group</span>";
   } else {
-    var HcolorHtml = "<span id='green'>GREEN GROUP</span>";
-    var LcolorHtml = "<span id='blue'>BLUE GROUP</span>";
+    var HcolorHtml = "<span id='green'>Green group</span>";
+    var LcolorHtml = "<span id='blue'>Blue group</span>";
   };
 
   /* Statements */
@@ -144,41 +148,41 @@ Adjust presentation time
   ];
 
   staStim = {
-    CP1B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[0] + "</p>", CP1G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[0] + "</p>",
-    CP2B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[1] + "</p>", CP2G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[1] + "</p>",
-    CP3B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[2] + "</p>", CP3G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[2] + "</p>",
-    CP4B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[3] + "</p>", CP4G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[3] + "</p>",
-    CP5B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[4] + "</p>", CP5G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[4] + "</p>",
-    CP6B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[5] + "</p>", CP6G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[5] + "</p>",
-    CP7B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[6] + "</p>", CP7G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[6] + "</p>",
-    CP8B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CP[7] + "</p>", CP8G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CP[7] + "</p>",
+    CP1B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[0] + "</p>", CP1G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[0] + "</p>",
+    CP2B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[1] + "</p>", CP2G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[1] + "</p>",
+    CP3B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[2] + "</p>", CP3G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[2] + "</p>",
+    CP4B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[3] + "</p>", CP4G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[3] + "</p>",
+    CP5B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[4] + "</p>", CP5G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[4] + "</p>",
+    CP6B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[5] + "</p>", CP6G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[5] + "</p>",
+    CP7B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[6] + "</p>", CP7G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[6] + "</p>",
+    CP8B: "<p id='blueSta'><b>Blue group</b></br></br>" + CP[7] + "</p>", CP8G: "<p id='greenSta'><b>Green group</b></br></br>" + CP[7] + "</p>",
 
-    CN1B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[0] + "</p>", CN1G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[0] + "</p>",
-    CN2B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[1] + "</p>", CN2G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[1] + "</p>",
-    CN3B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[2] + "</p>", CN3G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[2] + "</p>",
-    CN4B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[3] + "</p>", CN4G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[3] + "</p>",
-    CN5B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[4] + "</p>", CN5G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[4] + "</p>",
-    CN6B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[5] + "</p>", CN6G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[5] + "</p>",
-    CN7B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[6] + "</p>", CN7G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[6] + "</p>",
-    CN8B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + CN[7] + "</p>", CN8G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + CN[7] + "</p>",
+    CN1B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[0] + "</p>", CN1G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[0] + "</p>",
+    CN2B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[1] + "</p>", CN2G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[1] + "</p>",
+    CN3B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[2] + "</p>", CN3G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[2] + "</p>",
+    CN4B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[3] + "</p>", CN4G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[3] + "</p>",
+    CN5B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[4] + "</p>", CN5G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[4] + "</p>",
+    CN6B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[5] + "</p>", CN6G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[5] + "</p>",
+    CN7B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[6] + "</p>", CN7G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[6] + "</p>",
+    CN8B: "<p id='blueSta'><b>Blue group</b></br></br>" + CN[7] + "</p>", CN8G: "<p id='greenSta'><b>Green group</b></br></br>" + CN[7] + "</p>",
 
-    WP1B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[0] + "</p>", WP1G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[0] + "</p>",
-    WP2B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[1] + "</p>", WP2G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[1] + "</p>",
-    WP3B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[2] + "</p>", WP3G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[2] + "</p>",
-    WP4B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[3] + "</p>", WP4G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[3] + "</p>",
-    WP5B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[4] + "</p>", WP5G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[4] + "</p>",
-    WP6B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[5] + "</p>", WP6G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[5] + "</p>",
-    WP7B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[6] + "</p>", WP7G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[6] + "</p>",
-    WP8B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WP[7] + "</p>", WP8G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WP[7] + "</p>",
+    WP1B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[0] + "</p>", WP1G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[0] + "</p>",
+    WP2B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[1] + "</p>", WP2G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[1] + "</p>",
+    WP3B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[2] + "</p>", WP3G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[2] + "</p>",
+    WP4B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[3] + "</p>", WP4G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[3] + "</p>",
+    WP5B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[4] + "</p>", WP5G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[4] + "</p>",
+    WP6B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[5] + "</p>", WP6G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[5] + "</p>",
+    WP7B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[6] + "</p>", WP7G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[6] + "</p>",
+    WP8B: "<p id='blueSta'><b>Blue group</b></br></br>" + WP[7] + "</p>", WP8G: "<p id='greenSta'><b>Green group</b></br></br>" + WP[7] + "</p>",
 
-    WN1B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[0] + "</p>", WN1G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[0] + "</p>",
-    WN2B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[1] + "</p>", WN2G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[1] + "</p>",
-    WN3B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[2] + "</p>", WN3G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[2] + "</p>",
-    WN4B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[3] + "</p>", WN4G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[3] + "</p>",
-    WN5B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[4] + "</p>", WN5G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[4] + "</p>",
-    WN6B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[5] + "</p>", WN6G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[5] + "</p>",
-    WN7B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[6] + "</p>", WN7G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[6] + "</p>",
-    WN8B: "<p id='blueSta'><b>BLUE GROUP</b></br></br>" + WN[7] + "</p>", WN8G: "<p id='greenSta'><b>GREEN GROUP</b></br></br>" + WN[7] + "</p>",
+    WN1B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[0] + "</p>", WN1G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[0] + "</p>",
+    WN2B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[1] + "</p>", WN2G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[1] + "</p>",
+    WN3B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[2] + "</p>", WN3G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[2] + "</p>",
+    WN4B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[3] + "</p>", WN4G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[3] + "</p>",
+    WN5B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[4] + "</p>", WN5G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[4] + "</p>",
+    WN6B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[5] + "</p>", WN6G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[5] + "</p>",
+    WN7B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[6] + "</p>", WN7G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[6] + "</p>",
+    WN8B: "<p id='blueSta'><b>Blue group</b></br></br>" + WN[7] + "</p>", WN8G: "<p id='greenSta'><b>Green group</b></br></br>" + WN[7] + "</p>",
   };
 
   stimStaOrd = []; // Ordered statements by group color
@@ -200,11 +204,11 @@ Adjust presentation time
       html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
       html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
       html += "description of this experiment.</br></br>";
-      html += "This study is administrated by Jennifer Bastart and Mathias Schmitz, reasearcher at the UCLouvain (Belgium).</br>";
-      html += "If you have any question or comment please contact us at <strong>mathias.schmitz@uclouvain.be</strong></p>";
+      html += "This study is administrated by Jennifer Bastart and Mathias Schmitz, reasearcher at the UCLouvain (Belgium).</br></br>";
+      html += "If you have any question or comment please contact us at</br>";
+      html += "<b>jennifer.bastart@gmail.com</b> or <b>mathias.schmitz@uclouvain.be</b></p>";
       return html;
-    },
-    on_finish: function () { $('body').css('cursor', 'none') },
+    }
   };
 
 
@@ -239,8 +243,8 @@ Adjust presentation time
       var html = "";
       html += "<h1>Impression formation task</h1>";
       html += "<p class='justify'>PAXE assigns individuals to two groups. For the sake of simplicity, ";
-      html += "we will label them the <span id='blue'>BLUE GROUP</span> and the ";
-      html += "<span id='green'>GREEN GROUP</span>. Please note that the groups’ ";
+      html += "we will label them the <span id='blue'>Blue group</span> and the ";
+      html += "<span id='green'>Green group</span>. Please note that the groups’ ";
       html += "labels do not matter here. However, you should know that members of a given group are highly similar: ";
       html += "They share similar ideas and beliefs, and their personalities and behaviors are usually alike. ";
       html += "At the same time, members of one of the two groups differ quite markedly from the members of the other group. ";
@@ -250,9 +254,9 @@ Adjust presentation time
       html += "asked them to list a series of behaviors that characterize them. ";
       html += "Hereafter you will see some of these behaviors. These behaviors have been anonymized but ";
       html += "you will still know if the individual who performed a specific behavior belongs to the ";
-      html += "<span id='blue'>BLUE GROUP</span> or to the <span id='green'>GREEN GROUP</span> according to their PAXE score.</br></br>";
-      html += "Behaviors performed by <span id='blue'>BLUE GROUP</span> members will be displayed ";
-      html += "with a <span id='blue'>blue</span> background, and behaviors performed by <span id='green'>GREEN GROUP</span> ";
+      html += "<span id='blue'>Blue group</span> or to the <span id='green'>Green group</span> according to their PAXE score.</br></br>";
+      html += "Behaviors performed by <span id='blue'>Blue group</span> members will be displayed ";
+      html += "with a <span id='blue'>blue</span> background,</br>and behaviors performed by <span id='green'>Green group</span> ";
       html += "members will be displayed with a <span id='green'>green</span> background.</br></br>";
       html += "Your task is to <b>read</b> each of these behaviors and to do your best to <b>form an impression</b> ";
       html += "about the two groups. ";
@@ -271,7 +275,8 @@ Adjust presentation time
       stimulus: jsPsych.timelineVariable('stimulus'),
       choices: jsPsych.NO_KEYS,
       trial_duration: delaySta,
-      post_trial_gap: itiSta
+      post_trial_gap: itiSta,
+      on_load: function () { $('body').css('cursor', 'none') },
     }]
   };
 
@@ -288,9 +293,10 @@ Adjust presentation time
       html += "Your task is the same: <b>read</b> each behavior ";
       html += "and do your best to <b>form an impression</b> about these two groups. ";
       html += "The task will be automatically paced.</p>";
-      html += "<p>press <span class='light-keys'><kbd>spacebar</kbd></span> to begin</p>";
       return html;
     },
+    on_load: function () { $('body').css('cursor', 'default') },
+    on_finish: function () { $('body').css('cursor', 'none') },
   };
 
   /* Statements ordered */
@@ -328,15 +334,27 @@ Adjust presentation time
         return [{ prompt: sendMsg(LGname), rows: 5, columns: 80 }, { prompt: sendMsg(HGname), rows: 5, columns: 80 }];
       };
     },
+    data: {task: "descriptions" },
     on_load: function () { $('body').css('cursor', 'default') },
-    on_finish: function () { $('body').css('cursor', 'none') },
   };
 
 
   /* Transition 1 */
   var transition1 = {
     type: "html-button-response",
-    choices: ['start'],
+    choices: ['continue'],
+    post_trial_gap: 200,
+    stimulus: function () {
+      var html = "";
+      html += "<p class='justify'>The impression formation task is now over. ";
+      html += "Next, you will perform one of PAXE’s tasks.</p>";
+      return html;
+    },
+  };
+
+  var mingrp1 = {
+    type: "html-button-response",
+    choices: ['continue'],
     post_trial_gap: 200,
     stimulus: function () {
       var html = "";
@@ -345,14 +363,15 @@ Adjust presentation time
       html += "you will perform one of PAXE’s tasks. ";
       html += "The overall PAXE score is a composite score based on the performances on four separate tasks.</p>";
       html += "<img width='200' src='img/paxe2.png'>";
-      html += "<p class='justify'>For the present study, you will only take the Numerical Estimation task, ";
+      html += "<p class='justify'>For the present study, you will only take the <b>Numerical Estimation task</b>, ";
       html += "which is actually the most important of the four tasks.";
       html += "The so-called dot estimation task is a psychological task based on the perception of visual stimuli.</br></br>";
       html += "At the end of the test, a very precise algorithm that takes into account many factors like the dispersion, ";
       html += "symmetry, color, distance, and size of the dots, will allow us determining if you are a numerical ";
-      html += "<b>UNDERestimator</b> or a numerical <b>OVERestimator</b>.</p>"
+      html += "<b><u>under</u>estimator</b> or a numerical <b><u>over</u>estimator</b>.</p>"
       return html;
     },
+    on_load: function () { $('body').css('cursor', 'default') },
   };
 
   // Yello orange key
@@ -367,16 +386,14 @@ Adjust presentation time
   yelloworange += "<span class='light-keys'><kbd>L</kbd></span>";
 
   /* Minimal Group Assignment */
-  var mingrp1 = {
+  var mingrp2 = {
     type: "html-button-response",
     choices: ['start'],
     post_trial_gap: 200,
     stimulus: function () {
       var html = "";
       html += "<h1>NUMERICAL ESTIMATION TASK</h1>";
-      html += "<p class='justify'>In the following task, we will ask you to take a ";
-      html += "psychological personality test based on the perception of stimuli.</br></br>";
-      html += "Your goal is to estimate as best you can if there are more yellow or orange dots ";
+      html += "<p class='justify'>Your goal is to estimate as best you can if there are more yellow or orange dots ";
       html += "(while ignoring the size of the dots). For each trial, you will have a maximum of <b>3 seconds</b> to provide an answer. ";
       html += "Note that it is often impossible to count all the dots, so we ask you to make a quick guess based on your intuition. ";
       html += "No feedback will be given during the task. To record your response use the  ";
@@ -386,52 +403,146 @@ Adjust presentation time
       html += "</br></br>";
       return html;
     },
+    on_finish: function () { $('body').css('cursor', 'none') },
   };
 
-
-
   /* Dot estimation task */
-  var dotsTask = [];
-  var i;
-  for (i = 1; i < 12; i++) {
-    var imgLink = "img/dot" + i + ".png";
-    var dotsTrial = {
-      type: "html-keyboard-response",
+  var stimDots = _.range(1, 13).map(function (e) { return {img: 'img/dot' + e + '.png'} });
+  stimDots.map(function (e) {preloadimages.push(e.img)});
+
+  var dotsTask = {
+    timeline_variables: stimDots,
+    randomize_order: false,
+    timeline: [{
+      type: 'html-keyboard-response',
       choices: ['s', 'l'],
       trial_duration: dotTaskTrialDuration,
       post_trial_gap: 200,
       stimulus: function () {
         var html = "";
-        html += "<img width='700px' src='" + imgLink + "'></br>";
+        html += "<img width='700px' src='" + jsPsych.timelineVariable('img', true) + "'></br>";
         html += yelloworange;
         html += "</br></br>";
         return html;
-      },
-    };
-    dotsTask.push(dotsTrial);
-    console.log(i)
-    console.log(imgLink)
-  }
+      }, 
+    }]
+  };
+  
+  /* Fake loading score */
+  var loadScore = {
+    type: 'html-keyboard-response',
+    stimulus: "<p>Please wait a few seconds while we compute your score on the Numerical Estimation task...</p>" +
+      "<img width='350px' src='https://media0.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif'>",
+    choices: jsPsych.NO_KEYS,
+    trial_duration: loadingDuration,
+    post_trial_gap: 200,
+  };
+
+  /* PAXE results */
+  // Assign participants as under- or over-estimators
+  var underOver = underOver == null ? _.sample(['under', 'over']) : underOver;
+
+  // Assign group identity (B vs. G)
+  var inGrpClr = inGrpClr == null ? _.sample(['B', 'G']) : inGrpClr;
+  if(inGrpClr == hghGrp) {var inGrp = "H"};
+  if(inGrpClr == lowGrp) {var inGrp = "L"};
+  if(inGrpClr == 'G') { inGrpLabel = "<span id='green'>Green group</span>" } else { inGrpLabel = "<span id='blue'>Blue group</span>" };
+
+  var mingrp3 = {
+    type: "html-button-response",
+    choices: ['continue'],
+    post_trial_gap: 200,
+    stimulus: function () {
+      var html = "";
+      html += "<h1>NUMERICAL ESTIMATION TASK: RESULTS</h1>";
+      html += "<p class='justify'>As far as you are concerned, the responses reveal that you tend to <b><u>"+underOver+"</u>estimate</b> ";
+      html += "the number of dots presented on the screen.</br></br>";
+      html += "As it turns out, 95% of the <b><u>"+underOver+"</u>estimators</b> belong to the "+inGrpLabel+". ";
+      html += "Accordingly, you are very likely to belong to the "+inGrpLabel+".</p>";
+      return html;
+    },
+    on_load: function () { $('body').css('cursor', 'default') },
+  };
+
+  /* Permeability manipulation */
+  // Assign participants to permeable or impermeable condition
+  var permeaCond = permeaCond == null ? _.sample(['permeable', 'impermeable']) : permeaCond;
+
+  var permea1 = {
+    type: "html-button-response",
+    choices: ['continue'],
+    post_trial_gap: 200,
+    stimulus: function () {
+      var html = "";
+      html += "<h1>NUMERICAL ESTIMATION TASK: RESULTS</h1>";
+      html += "<p class='justify'>";
+      if (permeaCond == "impermeable") {
+        html += "It is important that you know that the tendency to overestimate or underestimate the number of objects ";
+        html += "in a visual display <b>is a stable and permanent characteristic of an individual</b>.</br></br>";
+        html += "Consequently, being categorized as an overestimator or underestimator can very much ";
+        html += "be considered as a <b>stable characteristic throughout life</b>.";
+      } else {
+        html += "It is important that you know that the tendency to overestimate or underestimate the number of objects ";
+        html += "in a visual display <b><u>is not</u> a stable and permanent characteristic of an individual</b>.</br></br>";
+        html += "Consequently, being categorized as an overestimator or underestimator can very much ";
+        html += "be considered as <b>likely to change over the life span</b>.";
+      };
+      html += "</p>";
+      return html;
+    },
+  };
+
+  var permea2 = {
+    type: "html-button-response",
+    choices: ['continue'],
+    post_trial_gap: 200,
+    stimulus: function () {
+      var html = "";
+      html += "<h1>NUMERICAL ESTIMATION TASK: RESULTS</h1>";
+      html += "<p class='justify'>";
+      if (permeaCond == "impermeable") {
+        html += "To sum up, based on your performances on the Numerical Estimation ";
+        html += "Task calculated by the algorithm, you are an <b><u>"+underOver+"</u>estimator</b>.</br></br>";
+        html += "95% of the <b><u>"+underOver+"</u>estimator</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
+        html += "The numerical underestimation (your characteristic) <b><u>is</u> a stable and permanent ";
+        html += "characteristic</b> and is <b>unlikely to change over the life span</b>.";
+      } else {
+        html += "To sum up, based on your performances on the Numerical Estimation ";
+        html += "Task calculated by the algorithm, you are an <b><u>"+underOver+"</u>estimator</b>.</br></br>";
+        html += "95% of the <b><u>"+underOver+"</u>estimator</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
+        html += "The numerical underestimation (your characteristic) <b><u>is not</u> a stable and permanent ";
+        html += "characteristic</b> and is <b>likely to change over the life span</b>.";
+      };
+      html += "</p>";
+      return html;
+    },
+  };
+
 
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  // timeline.push(consent);
-  // timeline.push(paxe1);
-  // timeline.push(paxe2);
-  // timeline.push(staRandomised);
-  // timeline.push(staOrdInst);
-  // timeline.push(staOrdered);
-  // timeline.push(staDescription);
-  // timeline.push(transition1);
-  // timeline.push(mingrp1);
+  timeline.push(consent);
+  timeline.push(paxe1);
+  timeline.push(paxe2);
+  timeline.push(staRandomised);
+  timeline.push(staOrdInst);
+  timeline.push(staOrdered);
+  timeline.push(staDescription);
+  timeline.push(transition1);
+  timeline.push(mingrp1);
+  timeline.push(mingrp2);
   timeline.push(dotsTask);
-
+  timeline.push(loadScore);
+  timeline.push(mingrp3);
+  timeline.push(permea1);
+  timeline.push(permea2);
+  
   timeline = _.flattenDeep(timeline);
 
 
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
     timeline: timeline,
-    preload_images: preloadimagesRC,
+    preload_images: preloadimages,
     max_load_time: 300 * 1000,
     exclusions: {
       min_width: 800,
@@ -452,31 +563,39 @@ Adjust presentation time
 
       /* Qualtrics url parameters */
       qlink += "?id=" + id;
+      qlink += "&hghGrp=" + hghGrp;
+      qlink += "&inGrpClr=" + inGrpClr;
+      qlink += "&inGrp=" + inGrp;
+      qlink += "&underOver=" + underOver;
+      qlink += "&permeaCond=" + permeaCond;
+      qlink += "&hghFstDscrp=" + hghFstDscrp;
       qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
       qlink += "&screenWidth=" + screen.width || 0;
       qlink += "&screenHeight=" + screen.height || 0;
       qlink += "&userAgent=" + navigator.userAgent;
-      qlink += "&totalTime=" + jsPsych.totalTime();
+      qlink += "&jsTime=" + jsPsych.totalTime();
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
         id: id,
-        hghGrp: hghGrp,      // H-group color: "G" | "B"
-        inGrp: inGrp,       // Ingroup color: "G" | "B"
-        status: status,      // Participant status: "H" | "L" | "O" (always "O")
-        hghFstSta: hghFstSta,   // 
-        hghFstDscrp: hghFstDscrp,
+        hghGrp: hghGrp,            // H-group color: "G" | "B"
+        inGrpClr: inGrpClr,        // Ingroup color: "G" | "B"
+        inGrp: inGrp,              // Ingroup status: "H" | "L"
+        underOver: underOver,      // Ingroup is under- or over-estimator: "under" | "over"
+        permeaCond: permeaCond,    // permeability condition: "permeable" | "impermeable"
+        hghFstSta: hghFstSta,      // 
+        hghFstDscrp: hghFstDscrp,  //
       });
 
-      var dataPermea = data.filter({ task: 'RC' }).csv();
+      var dataPermea = data.filter({ task: 'descriptions' }).csv();
       //jsPsych.data.displayData();
 
       /* Send data to Firebase and redirect to Qualtrics */
-      // database.ref("permea/" + id + "/").update({ dataPermea }).then(function () {
-      //   console.log("dataAll sent!");
-      //   window.location = qlink; // redirect to qualtrics
-      // });
+      database.ref("permea/" + id + "/").update({ dataPermea }).then(function () {
+        console.log("data sent!");
+        window.location = qlink; // redirect to qualtrics
+      });
     }
   });
 </script>
