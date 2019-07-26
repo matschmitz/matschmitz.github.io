@@ -47,7 +47,7 @@ Adjust presentation time
 <script>
   /* Parameters */
   var itiSta = 100;  // 400; inter-trial-interval for statements
-  var delaySta = 1000; // 5500; how long is each statement displayed
+  var delaySta = 600; // 5500; how long is each statement displayed
   var dotTaskTrialDuration = 3000; // 3000
   var loadingDuration = 7000; // 7000
   var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_eJvpxSXGyrj0f9r";
@@ -58,7 +58,7 @@ Adjust presentation time
   var LC = [];
   var preloadimages = [];
   var id = jsPsych.data.getURLVariable("id");
-  var hghGrp = jsPsych.data.getURLVariable("hghGrp");           // high group
+  var hghGrpClr = jsPsych.data.getURLVariable("hghGrpClr");           // high group
   var permeaCond = jsPsych.data.getURLVariable("permeaCond");   // permeability condition
   var underOver = jsPsych.data.getURLVariable("cond");          // "under" or "over" estimator
   var inGrpClr = jsPsych.data.getURLVariable("inGrpClr");       // "B" or "G" group
@@ -85,19 +85,19 @@ Adjust presentation time
   LC = _.shuffle(LC);
 
   // Assign group identity (B vs. G)
-  var hghGrp = hghGrp == null ? _.sample(['B', 'G']) : hghGrp;
-  var lowGrp = _.difference(['B', 'G'], [hghGrp])[0];
+  var hghGrpClr = hghGrpClr == null ? _.sample(['B', 'G']) : hghGrpClr;
+  var lowGrp = _.difference(['B', 'G'], [hghGrpClr])[0];
   var inGrp = 'O'; // only observers
-  if (inGrp == hghGrp) { var status = "H" };
+  if (inGrp == hghGrpClr) { var status = "H" };
   if (inGrp == lowGrp) { var status = "L" };
   if (inGrp == 'O') { var status = 'O' };
 
-  HC = HC.map(function (e) { return e + hghGrp });
+  HC = HC.map(function (e) { return e + hghGrpClr });
   LC = LC.map(function (e) { return e + lowGrp });
 
   var hghFstSta = _.sample([true, false]);
   if (hghFstSta) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) };
-  if (hghGrp == 'B') {
+  if (hghGrpClr == 'B') {
     var HcolorHtml = "<span id='blue'>Blue group</span>";
     var LcolorHtml = "<span id='green'>Green group</span>";
   } else {
@@ -213,6 +213,10 @@ Adjust presentation time
 
 
   /* PAXE cover story */
+  // Add PAXE images to preload
+  preloadimages.push('img/paxe.png');
+  preloadimages.push('img/paxe2.png');
+
   var paxe1 = {
     type: "html-button-response",
     choices: ['continue'],
@@ -326,7 +330,7 @@ Adjust presentation time
         return 'the ' + groupName + ' group:' + "</br><span id='min2lines'>(between 2 and 5 lines)</span>";
       };
 
-      if (hghGrp == 'B') { var HGname = B; var LGname = G; } else { var HGname = G; var LGname = B; };
+      if (hghGrpClr == 'B') { var HGname = B; var LGname = G; } else { var HGname = G; var LGname = B; };
 
       if (hghFstDscrp) {
         return [{ prompt: sendMsg(HGname), rows: 5, columns: 80 }, { prompt: sendMsg(LGname), rows: 5, columns: 80 }];
@@ -444,7 +448,7 @@ Adjust presentation time
 
   // Assign group identity (B vs. G)
   var inGrpClr = inGrpClr == null ? _.sample(['B', 'G']) : inGrpClr;
-  if(inGrpClr == hghGrp) {var inGrp = "H"};
+  if(inGrpClr == hghGrpClr) {var inGrp = "H"};
   if(inGrpClr == lowGrp) {var inGrp = "L"};
   if(inGrpClr == 'G') { inGrpLabel = "<span id='green'>Green group</span>" } else { inGrpLabel = "<span id='blue'>Blue group</span>" };
 
@@ -563,7 +567,7 @@ Adjust presentation time
 
       /* Qualtrics url parameters */
       qlink += "?id=" + id;
-      qlink += "&hghGrp=" + hghGrp;
+      qlink += "&hghGrpClr=" + hghGrpClr;
       qlink += "&inGrpClr=" + inGrpClr;
       qlink += "&inGrp=" + inGrp;
       qlink += "&underOver=" + underOver;
@@ -579,7 +583,7 @@ Adjust presentation time
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
         id: id,
-        hghGrp: hghGrp,            // H-group color: "G" | "B"
+        hghGrpClr: hghGrpClr,      // H-group color: "G" | "B"
         inGrpClr: inGrpClr,        // Ingroup color: "G" | "B"
         inGrp: inGrp,              // Ingroup status: "H" | "L"
         underOver: underOver,      // Ingroup is under- or over-estimator: "under" | "over"
