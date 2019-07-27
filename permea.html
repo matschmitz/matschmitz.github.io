@@ -46,7 +46,7 @@ Adjust presentation time
 
 <script>
   /* Parameters */
-  var itiSta = 100;  // 400; inter-trial-interval for statements
+  var itiSta = 400;  // 400; inter-trial-interval for statements
   var delaySta = 600; // 5500; how long is each statement displayed
   var dotTaskTrialDuration = 3000; // 3000
   var loadingDuration = 7000; // 7000
@@ -62,7 +62,13 @@ Adjust presentation time
   var permeaCond = jsPsych.data.getURLVariable("permeaCond");   // permeability condition
   var underOver = jsPsych.data.getURLVariable("cond");          // "under" or "over" estimator
   var inGrpClr = jsPsych.data.getURLVariable("inGrpClr");       // "B" or "G" group
-
+  
+  
+  ///////////// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+  ///////////// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+  ///////////// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+  var delaySta = jsPsych.data.getURLVariable("delaySta") == null ? delaySta : jsPsych.data.getURLVariable("delaySta");
+  delaySta = parseInt(delaySta);
 
   /*  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Impression formation  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* Generate statements */
@@ -524,9 +530,9 @@ Adjust presentation time
 
 
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  // timeline.push(consent);
-  // timeline.push(paxe1);
-  // timeline.push(paxe2);
+  timeline.push(consent);
+  timeline.push(paxe1);
+  timeline.push(paxe2);
   timeline.push(staRandomised);
   timeline.push(staOrdInst);
   timeline.push(staOrdered);
