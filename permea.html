@@ -61,7 +61,6 @@ Adjust presentation time
   var hghGrpClr = jsPsych.data.getURLVariable("hghGrpClr");     // high group
   var permeaCond = jsPsych.data.getURLVariable("permeaCond");   // permeability condition
   var underOver = jsPsych.data.getURLVariable("cond");          // "under" or "over" estimator
-  var inGrpClr = jsPsych.data.getURLVariable("inGrpClr");       // "B" or "G" group
   
   
   ///////////// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
@@ -92,14 +91,10 @@ Adjust presentation time
 
   // Assign group identity (B vs. G)
   var hghGrpClr = hghGrpClr == null ? _.sample(['B', 'G']) : hghGrpClr;
-  var lowGrp = _.difference(['B', 'G'], [hghGrpClr])[0];
-  var inGrp = 'O'; // only observers
-  if (inGrp == hghGrpClr) { var status = "H" };
-  if (inGrp == lowGrp) { var status = "L" };
-  if (inGrp == 'O') { var status = 'O' };
+  var lowGrpClr = _.difference(['B', 'G'], [hghGrpClr])[0];
 
   HC = HC.map(function (e) { return e + hghGrpClr });
-  LC = LC.map(function (e) { return e + lowGrp });
+  LC = LC.map(function (e) { return e + lowGrpClr });
 
   var hghFstSta = _.sample([true, false]);
   if (hghFstSta) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) };
@@ -317,8 +312,8 @@ Adjust presentation time
       type: 'html-keyboard-response',
       stimulus: jsPsych.timelineVariable('stimulus'),
       choices: jsPsych.NO_KEYS,
-      trial_duration: delaySta,
-      post_trial_gap: itiSta
+      trial_duration: delaySta - 300,
+      post_trial_gap: itiSta - 100
     }]
   };
 
@@ -384,7 +379,7 @@ Adjust presentation time
     on_load: function () { $('body').css('cursor', 'default') },
   };
 
-  // Yello orange key
+  // Yellow orange key
   var yelloworange = "";
   yelloworange += "<span id='yellow'>more yellow dots</span>";
   yelloworange += "<span id='orange'>more orange dots</span></br>";
@@ -451,11 +446,12 @@ Adjust presentation time
   /* PAXE results */
   // Assign participants as under- or over-estimators
   var underOver = underOver == null ? _.sample(['under', 'over']) : underOver;
+  var underOver = "under";
 
   // Assign group identity (B vs. G)
-  var inGrpClr = inGrpClr == null ? _.sample(['B', 'G']) : inGrpClr;
+  var inGrpClr = lowGrpClr == "B" ? "B" : "G"; // ingroup always low-status
   if(inGrpClr == hghGrpClr) {var inGrp = "H"};
-  if(inGrpClr == lowGrp) {var inGrp = "L"};
+  if(inGrpClr == lowGrpClr) {var inGrp = "L"};
   if(inGrpClr == 'G') { inGrpLabel = "<span id='green'>Green group</span>" } else { inGrpLabel = "<span id='blue'>Blue group</span>" };
 
   var mingrp3 = {
