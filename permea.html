@@ -199,14 +199,14 @@ Adjust presentation time
       html = "";
       html += "<h1>Informed Consent</h1>";
       html += "<p class='justify'>In this study about personality and cognitive styles you will be asked to ";
-      html += "take a test, read some statements, and fill a survey. ";
-      html += "It is important that you remain <strong>concentrated</strong>.</br></br>";
+      html += "take a test, read some statements, and fill in a survey. ";
+      html += "It is important that you remain <strong>concentrated throughout the task</strong>.</br></br>";
       html += "Your participation is voluntary, does not imply any risks, your answers will be ";
       html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
       html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
       html += "description of this experiment.</br></br>";
-      html += "This study is administrated by Jennifer Bastart and Mathias Schmitz, reasearcher at the UCLouvain (Belgium).</br></br>";
-      html += "If you have any question or comment please contact us at</br>";
+      html += "This study is administrated by Jennifer Bastart and Mathias Schmitz, reasearchers at the UCLouvain (Belgium).</br></br>";
+      html += "If you have any questions or comments please contact us at</br>";
       html += "<b>jennifer.bastart@gmail.com</b> or <b>mathias.schmitz@uclouvain.be</b></p>";
       return html;
     }
@@ -247,18 +247,18 @@ Adjust presentation time
     stimulus: function () {
       var html = "";
       html += "<h1>Impression formation task</h1>";
-      html += "<p class='justify'>PAXE assigns individuals to two groups. For the sake of simplicity, ";
+      html += "<p class='justify'>PAXE classifies individuals to two groups. For the sake of simplicity, ";
       html += "we will label them the <span id='blue'>Blue group</span> and the ";
       html += "<span id='green'>Green group</span>. Please note that the groups’ ";
       html += "labels do not matter here. However, you should know that members of a given group are highly similar: ";
       html += "They share similar ideas and beliefs, and their personalities and behaviors are usually alike. ";
-      html += "At the same time, members of one of the two groups differ quite markedly from the members of the other group. ";
+      html += "At the same time, members of one group differ quite markedly from the members of the other group. ";
       html += "In order for you to become familiar with these two groups and to understand what they are like, ";
-      html += "we will give you a chance to complete an impression formation task.</br></br>";
+      html += "we will give you a chance to complete a task to form an impression of each group.</br></br>";
       html += "In a previous study, we tested a large sample of Americans with the PAXE test and ";
       html += "asked them to list a series of behaviors that characterize them. ";
-      html += "Hereafter you will see some of these behaviors. These behaviors have been anonymized but ";
-      html += "you will still know if the individual who performed a specific behavior belongs to the ";
+      html += "Hereafter you will see some of these behaviors. These behaviors woll be presented whithout identifying the actor,but ";
+      html += "you will still know if the behavior belongs to the ";
       html += "<span id='blue'>Blue group</span> or to the <span id='green'>Green group</span> according to their PAXE score.</br></br>";
       html += "Behaviors performed by <span id='blue'>Blue group</span> members will be displayed ";
       html += "with a <span id='blue'>blue</span> background,</br>and behaviors performed by <span id='green'>Green group</span> ";
@@ -293,8 +293,8 @@ Adjust presentation time
     stimulus: function () {
       var html = "";
       html += "<h1>Impression formation task</h1>";
-      html += "<p class='justify'>We will now present you a last time each behavior.</br></br>";
-      html += "You will first see all the behaviors from one group and then from the other group.</br></br>";
+      html += "<p class='justify'>We will now present each behavior one last time.</br></br>";
+      html += "You will first see all the behaviors from one group and then those from the other.</br></br>";
       html += "Your task is the same: <b>read</b> each behavior ";
       html += "and do your best to <b>form an impression</b> about these two groups. ";
       html += "The task will be automatically paced.</p>";
@@ -322,7 +322,7 @@ Adjust presentation time
 
   var staDescription = {
     type: 'survey-text',
-    preamble: 'Now, we will ask you to take one or two minutes to use the box below in order to write your general impressions about...',
+    preamble: 'Now, we will ask you to take one or two minutes to use the boxes below in order to write your general impressions about...',
     questions: function () {
       var G = "<span id='green'>GREEN</span>";
       var B = "<span id='blue'>BLUE</span>";
@@ -366,11 +366,11 @@ Adjust presentation time
       html += "<h1>PAXE TEST</h1>";
       html += "<p class='justify'>Now that you have a better representation of what the Blue and the Green groups are like, ";
       html += "you will perform one of PAXE’s tasks. ";
-      html += "The overall PAXE score is a composite score based on the performances on four separate tasks.</p>";
+      html += "The overall PAXE score is a composite score based on performance on four separate tasks.</p>";
       html += "<img width='200' src='img/paxe2.png'>";
       html += "<p class='justify'>For the present study, you will only take the <b>Numerical Estimation task</b>, ";
       html += "which is actually the most important of the four tasks.";
-      html += "The so-called dot estimation task is a psychological task based on the perception of visual stimuli.</br></br>";
+      html += "This task is also called the dot estimation task. It is a psychological task based on the perception of visual stimuli.</br></br>";
       html += "At the end of the test, a very precise algorithm that takes into account many factors like the dispersion, ";
       html += "symmetry, color, distance, and size of the dots, will allow us determining if you are a numerical ";
       html += "<b><u>under</u>estimator</b> or a numerical <b><u>over</u>estimator</b>.</p>"
@@ -509,14 +509,14 @@ Adjust presentation time
       if (permeaCond == "impermeable") {
         html += "To sum up, based on your performances on the Numerical Estimation ";
         html += "Task calculated by the algorithm, you are an <b><u>"+underOver+"</u>estimator</b>.</br></br>";
-        html += "95% of the <b><u>"+underOver+"</u>estimator</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
-        html += "The numerical underestimation (your characteristic) <b><u>is</u> a stable and permanent ";
+        html += "95% of the <b><u>"+underOver+"</u>estimators</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
+        html += "Numerical underestimation (your characteristic) <b><u>is</u> a stable and permanent ";
         html += "characteristic</b> and is <b>unlikely to change over the life span</b>.";
       } else {
         html += "To sum up, based on your performances on the Numerical Estimation ";
         html += "Task calculated by the algorithm, you are an <b><u>"+underOver+"</u>estimator</b>.</br></br>";
-        html += "95% of the <b><u>"+underOver+"</u>estimator</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
-        html += "The numerical underestimation (your characteristic) <b><u>is not</u> a stable and permanent ";
+        html += "95% of the <b><u>"+underOver+"</u>estimators</b> belong to the "+inGrpLabel+" according to their total score on the PAXE.</br></br>";
+        html += "Numerical underestimation (your characteristic) <b><u>is not</u> a stable and permanent ";
         html += "characteristic</b> and is <b>likely to change over the life span</b>.";
       };
       html += "</p>";
