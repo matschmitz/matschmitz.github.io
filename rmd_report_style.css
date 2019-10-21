@@ -1,0 +1,31 @@
+h1.toc-ignore {
+    color: #e8e8e8;
+    background-color: #5e5e5e;
+    font-size: 25px;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+h1 {
+    font-size: 22px;
+    color: #780505;
+}
+
+h2 {
+    font-size: 18px;
+    color: #00425a;
+}
+
+h3 {
+    font-size: 16px;
+    color: #0080af;
+}
+
+pre {
+    background-color: #f7f7f7 !important;
+}
+
+pre.r {
+
+}
