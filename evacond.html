@@ -46,161 +46,78 @@
   /* Parameters */
   var delayIti = 100;  // 100; inter-trial-interval for trials
   var delayTrial = 2000; // 2000; duration of each trial
-  var numOfUS = 12; // 12; number of US to be paired with each CS
+  var numOfRepetitions = 1; // number of times each US-CS pair is repeated
   var redirectToLink = "https://google.com"; // link to be redirected to at the end of the experiment
   var FBdirectory = "EC" // Firebase directory in which to store the data
-
   /* Initial variables */
   var timeline = [];
   var preloadimages = [];
   var stims = [];
   var id = jsPsych.data.getURLVariable("id");
   id = id == null ? id : jsPsych.randomization.randomID(15); // assign random id if not provided in URL
-
   /* Material */
   // in R, use the following line code to list files in a directory:
-  // list.files("CS_Visages/", "*B_gp1") %>% paste0("'CS_Visages/", .,"',") %>% cat(sep = "\n")
+  // list.files("CSUS/CS/", "*B_gp1") %>% paste0("'CSUS/CS/", .,"',") %>% cat(sep = "\n")
+
   var CS_G1B = [ // G1 = Blue   ; G2 = Yellow
-    'CS_Visages/Face10_B_gp1.png',
-    'CS_Visages/Face103_B_gp1.png',
-    'CS_Visages/Face116_B_gp1.png',
-    'CS_Visages/Face132_B_gp1.png',
-    'CS_Visages/Face16_B_gp1.png',
-    'CS_Visages/Face17_B_gp1.png',
-    'CS_Visages/Face45_B_gp1.png',
-    'CS_Visages/Face85_B_gp1.png',
-    'CS_Visages/Face104_J_gp2.png',
-    'CS_Visages/Face115_J_gp2.png',
-    'CS_Visages/Face119_J_gp2.png',
-    'CS_Visages/Face142_J_gp2.png',
-    'CS_Visages/Face19_J_gp2.png',
-    'CS_Visages/Face28_J_gp2.png',
-    'CS_Visages/Face55_J_gp2.png',
-    'CS_Visages/Face95_J_gp2.png',
+    'CSUS/CS/Face10_B_gp1.png',
+    'CSUS/CS/Face103_B_gp1.png',
+    'CSUS/CS/Face116_B_gp1.png',
+    'CSUS/CS/Face132_B_gp1.png',
+    'CSUS/CS/Face16_B_gp1.png',
+    'CSUS/CS/Face17_B_gp1.png',
+    'CSUS/CS/Face45_B_gp1.png',
+    'CSUS/CS/Face85_B_gp1.png',
+    'CSUS/CS/Face104_J_gp2.png',
+    'CSUS/CS/Face115_J_gp2.png',
+    'CSUS/CS/Face119_J_gp2.png',
+    'CSUS/CS/Face142_J_gp2.png',
+    'CSUS/CS/Face19_J_gp2.png',
+    'CSUS/CS/Face28_J_gp2.png',
+    'CSUS/CS/Face55_J_gp2.png',
+    'CSUS/CS/Face95_J_gp2.png',
   ];
   var CS_G1Y = [ // G1 = Yellow ; G2 = Blue
-    'CS_Visages/Face10_J_gp1.png',
-    'CS_Visages/Face103_J_gp1.png',
-    'CS_Visages/Face116_J_gp1.png',
-    'CS_Visages/Face132_J_gp1.png',
-    'CS_Visages/Face16_J_gp1.png',
-    'CS_Visages/Face17_J_gp1.png',
-    'CS_Visages/Face45_J_gp1.png',
-    'CS_Visages/Face85_J_gp1.png',
-    'CS_Visages/Face104_B_gp2.png',
-    'CS_Visages/Face115_B_gp2.png',
-    'CS_Visages/Face119_B_gp2.png',
-    'CS_Visages/Face142_B_gp2.png',
-    'CS_Visages/Face19_B_gp2.png',
-    'CS_Visages/Face28_B_gp2.png',
-    'CS_Visages/Face55_B_gp2.png',
-    'CS_Visages/Face95_B_gp2.png',
+    'CSUS/CS/Face10_J_gp1.png',
+    'CSUS/CS/Face103_J_gp1.png',
+    'CSUS/CS/Face116_J_gp1.png',
+    'CSUS/CS/Face132_J_gp1.png',
+    'CSUS/CS/Face16_J_gp1.png',
+    'CSUS/CS/Face17_J_gp1.png',
+    'CSUS/CS/Face45_J_gp1.png',
+    'CSUS/CS/Face85_J_gp1.png',
+    'CSUS/CS/Face104_B_gp2.png',
+    'CSUS/CS/Face115_B_gp2.png',
+    'CSUS/CS/Face119_B_gp2.png',
+    'CSUS/CS/Face142_B_gp2.png',
+    'CSUS/CS/Face19_B_gp2.png',
+    'CSUS/CS/Face28_B_gp2.png',
+    'CSUS/CS/Face55_B_gp2.png',
+    'CSUS/CS/Face95_B_gp2.png',
   ];
   var USpos = [
-    'us_posneg/uspos/1440.bmp',
-    'us_posneg/uspos/1460.bmp',
-    'us_posneg/uspos/1463.bmp',
-    'us_posneg/uspos/1650.bmp',
-    'us_posneg/uspos/1710.bmp',
-    'us_posneg/uspos/1810.bmp',
-    'us_posneg/uspos/1920.bmp',
-    'us_posneg/uspos/1999.bmp',
-    'us_posneg/uspos/2040.bmp',
-    'us_posneg/uspos/2057.bmp',
-    'us_posneg/uspos/2058.bmp',
-    'us_posneg/uspos/2070.bmp',
-    'us_posneg/uspos/2150.bmp',
-    'us_posneg/uspos/2160.bmp',
-    'us_posneg/uspos/2165.bmp',
-    'us_posneg/uspos/2208.bmp',
-    'us_posneg/uspos/2311.bmp',
-    'us_posneg/uspos/2340.bmp',
-    'us_posneg/uspos/2341.bmp',
-    'us_posneg/uspos/2550.bmp',
-    'us_posneg/uspos/2660.bmp',
-    'us_posneg/uspos/2791.bmp',
-    'us_posneg/uspos/2900.bmp',
-    'us_posneg/uspos/4220.bmp',
-    'us_posneg/uspos/4625.bmp',
-    'us_posneg/uspos/4641.bmp',
-    'us_posneg/uspos/5470.bmp',
-    'us_posneg/uspos/5594.bmp',
-    'us_posneg/uspos/5600.bmp',
-    'us_posneg/uspos/5621.bmp',
-    'us_posneg/uspos/5629.bmp',
-    'us_posneg/uspos/5700.bmp',
-    'us_posneg/uspos/5830.bmp',
-    'us_posneg/uspos/5831.bmp',
-    'us_posneg/uspos/5910.bmp',
-    'us_posneg/uspos/5994.bmp',
-    'us_posneg/uspos/7200.bmp',
-    'us_posneg/uspos/7230.bmp',
-    'us_posneg/uspos/7330.bmp',
-    'us_posneg/uspos/7350.bmp',
-    'us_posneg/uspos/7470.bmp',
-    'us_posneg/uspos/7580.bmp',
-    'us_posneg/uspos/8080.bmp',
-    'us_posneg/uspos/8190.bmp',
-    'us_posneg/uspos/8200.bmp',
-    'us_posneg/uspos/8370.bmp',
-    'us_posneg/uspos/8420.bmp',
-    'us_posneg/uspos/8490.bmp',
-    'us_posneg/uspos/8501.bmp',
-    'us_posneg/uspos/8540.bmp',
+    'CSUS/USPOS/pos1.JPG',
+    'CSUS/USPOS/pos2.jpg',
+    'CSUS/USPOS/pos3.jpg',
+    'CSUS/USPOS/pos4.jpg',
+    'CSUS/USPOS/pos5.JPG',
+    'CSUS/USPOS/pos6.JPG',
+    'CSUS/USPOS/pos7.JPG',
+    'CSUS/USPOS/pos8.JPG',
   ];
   var USneg = [
-    'us_posneg/usneg/2053.bmp',
-    'us_posneg/usneg/2141.bmp',
-    'us_posneg/usneg/2205.bmp',
-    'us_posneg/usneg/2710.bmp',
-    'us_posneg/usneg/2750.bmp',
-    'us_posneg/usneg/2751.bmp',
-    'us_posneg/usneg/2900.bmp',
-    'us_posneg/usneg/3160.bmp',
-    'us_posneg/usneg/3181.bmp',
-    'us_posneg/usneg/3300.bmp',
-    'us_posneg/usneg/3550.bmp',
-    'us_posneg/usneg/6020.bmp',
-    'us_posneg/usneg/6212.bmp',
-    'us_posneg/usneg/6242.bmp',
-    'us_posneg/usneg/6312.bmp',
-    'us_posneg/usneg/6530.bmp',
-    'us_posneg/usneg/6570.bmp',
-    'us_posneg/usneg/6831.bmp',
-    'us_posneg/usneg/6838.bmp',
-    'us_posneg/usneg/7361.bmp',
-    'us_posneg/usneg/7380.bmp',
-    'us_posneg/usneg/8485.bmp',
-    'us_posneg/usneg/9000.bmp',
-    'us_posneg/usneg/9006.bmp',
-    'us_posneg/usneg/9041.bmp',
-    'us_posneg/usneg/9050.bmp',
-    'us_posneg/usneg/9180.bmp',
-    'us_posneg/usneg/9181.bmp',
-    'us_posneg/usneg/9182.bmp',
-    'us_posneg/usneg/9220.bmp',
-    'us_posneg/usneg/9265.bmp',
-    'us_posneg/usneg/9280.bmp',
-    'us_posneg/usneg/9290.bmp',
-    'us_posneg/usneg/9330.bmp',
-    'us_posneg/usneg/9340.bmp',
-    'us_posneg/usneg/9341.bmp',
-    'us_posneg/usneg/9342.bmp',
-    'us_posneg/usneg/9400.bmp',
-    'us_posneg/usneg/9404.bmp',
-    'us_posneg/usneg/9415.bmp',
-    'us_posneg/usneg/9421.bmp',
-    'us_posneg/usneg/9435.bmp',
-    'us_posneg/usneg/9520.bmp',
-    'us_posneg/usneg/9560.bmp',
-    'us_posneg/usneg/9561.bmp',
-    'us_posneg/usneg/9584.bmp',
-    'us_posneg/usneg/9630.bmp',
-    'us_posneg/usneg/9830.bmp',
-    'us_posneg/usneg/9920.bmp',
-    'us_posneg/usneg/9921.bmp',
+    'CSUS/USNEG/neg1.JPG',
+    'CSUS/USNEG/neg2.jpg',
+    'CSUS/USNEG/neg3.jpg',
+    'CSUS/USNEG/neg4.jpg',
+    'CSUS/USNEG/neg5.JPG',
+    'CSUS/USNEG/neg6.JPG',
+    'CSUS/USNEG/neg7.JPG',
+    'CSUS/USNEG/neg8.JPG',
   ];
+
   preloadimages.push(CS_G1B, CS_G1Y, USpos, USneg);
+  preloadimages = _.flattenDeep(preloadimages);
 
   /* Functions */
   // duplicate elements of an array n times
@@ -221,32 +138,20 @@
     return newArray;
   }
 
-
   /* RANDOMIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* PAIRING PROCEDURE */
   // assign group color
   var groupColor = _.sample(["G1B", "G1Y"]);
   var CS = groupColor == "G1B" ? CS_G1B : CS_G1Y;
-
-  // generate US-CS parings
-  CS.map(function (e) { stims.push({ CS: e }) });
-  stims = duplicateElements(stims, numOfUS);
-
   // randomly assign pos or neg US to each CS
-  var US = [];
-  var USvalence = _.shuffle(["neg", "pos"]);
-  var USCSpairing = groupColor + USvalence[0];
-  USvalence = duplicateElements(USvalence, CS.length / 2);
-  USvalence.map(function (e) {
-    if (e == "neg") US.push(_.sampleSize(USneg, numOfUS));
-    if (e == "pos") US.push(_.sampleSize(USpos, numOfUS));
-  });
+  var USorder = _.sample(["neg", "pos"]);
+  var cond = groupColor + USorder;
+  // generate US-CS parings
+  USneg = _.shuffle(USneg);
+  USpos = _.shuffle(USpos);
+  var US = USorder == "neg" ? [USneg, USpos] : [USpos, USneg];
   US = _.flattenDeep(US);
-  stims.map(function (e, i) { e.US = US[i] });
-
-  // randomized US-CS horizontal position
-  stims.map(function (e) { e.CSposition = _.sample(["left", "right"]) });
-
+  CS.map(function (e, i) { stims.push({ CS: e, US: US[i], CSposition: _.sample(["left", "right"]) }) });
 
   /* EXPERIMENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* Fullscreen mode & Consent */
@@ -283,7 +188,7 @@
       html += "<p class = 'justify'>In the following task, ";
       html += "you will be presented with a series of images. ";
       html += "Your task is simply to <b>look carefully at these images</b>. ";
-      html += "The task will be automatically paced</p>";|
+      html += "The task will be automatically paced</p>";
       return html;
     }
   };
@@ -292,6 +197,7 @@
   var evacond = {
     timeline_variables: stims,
     randomize_order: true,
+    repetitions: numOfRepetitions,
     choices: jsPsych.NO_KEYS,
     trial_duration: delayTrial,
     post_trial_gap: delayIti,
@@ -333,7 +239,7 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Rating task</h1>";
-      html += "<p class='justify'>You will now be asked to indicate your <b>general feelings</b> about the faces you been presented with. ";
+      html += "<p class='justify'>You will now be asked to indicate your <b>general feelings</b> about the faces you have been presented with. ";
       html += "To do so please use the following scale were <i>1 = very negatives feelings</i> to <i>9 = very positives feelings</i>.</br></br>";
       html += "Please respond as honestly as possible. Your first impression is generally the most accurate.</p>";
       return html;
@@ -348,7 +254,7 @@
     var likert_trial = {
       type: 'survey-likert',
       preamble: "<img src='" + cs + "'>",
-      questions: [{ prompt: "What are your general feelings about this image?", labels: ratingScale, required: true }],
+      questions: [{ prompt: "What are your general feelings about this face?", labels: ratingScale, required: true }],
       button_label: 'Continue',
       on_load: function () {
         $("#jspsych-survey-likert-form").css("width", "700px");
@@ -366,53 +272,44 @@
     CSratings.push(likert_trial);
   });
 
-
-  /* DEMO */
-  var age = {
-    timeline: [{
-      type: 'survey-text',
-      questions: [{ prompt: "What is your age :", rows: 1, columns: 10 }],
-      button_label: "continue",
-    }],
-    loop_function: function (data) {
-      var age = data.values()[0].responses;
-      var age = JSON.parse(age).Q0;
-      if (age == "") {
-        alert("Please indicate your age before continuing");
-        return true;
-      }
-    },
-    on_load: function () {
-      $(".jspsych-content").css("max-width", "90%");
-    },
-    on_finish: function (data) {
-      jsPsych.data.addProperties({
-        age: JSON.parse(data.responses)["Q0"],
-      });
+  /* CS MEMORY INSTRUCTIONS */
+  var instCSmemory = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['Start'],
+    on_load: function () { $('body').css({ "cursor": "default" }); },
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Memory task</h1>";
+      html += "<p class='justify'>You will now be asked to indicate, for each face, if it was presented with a positive image, a negative image, or if you don't remember.</p>";
+      return html;
     },
   };
+  var CSmemory = [];
+  var shuffledCS = _.shuffle(CS);
+  var memoryOptions = ['A positive image', 'A negative image', "I don't remember"];
+  shuffledCS.map(function (cs) {
+    var memory_trial = {
+      type: 'survey-multi-choice',
+      preamble: "<img src='" + cs + "'>",
+      questions: [{ prompt: "This face presented together with:", options: memoryOptions, required: true }],
+      button_label: 'Continue',
+      on_load: function () {
+        $("#jspsych-survey-likert-form").css("width", "700px");
+        $(".jspsych-survey-likert-opts").css("margin-top", "30px");
+      },
+      on_finish: function (data) {
+        data.task = "CSmemory";
+        data.CS = cs;
+        var parsed_response = JSON.parse(data.responses);
+        data.memory = parsed_response.Q0;
+        console.log(data.CS);
+        console.log(data.memory);
+      },
+    };
+    CSmemory.push(memory_trial);
+  });
 
-  var genderOptions = ['Male', 'Female', 'Other'];
-  var gender = {
-    type: 'survey-multi-choice',
-    questions: [{ prompt: "Please indicate your gender:", options: genderOptions, required: true }],
-    button_label: "continue",
-    on_finish: function (data) {
-      jsPsych.data.addProperties({
-        gender: JSON.parse(data.responses)["Q0"],
-      });
-    },
-  };
-
-
-  /* DEBRIEF */
-  var debrief = "";
-  debrief += "<h1>Fin de l'expérience</h1>";
-  debrief += "<p class='justify'>";
-  debrief += "Merci pour votre participation! Cette étude avait pour but d'étudier la perception générale ";
-  debrief += "qu'ont les individus de visages inconnus et ambigus.</br></br> "
-  debrief += "Veuillez copier le code suivant sur Foule Factory pour valider votre participation :</p>";
-  debrief += '<span style="color:#cc3300; font-weight: bold">PAZ1P9L4</span>';
 
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   timeline.push(activeFullscreen);
@@ -420,12 +317,9 @@
   timeline.push(evacond);
   timeline.push(instCSratings);
   timeline.push(CSratings);
-  timeline.push(age);
-  timeline.push(gender);
-
-  preloadimages = _.flattenDeep(preloadimages);
+  timeline.push(instCSmemory);
+  timeline.push(CSmemory);
   timeline = _.flattenDeep(timeline);
-
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
     timeline: timeline,
@@ -437,42 +331,42 @@
     },
     on_finish: function (data) {
       $("#jspsych-content").html("<img src='img/loading.gif'>");
-
       /* Initialize Firebase */
       var config = {
         apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
         databaseURL: "https://biatw-68fe6.firebaseio.com/"
       };
-
       firebase.initializeApp(config);
       var database = firebase.database();
-
       // if no id provided, generate a new id
       if (id == null) { id = jsPsych.randomization.randomID(15) };
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
         id: id,
-        groupColor: groupColor,
-        USCSpairing: USCSpairing,
+        cond: cond,
         totalTime: jsPsych.totalTime()
       });
-
       var dataEC = data.filter({ task: 'evaCond' }).csv();
       var dataCSratings = data.filter({ task: 'CSratings' }).csv();
-
+      var dataCSmemory = data.filter({ task: 'CSmemory' }).csv();
       /* Send data to Firebase */
       database
         .ref(FBdirectory + "/" + id + "/")
         .update({ dataEC })
         .then(function () {
+          console.log("Data EC sent!");
           database
             .ref(FBdirectory + "/" + id + "/")
             .update({ dataCSratings })
             .then(function () {
-              console.log("Data sent!");
-              $("#jspsych-content").html(debrief);
-              setTimeout(jsPsych.data.displayData, 5000);
+              console.log("Data CSratings sent!");
+              database
+                .ref(FBdirectory + "/" + id + "/")
+                .update({ dataCSmemory })
+                .then(function () {
+                  console.log("Data CSmemory sent!");
+                });
             });
         });
     }
