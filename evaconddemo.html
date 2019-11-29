@@ -8,8 +8,6 @@
   <meta charset="utf-8">
   <title>exp</title>
   <script src="jspsych-6.0.3/jspsych.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
   <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
   <script src="jspsych-6.0.3/plugins/jspsych-survey-likert.js"></script>
   <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
@@ -44,17 +42,17 @@
 
 <script>
   /* Parameters */
-  var delayIti = 100;  // 100; inter-trial-interval for trials
-  var delayTrial = 2000; // 2000; duration of each trial
-  var numOfRepetitions = 1; // number of times each US-CS pair is repeated
-  var redirectToLink = "https://marinerougier.github.io/EC_VAAST/index.html"; // link to be redirected to at the end of the experiment
+  var redirectToLink = "https://www.prolific.co/"; // link to be redirected to at the end of the experiment
   var FBdirectory = "EC" // Firebase directory in which to store the data
   /* Initial variables */
   var timeline = [];
   var preloadimages = [];
-  var stims = [];
+
   var id = jsPsych.data.getURLVariable("id");
-  id = id == null ? id : jsPsych.randomization.randomID(15); // assign random id if not provided in URL
+  if (id == null) id = 'NA';
+  var cond = jsPsych.data.getURLVariable("cond");
+  if (cond == null) cond = 'NA';
+
   /* Material */
   // in R, use the following line code to list files in a directory:
   // list.files("CSUS/CS/", "*B_gp1") %>% paste0("'CSUS/CS/", .,"',") %>% cat(sep = "\n")
@@ -95,29 +93,11 @@
     'CSUS/CS/Face55_B_gp2.png',
     'CSUS/CS/Face95_B_gp2.png',
   ];
-  var USpos = [
-    'CSUS/USPOS/pos1.JPG',
-    'CSUS/USPOS/pos2.jpg',
-    'CSUS/USPOS/pos3.jpg',
-    'CSUS/USPOS/pos4.JPG',
-    'CSUS/USPOS/pos5.JPG',
-    'CSUS/USPOS/pos6.JPG',
-    'CSUS/USPOS/pos7.JPG',
-    'CSUS/USPOS/pos8.jpg',
-  ];
-  var USneg = [
-    'CSUS/USNEG/neg1.JPG',
-    'CSUS/USNEG/neg2.jpg',
-    'CSUS/USNEG/neg3.jpg',
-    'CSUS/USNEG/neg4.jpg',
-    'CSUS/USNEG/neg5.JPG',
-    'CSUS/USNEG/neg6.JPG',
-    'CSUS/USNEG/neg7.JPG',
-    'CSUS/USNEG/neg8.JPG',
-  ];
 
-  preloadimages.push(CS_G1B, CS_G1Y, USpos, USneg);
+  preloadimages.push(CS_G1B, CS_G1Y);
   preloadimages = _.flattenDeep(preloadimages);
+  var groupColor = cond.substring(0, 3);
+  var CS = groupColor == "G1B" ? CS_G1B : CS_G1Y;
 
   /* Functions */
   // duplicate elements of an array n times
@@ -138,98 +118,6 @@
     return newArray;
   }
 
-  /* RANDOMIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  /* PAIRING PROCEDURE */
-  // assign group color
-  var groupColor = _.sample(["G1B", "G1Y"]);
-  var CS = groupColor == "G1B" ? CS_G1B : CS_G1Y;
-  // randomly assign pos or neg US to each CS
-  var USorder = _.sample(["neg", "pos"]);
-  var cond = groupColor + USorder;
-  // generate US-CS parings
-  USneg = _.shuffle(USneg);
-  USpos = _.shuffle(USpos);
-  var US = USorder == "neg" ? [USneg, USpos] : [USpos, USneg];
-  US = _.flattenDeep(US);
-  CS.map(function (e, i) { stims.push({ CS: e, US: US[i], CSposition: _.sample(["left", "right"]) }) });
-
-  /* EXPERIMENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  /* Fullscreen mode & Consent */
-  var activeFullscreen = {
-    message: function () {
-      html = "";
-      html += "<h1>Informed Consent</h1>";
-      html += "<p class='justify'>In this study about face perception, you will be asked to ";
-      html += "to complete several task and to fill a brief survey.</br></br>";
-      html += "WARNING: be aware that some pictures presented may be unpleasant.</br></br>"
-      html += "This should take you approximately <strong>18 minutes</strong>. During this period, ";
-      html += "it is important that you remain fully <strong>concentrated</strong>.</p>";
-      html += "<p class='justify'>Your participation is voluntary, does not imply any risks, your answers will be ";
-      html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
-      html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
-      html += "description of this experiment.</p>";
-      html += "<p class='justify'>This study is administrated by Mathias Schmitz, reasearcher at the UCLouvain (Belgium). ";
-      html += "If you have any question or comment please contact me at <strong>mathias.schmitz@uclouvain.be</strong></p>";
-      return html;
-    },
-    button_label: "I agree to take part in this study",
-    type: 'fullscreen',
-    fullscreen_mode: true,
-    delay_after: 200,
-  };
-
-  /* Present paired US-CS */
-  var pairingInst = {
-    type: "html-button-response",
-    post_trial_gap: 300,
-    choices: ['start'],
-    stimulus: function () {
-      var html = "";
-      html += "<h1>TASK 1</h1>";
-      html += "<p class = 'justify'>In the following task, ";
-      html += "you will be presented with a series of images. ";
-      html += "Your task is simply to <b>look carefully at these images</b>. ";
-      html += "The task will be automatically paced</p>";
-      return html;
-    }
-  };
-
-  /* Pairings */
-  var evacond = {
-    timeline_variables: stims,
-    randomize_order: true,
-    repetitions: numOfRepetitions,
-    choices: jsPsych.NO_KEYS,
-    trial_duration: delayTrial,
-    post_trial_gap: delayIti,
-    on_load: function () {
-      $('body').css({ "cursor": "none" });
-      $('.jspsych-content').css({ "max-width": "100%" });
-    },
-    timeline: [{
-      type: 'html-keyboard-response',
-      stimulus: function () {
-        if (jsPsych.timelineVariable('CSposition', true) == "left") {
-          var leftImg = jsPsych.timelineVariable('CS', true);
-          var rightImg = jsPsych.timelineVariable('US', true);
-        } else {
-          var leftImg = jsPsych.timelineVariable('US', true);
-          var rightImg = jsPsych.timelineVariable('CS', true);
-        };
-        html = '';
-        html += "<img class='paringsImgsLeft' src='" + leftImg + "'>";
-        html += "<img class='paringsImgsRight' src='" + rightImg + "'>";
-        return html;
-      },
-      on_finish: function (data) {
-        $('.jspsych-content').css({ "max-width": "90%" });
-        data.task = "evaCond";
-        data.CS = jsPsych.timelineVariable('CS', true);
-        data.US = jsPsych.timelineVariable('US', true);
-        data.CSposition = jsPsych.timelineVariable('CSposition', true);
-      },
-    }]
-  };
 
   /* CS RATINGS INSTRUCTIONS */
   var instCSratings = {
@@ -311,15 +199,65 @@
     CSmemory.push(memory_trial);
   });
 
+  /* Demographics */
+  var age = {
+    timeline: [{
+      type: 'survey-text',
+      questions: [{ prompt: "Indicate your age:", rows: 1, columns: 10 }],
+      button_label: "continue",
+    }],
+    loop_function: function (data) {
+      var age = data.values()[0].responses;
+      var age = JSON.parse(age).Q0;
+      if (age == "") {
+        alert("Please answer the question");
+        return true;
+      }
+    },
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        age: JSON.parse(data.responses).Q0,
+      });
+    },
+  };
+
+  var genderOptions = ['male', 'female', 'other'];
+  var gender = {
+    type: 'survey-multi-choice',
+    questions: [{ prompt: "What is your gender?", options: genderOptions, required: true }],
+    button_label: "continue",
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        gender: JSON.parse(data.responses).Q0,
+      });
+      console.log(data);
+    },
+  };
+  /* Debriefing */
+  var debriefing = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['continue'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Debriefing</h1>";
+      html += "<p class='justify'>Thank you for taking part in this study!</br></br>";
+      html += "The overall aim of this research is to test participants' reaction time to approach/avoid faces ";
+      html += 'after they have associated these faces with positives or negatives stimuli (pictures).'
+      html += 'Feel free to contact me if you have any question or comment regarding this study.</br></br>';
+      html += "Please click on the button 'continue' to validate your participation on prolific.</p>";
+      return html;
+    }
+  };
 
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  timeline.push(activeFullscreen);
-  timeline.push(pairingInst);
-  timeline.push(evacond);
-  timeline.push(instCSratings);
-  timeline.push(CSratings);
-  timeline.push(instCSmemory);
-  timeline.push(CSmemory);
+  // timeline.push(instCSratings);
+  // timeline.push(CSratings);
+  // timeline.push(instCSmemory);
+  // timeline.push(CSmemory);
+  // timeline.push(age);
+  // timeline.push(gender);
+  timeline.push(debriefing);
   timeline = _.flattenDeep(timeline);
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
@@ -353,11 +291,19 @@
       var dataCSmemory = data.filter({ task: 'CSmemory' }).csv();
       /* Send data to Firebase */
       database
+      console.log("Data EC sent!");
+      database
         .ref(FBdirectory + "/" + id + "/")
-        .update({ dataEC })
+        .update({ dataCSratings })
         .then(function () {
-          console.log("Data EC sent!");
-          window.location.href = redirectToLink + "?id=" + id + "&cond=" + cond;
+          console.log("Data CSratings sent!");
+          database
+            .ref(FBdirectory + "/" + id + "/")
+            .update({ dataCSmemory })
+            .then(function () {
+              console.log("Data CSmemory sent!");
+              window.location.href = redirectToLink;
+            });
         });
     }
   });
