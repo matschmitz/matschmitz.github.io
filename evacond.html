@@ -142,15 +142,15 @@
       html += "<h1>Informed Consent</h1>";
       html += "<p class='justify'>In this study about face perception, you will be asked to ";
       html += "to complete several task and to fill a brief survey.</br></br>";
-      html += "WARNING: be aware that some pictures presented may be unpleasant.</br></br>"
+      html += "<u>WARNING</u>: be aware that some pictures presented may be unpleasant.</br></br>"
       html += "This should take you approximately <strong>18 minutes</strong>. During this period, ";
       html += "it is important that you remain fully <strong>concentrated</strong>.</p>";
       html += "<p class='justify'>Your participation is voluntary, does not imply any risks, your answers will be ";
       html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
       html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
       html += "description of this experiment.</p>";
-      html += "<p class='justify'>This study is administrated by Mathias Schmitz, reasearcher at the UCLouvain (Belgium). ";
-      html += "If you have any question or comment please contact me at <strong>mathias.schmitz@uclouvain.be</strong></p>";
+      html += "<p class='justify'>This study is administrated by Mathias Schmitz, Marine Rougier, and Adrien Mierop, reasearchers at the UCLouvain (Belgium). ";
+      html += "If you have any question or comment please contact us at <strong>mathias.schmitz@uclouvain.be</strong></p>";
       return html;
     },
     button_label: "I agree to take part in this study",
@@ -168,8 +168,9 @@
       var html = "";
       html += "<h1>TASK 1</h1>";
       html += "<p class = 'justify'>In the following task, ";
-      html += "you will be presented with a series of images. ";
-      html += "Your task is simply to <b>look carefully at these images</b>. ";
+      html += "you will be presented with a series of faces and images. ";
+      html += "Please note that the faces have been slightly blurred in order to preserve their anonimity.</br></br>"
+      html += "Your task is simply to <b>look carefully at these faces and images</b>. ";
       html += "The task will be automatically paced</p>";
       return html;
     }

@@ -217,7 +217,7 @@
   var colorDiscrimOptions = ['yes', 'no'];
   var colorDiscrim = {
     type: 'survey-multi-choice',
-    questions: [{ prompt: "Did you have any difficulty to discriminate blue and yellow colors during the video game task?", options: colorDiscrim, required: true }],
+    questions: [{ prompt: "Did you have any difficulty to discriminate blue and yellow colors during the video game task?", options: colorDiscrimOptions, required: true }],
     button_label: "continue",
     on_finish: function (data) {
       jsPsych.data.addProperties({
