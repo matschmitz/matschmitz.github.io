@@ -99,26 +99,6 @@
   var groupColor = cond.substring(0, 3);
   var CS = groupColor == "G1B" ? CS_G1B : CS_G1Y;
 
-  /* Functions */
-  // duplicate elements of an array n times
-  // see https://stackoverflow.com/questions/56330349/how-to-duplicate-elements-in-a-js-array-without-creating-dependent-elements?
-  function duplicateElements(elementsArray, times) {
-    var newArray = [];
-    for (let index = 0; index < elementsArray.length; index++) {
-      var currentElement = elementsArray[index];
-      var currentType = typeof currentElement
-      for (let index = 0; index < times; index++) {
-        if (currentType !== "object" && currentType) {
-          newArray.push(currentElement)
-        } else if (currentType === "object" && currentType) {
-          newArray.push({ ...currentElement })
-        }
-      }
-    }
-    return newArray;
-  }
-
-
   /* CS RATINGS INSTRUCTIONS */
   var instCSratings = {
     type: "html-button-response",
@@ -233,6 +213,20 @@
       console.log(data);
     },
   };
+
+  var colorDiscrimOptions = ['yes', 'no'];
+  var colorDiscrim = {
+    type: 'survey-multi-choice',
+    questions: [{ prompt: "Did you have any difficulty to discriminate blue and yellow colors during the video game task?", options: colorDiscrim, required: true }],
+    button_label: "continue",
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        colorDiscrim: JSON.parse(data.responses).Q0,
+      });
+      console.log(data);
+    },
+  };
+
   /* Debriefing */
   var debriefing = {
     type: "html-button-response",
@@ -251,14 +245,16 @@
   };
 
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-  // timeline.push(instCSratings);
-  // timeline.push(CSratings);
-  // timeline.push(instCSmemory);
-  // timeline.push(CSmemory);
-  // timeline.push(age);
-  // timeline.push(gender);
+  timeline.push(instCSratings);
+  timeline.push(CSratings);
+  timeline.push(instCSmemory);
+  timeline.push(CSmemory);
+  timeline.push(age);
+  timeline.push(gender);
+  timeline.push(colorDiscrim);
   timeline.push(debriefing);
   timeline = _.flattenDeep(timeline);
+
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
     timeline: timeline,
@@ -286,12 +282,11 @@
         cond: cond,
         totalTime: jsPsych.totalTime()
       });
-      var dataEC = data.filter({ task: 'evaCond' }).csv();
+
       var dataCSratings = data.filter({ task: 'CSratings' }).csv();
       var dataCSmemory = data.filter({ task: 'CSmemory' }).csv();
+
       /* Send data to Firebase */
-      database
-      console.log("Data EC sent!");
       database
         .ref(FBdirectory + "/" + id + "/")
         .update({ dataCSratings })

@@ -119,25 +119,6 @@
   preloadimages.push(CS_G1B, CS_G1Y, USpos, USneg);
   preloadimages = _.flattenDeep(preloadimages);
 
-  /* Functions */
-  // duplicate elements of an array n times
-  // see https://stackoverflow.com/questions/56330349/how-to-duplicate-elements-in-a-js-array-without-creating-dependent-elements?
-  function duplicateElements(elementsArray, times) {
-    var newArray = [];
-    for (let index = 0; index < elementsArray.length; index++) {
-      var currentElement = elementsArray[index];
-      var currentType = typeof currentElement
-      for (let index = 0; index < times; index++) {
-        if (currentType !== "object" && currentType) {
-          newArray.push(currentElement)
-        } else if (currentType === "object" && currentType) {
-          newArray.push({ ...currentElement })
-        }
-      }
-    }
-    return newArray;
-  }
-
   /* RANDOMIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* PAIRING PROCEDURE */
   // assign group color
@@ -195,7 +176,7 @@
   };
 
   /* Pairings */
-  var evacond = {
+  var paring = {
     timeline_variables: stims,
     randomize_order: true,
     repetitions: numOfRepetitions,
@@ -231,95 +212,10 @@
     }]
   };
 
-  /* CS RATINGS INSTRUCTIONS */
-  var instCSratings = {
-    type: "html-button-response",
-    post_trial_gap: 300,
-    choices: ['Start'],
-    on_load: function () { $('body').css({ "cursor": "default" }); },
-    stimulus: function () {
-      var html = "";
-      html += "<h1>Rating task</h1>";
-      html += "<p class='justify'>You will now be asked to indicate your <b>general feeling</b> about the faces you have been presented with. ";
-      html += "To do so, please use the following scale where <i>1 = very negatives feelings</i> to <i>9 = very positives feelings</i>.</br></br>";
-      html += "Please respond as honestly as possible. Your first impression is generally the most accurate.</p>";
-      return html;
-    },
-  };
-
-  /* CS RATINGS */
-  var ratingScale = ["1</br>Very negative", "2", "3", "4", "5", "6", "7", "8", "9</br>Very positive"];
-  var CSratings = [];
-  var shuffledCS = _.shuffle(CS);
-  shuffledCS.map(function (cs) {
-    var likert_trial = {
-      type: 'survey-likert',
-      preamble: "<img src='" + cs + "'>",
-      questions: [{ prompt: "What is your general feeling about this face?", labels: ratingScale, required: true }],
-      button_label: 'Continue',
-      on_load: function () {
-        $("#jspsych-survey-likert-form").css("width", "700px");
-        $(".jspsych-survey-likert-opts").css("margin-top", "30px");
-      },
-      on_finish: function (data) {
-        data.task = "CSratings";
-        data.CS = cs;
-        var parsed_response = JSON.parse(data.responses);
-        data.feeling = parsed_response.Q0 + 1;
-        console.log(data.CS);
-        console.log(data.feeling);
-      },
-    };
-    CSratings.push(likert_trial);
-  });
-
-  /* CS MEMORY INSTRUCTIONS */
-  var instCSmemory = {
-    type: "html-button-response",
-    post_trial_gap: 300,
-    choices: ['Start'],
-    on_load: function () { $('body').css({ "cursor": "default" }); },
-    stimulus: function () {
-      var html = "";
-      html += "<h1>Memory task</h1>";
-      html += "<p class='justify'>You will now be asked to indicate, for each face, if it was presented together with a positive image, a negative image, or if you don't remember.</p>";
-      return html;
-    },
-  };
-  var CSmemory = [];
-  var shuffledCS = _.shuffle(CS);
-  var memoryOptions = ['A positive image', 'A negative image', "I don't remember"];
-  shuffledCS.map(function (cs) {
-    var memory_trial = {
-      type: 'survey-multi-choice',
-      preamble: "<img src='" + cs + "'>",
-      questions: [{ prompt: "This face presented together with:", options: memoryOptions, required: true }],
-      button_label: 'Continue',
-      on_load: function () {
-        $("#jspsych-survey-likert-form").css("width", "700px");
-        $(".jspsych-survey-likert-opts").css("margin-top", "30px");
-      },
-      on_finish: function (data) {
-        data.task = "CSmemory";
-        data.CS = cs;
-        var parsed_response = JSON.parse(data.responses);
-        data.memory = parsed_response.Q0;
-        console.log(data.CS);
-        console.log(data.memory);
-      },
-    };
-    CSmemory.push(memory_trial);
-  });
-
-
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   timeline.push(activeFullscreen);
   timeline.push(pairingInst);
-  timeline.push(evacond);
-  timeline.push(instCSratings);
-  timeline.push(CSratings);
-  timeline.push(instCSmemory);
-  timeline.push(CSmemory);
+  timeline.push(paring);
   timeline = _.flattenDeep(timeline);
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
@@ -349,8 +245,7 @@
         totalTime: jsPsych.totalTime()
       });
       var dataEC = data.filter({ task: 'evaCond' }).csv();
-      var dataCSratings = data.filter({ task: 'CSratings' }).csv();
-      var dataCSmemory = data.filter({ task: 'CSmemory' }).csv();
+
       /* Send data to Firebase */
       database
         .ref(FBdirectory + "/" + id + "/")
