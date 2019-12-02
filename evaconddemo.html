@@ -108,8 +108,8 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Rating task</h1>";
-      html += "<p class='justify'>You will now be asked to indicate your <b>general feeling</b> about the faces you have been presented with. ";
-      html += "To do so, please use the following scale where <i>1 = very negatives feelings</i> to <i>9 = very positives feelings</i>.</br></br>";
+      html += "<p class='justify'>You will now be asked to indicate your <b>general feelings</b> about the faces you have been presented with. ";
+      html += "To do so, please use the following scale : <i>1 = very negative feelings</i> to <i>9 = very positive feelings</i>.</br></br>";
       html += "Please respond as honestly as possible. Your first impression is generally the most accurate.</p>";
       return html;
     },
@@ -123,7 +123,7 @@
     var likert_trial = {
       type: 'survey-likert',
       preamble: "<img src='" + cs + "'>",
-      questions: [{ prompt: "What is your general feeling about this face?", labels: ratingScale, required: true }],
+      questions: [{ prompt: "What are your general feelings about this face?", labels: ratingScale, required: true }],
       button_label: 'Continue',
       on_load: function () {
         $("#jspsych-survey-likert-form").css("width", "700px");
