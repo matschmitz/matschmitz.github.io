@@ -227,6 +227,20 @@
     },
   };
 
+  var comment = {
+    timeline: [{
+      type: 'survey-text',
+      questions: [{ prompt: "(optional)</br>If you experienced any issue during the study please feel free to leave a comment below:", rows: 7, columns: 70 }],
+      button_label: "continue",
+    }],
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        comment: JSON.parse(data.responses).Q0,
+      });
+      console.log(data);
+    },
+  };
+
   /* Debriefing */
   var debriefing = {
     type: "html-button-response",
@@ -238,8 +252,8 @@
       html += "<p class='justify'>Thank you for taking part in this study!</br></br>";
       html += "The overall aim of this research is to test participants' reaction time to approach/avoid faces ";
       html += 'after they have associated these faces with positives or negatives stimuli (pictures).'
-      html += 'Feel free to contact me if you have any question or comment regarding this study.</br></br>';
-      html += "Please click on the button 'continue' to validate your participation on prolific.</p>";
+      html += 'Feel free to contact me if you have any question or comment regarding this study.</br></br></br>';
+      html += "<u>Please click on the button <i>continue</i> to validate your participation on prolific.</u></p>";
       return html;
     }
   };
@@ -252,6 +266,7 @@
   timeline.push(age);
   timeline.push(gender);
   timeline.push(colorDiscrim);
+  timeline.push(comment);
   timeline.push(debriefing);
   timeline = _.flattenDeep(timeline);
 

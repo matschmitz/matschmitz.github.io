@@ -46,7 +46,7 @@
   /* Parameters */
   var delayIti = 100;  // 100; inter-trial-interval for trials
   var delayTrial = 2000; // 2000; duration of each trial
-  var numOfRepetitions = 1; // number of times each US-CS pair is repeated
+  var numOfRepetitions = 7; // number of times each US-CS pair is repeated
   var redirectToLink = "https://marinerougier.github.io/EC_VAAST/index.html"; // link to be redirected to at the end of the experiment
   var FBdirectory = "EC" // Firebase directory in which to store the data
   /* Initial variables */
@@ -55,10 +55,10 @@
   var stims = [];
   var id = jsPsych.data.getURLVariable("id");
   id = id == null ? id : jsPsych.randomization.randomID(15); // assign random id if not provided in URL
+ 
   /* Material */
   // in R, use the following line code to list files in a directory:
   // list.files("CSUS/CS/", "*B_gp1") %>% paste0("'CSUS/CS/", .,"',") %>% cat(sep = "\n")
-
   var CS_G1B = [ // G1 = Blue   ; G2 = Yellow
     'CSUS/CS/Face10_B_gp1.png',
     'CSUS/CS/Face103_B_gp1.png',
@@ -119,6 +119,7 @@
   preloadimages.push(CS_G1B, CS_G1Y, USpos, USneg);
   preloadimages = _.flattenDeep(preloadimages);
 
+
   /* RANDOMIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* PAIRING PROCEDURE */
   // assign group color
@@ -134,6 +135,7 @@
   US = _.flattenDeep(US);
   CS.map(function (e, i) { stims.push({ CS: e, US: US[i], CSposition: _.sample(["left", "right"]) }) });
 
+
   /* EXPERIMENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* Fullscreen mode & Consent */
   var activeFullscreen = {
@@ -141,9 +143,9 @@
       html = "";
       html += "<h1>Informed Consent</h1>";
       html += "<p class='justify'>In this study about face perception, you will be asked to ";
-      html += "to complete several task and to fill a brief survey.</br></br>";
-      html += "<u>WARNING</u>: be aware that some pictures presented may be unpleasant.</br></br>"
-      html += "This should take you approximately <strong>18 minutes</strong>. During this period, ";
+      html += "to complete several tasks and to fill in a brief survey.</br></br>";
+      html += "<u>WARNING</u>: be aware that some pictures presented might shock you.</br></br>"
+      html += "This should take you approximately <strong>20 minutes</strong>. During this period, ";
       html += "it is important that you remain fully <strong>concentrated</strong>.</p>";
       html += "<p class='justify'>Your participation is voluntary, does not imply any risks, your answers will be ";
       html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
@@ -169,7 +171,7 @@
       html += "<h1>TASK 1</h1>";
       html += "<p class = 'justify'>In the following task, ";
       html += "you will be presented with a series of faces and images. ";
-      html += "Please note that the faces have been slightly blurred in order to preserve their anonimity.</br></br>"
+      html += "Please note that the faces have been slightly blurred in order to preserve their anonymity.</br></br>"
       html += "Your task is simply to <b>look carefully at these faces and images</b>. ";
       html += "The task will be automatically paced</p>";
       return html;
@@ -213,11 +215,14 @@
     }]
   };
 
+
   /* TIMELINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   timeline.push(activeFullscreen);
   timeline.push(pairingInst);
   timeline.push(paring);
   timeline = _.flattenDeep(timeline);
+
+
   /* INITIALISE EXP  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   jsPsych.init({
     timeline: timeline,
