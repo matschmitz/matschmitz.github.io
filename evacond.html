@@ -54,7 +54,7 @@
   var preloadimages = [];
   var stims = [];
   var id = jsPsych.data.getURLVariable("id");
-  id = id == null ? id : jsPsych.randomization.randomID(15); // assign random id if not provided in URL
+  if (id == null) { id = jsPsych.randomization.randomID(15) };
  
   /* Material */
   // in R, use the following line code to list files in a directory:
@@ -241,8 +241,6 @@
       };
       firebase.initializeApp(config);
       var database = firebase.database();
-      // if no id provided, generate a new id
-      if (id == null) { id = jsPsych.randomization.randomID(15) };
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
