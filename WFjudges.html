@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>exp</title>
+  <script src="jspsych-6.1.0/jspsych.js"></script>
+  <script src="jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+  <script src="jspsych-6.1.0/plugins/jspsych-survey-multi-choice.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/lodash.min.js"></script>
+  <script src="js/firebase.js"></script>
+  <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css">
+  <style>
+    body {
+      cursor: default;
+    }
+
+    .imgJudge {
+      width: 200px;
+      margin: 20px 10px 10px 10px;
+      padding: 0px;
+    }
+
+    .jspsych-content-wrapper {
+      width: 800px;
+      height: 600px;
+    }
+
+    .scaleInfo {
+      margin-bottom: 20px;
+      color: steelblue;
+    }
+  </style>
+</head>
+
+<body></body>
+<script>
+
+  // Parameters
+  var n = 10; // number of pairs of CIs (Walloon + Fleming) randomly sampled (default: 10)
+  var CIsPath = 'WFcis/'; // CIs' path
+  var prolificLink = "https://app.prolific.co/submissions/complete?cc=73561B39";
+
+  // Initial variables
+  var timeline = [];
+  var preloadimages = [];
+  var id = jsPsych.data.getURLVariable("id"); // Need to add ?id={{%PROLIFIC_PID%}} at the end of the prolific survey link!
+  if (id == null) { id = jsPsych.randomization.randomID(15) };
+
+  // Creators IDs
+  var creators_ids = [
+    'v1xtmb6drnu5hrl', 'e6op563uq4g2w2k', 'z4sfdbsjfngessw', 'k1m856nl8rpa9be',
+    '8erglqb2zkwb6ef', 'pq14ohmhhbwp3op', 'r9bplx8rufycbcc', 'r2cadhv30gt0xr7',
+    '68cbeqd8916jmhy', 'fr7orot5hen3elx', 'e4w87oslxzgensy', 'vytle6fbc0vw70a',
+    '1hrcql49jsa0vf2', '7svsmx9s3vyup8c', '75bq5eorsu87h7g', 'ahv4ono0mconwhx',
+    '8m1ruwb7e80u2pc', 'rwesvqm1x1krks8', 'wmvyof6b8c57u47', 'womh49tkhokwulr',
+    'socagxd09ysrssr', 'h3l7yahskn1le96', 'lxv5rg6lmt3awmb', 'ejp0kca99zq4uz3',
+    'ejxfyrsalerj60t', 'bbanvd6o2pbp9qz', 'k2as8u5um1tklgs', '413mum4p9lhhfsy',
+    't7utj8juxv9x4mg', 'yqbozd45g4vt7ld', 'xeq29nygwh1djg1', 'f62sb97pldjfnr3',
+    'ujk2onwyge4mwd5', 'hpkce3jm9se0bdu', '94xf1rxt72jbv20', 'ro4pujv195dbfwf',
+    '7j2cqaf1hjlaaxk', 'xc9hsr49dvcyph0', 'hklbubz6ogo3qg3', 'olxvzqfrs549bgd',
+    '4ob1rh1va5qb06a', '73wvjnaobfjng7n', '25nv3nc56wr611w', 'j5zpv1qw1glcm3a',
+    'rjnurg1q1hnsm63', 'bfm1564ohktu75l', '1dtyaytmx978jc0', 'toov0q2v4tfg3z8',
+    'bkd1yb0ncsguc3v', '1ved7usv0qwhuhc', 'rvnr91bmwmngccv', 'rv5pzg6zk9ypa18',
+    'scqucck5fhula4c', 'rf1r18nab27v1bb', 'aq0lmpb0mdgaw90', 'zzqpakqs0xwurgz',
+    '48gw1s7p5rdrkcc', '3zhsm9p7getd7jq', '05xvrsxkexrpcmf', '9ykuyalylq22shb',
+    'e3cfyyjzjftsgfv', 'g6yxl0hmuafyjzk', 'lmfzp125c09j6vz', 'jzkn238dto3occp',
+    'dz2k4y1l6nsc1a9', 'zl09f3vhdl9g8nc', '3h76y9yaw3kfwqa', '2c6odomkjtkea4k',
+    'tnfepojwaqhembo', 'sqjq8p3vhj5os0f', 'bx81rlbancqzqq2', '05qjeb2vbv8y9en'
+  ];
+
+  var sampled_creators_ids = _.sampleSize(creators_ids, n);
+
+  // Individual CIs
+  var CIsIndStims = [];
+  sampled_creators_ids.map(function (e) {
+    CIsIndStims.push(CIsPath + 'ind_Wallon_' + e + '.png');
+    CIsIndStims.push(CIsPath + 'ind_Flamand_' + e + '.png');
+  });
+
+  CIsIndStims = _.flattenDeep(CIsIndStims);
+  preloadimages.push(CIsIndStims);
+
+  CIsIndStims = CIsIndStims.map(function (e) { return { imgHtml: "<img class='imgJudge' src='" + e + "'>" } }); // add img html format
+  CIsIndStims = _.flattenDeep(CIsIndStims);
+  CIsIndStims = _.shuffle(CIsIndStims); // randomize order
+
+  // Average CIs
+  var cis_avg = ["avg_Flamand.png", "avg_Wallon.png"];
+  var CIsAvgStims = cis_avg.map(function (e) { return CIsPath + e }); // add URL path
+  preloadimages.push(CIsAvgStims);
+
+  CIsAvgStims = CIsAvgStims.map(function (e) { return { imgHtml: "<img class='imgJudge' src='" + e + "'>" } });
+  CIsAvgStims = _.shuffle(CIsAvgStims); // randomize order
+
+
+  // EXPERIMENT --------------------------------------------------------------------------------------------------------
+  /* Consent */
+  var fullScreenConsent = {
+    button_label: "I accept to participate in this study",
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    delay_after: 200,
+    message: function () {
+      html = "";
+      html += "<h1>Informed Consent</h1>";
+      html += "<p class='justify'>In this study about face perception you will be asked to rate several faces. ";
+      html += "It is important that you remain <strong>concentrated throughout the task</strong>.</br></br>";
+      html += "Your participation is voluntary, does not imply any risks, your answers will be ";
+      html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
+      html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
+      html += "description of this experiment.</br></br>";
+      html += "This study is administrated by Mathias Schmitz, PhD student at the UCLouvain (Belgium).</br></br>";
+      html += "If you have any questions or comments please contact me at ";
+      html += "mathias.schmitz@uclouvain.be</p>";
+      return html;
+    },
+  };
+
+  /* Ind CIs instructions */
+  var rateIndInst = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['Start'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Instructions</h1>";
+      html += "<p class='justify'>In this first task, we will present you 20 faces one at a time. ";
+      html += "Your task will be to rate each face on 12 traits. To do so, use the following scale with <i>1 = Not at all</i> to <i>7 = Very much</i>. ";
+      html += "Try to be as <b>spontaneous</b> as possible and rely on your <b>first impression</b>.</br></br>";
+      html += "Notice that the faces have been blurred in order to make the task a bit more difficult and to preserve the anonimity of the person. ";
+      html += "Please remain concentrated.</p>";
+      return html;
+    },
+  };
+
+  /* Ind CIs ratings */
+  var scaleInfo = "</br><span class='scaleInfo'><i>1 = Not at all " +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    " 7 = Very much</i></span>"
+  var scale = ["1", "2", "3", "4", "5", "6", "7"];
+  var itemsTraits = ['Warm', 'Sociable', 'Friendly', 'Competent', 'Efficient', 'Hard-working', 'Trustworthy', 'Reliable', 'Honest', 'Dominant', 'Physically strong', 'Masculine'];
+
+  var traitList = [];
+  itemsTraits.map(function (item) { traitList.push({ prompt: item, labels: scale, required: true }); });
+
+  var rateIndCIs = [];
+
+  CIsIndStims.map(function (ciImg) {
+    var likert_trial = {
+      type: 'survey-likert',
+      preamble: ciImg.imgHtml + scaleInfo,
+      questions: traitList,
+      randomize_question_order: true,
+      button_label: 'Continue',
+      on_load: function () {
+        $(".jspsych-survey-likert-statement").css("margin", "0");
+        $(".jspsych-survey-likert-statement").css("padding", "0");
+        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
+        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
+        $("#jspsych-survey-likert-form").css("width", "600px");
+        $("li").css("width", "12%");
+        $(".jspsych-content-wrapper").css("height", "auto");
+        $(".jspsych-content-wrapper").scrollTop(0);
+      },
+      on_finish: function (data) {
+        $(".jspsych-content-wrapper").css("height", "600px");
+        data.ci = ciImg.imgHtml;
+        var parsed_response = JSON.parse(data.responses);
+
+        data.W_warm = parsed_response.Q0 + 1;
+        data.W_sociable = parsed_response.Q1 + 1;
+        data.W_friendly = parsed_response.Q2 + 1;
+        data.C_competent = parsed_response.Q3 + 1;
+        data.C_efficient = parsed_response.Q4 + 1;
+        data.C_hardworking = parsed_response.Q5 + 1;
+        data.T_trustworthy = parsed_response.Q6 + 1;
+        data.T_reliable = parsed_response.Q7 + 1;
+        data.T_honest = parsed_response.Q8 + 1;
+        data.D_dominant = parsed_response.Q9 + 1;
+        data.D_strong = parsed_response.Q10 + 1;
+        data.D_masculine = parsed_response.Q11 + 1;
+
+        console.log(data);
+      },
+    };
+    rateIndCIs.push(likert_trial);
+  });
+
+  var rateAvgInst = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['Start'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Instructions</h1>";
+      html += "<p class='justify'>We will present you another set of two faces that are shown below.</br></br>";
+      html += "Your task is the same: rate each of these two face on the 12 traits.</p>";
+      html += CIsAvgStims[0].imgHtml + CIsAvgStims[1].imgHtml;
+      return html;
+    },
+  };
+
+  var rateAvgCIs = [];
+
+  CIsAvgStims.map(function (ciImg) {
+    var likert_trial = {
+      type: 'survey-likert',
+      preamble: ciImg.imgHtml + scaleInfo,
+      questions: traitList,
+      randomize_question_order: true,
+      button_label: 'Continue',
+      on_load: function () {
+        $(".jspsych-survey-likert-statement").css("margin", "0");
+        $(".jspsych-survey-likert-statement").css("padding", "0");
+        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
+        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
+        $("#jspsych-survey-likert-form").css("width", "600px");
+        $("li").css("width", "12%");
+        $(".jspsych-content-wrapper").css("height", "auto");
+        $(".jspsych-content-wrapper").scrollTop(0);
+      },
+      on_finish: function (data) {
+        $(".jspsych-content-wrapper").css("height", "600px");
+        data.ci = ciImg.imgHtml;
+        var parsed_response = JSON.parse(data.responses);
+
+        data.W_warm = parsed_response.Q0 + 1;
+        data.W_sociable = parsed_response.Q1 + 1;
+        data.W_friendly = parsed_response.Q2 + 1;
+        data.C_competent = parsed_response.Q3 + 1;
+        data.C_efficient = parsed_response.Q4 + 1;
+        data.C_hardworking = parsed_response.Q5 + 1;
+        data.T_trustworthy = parsed_response.Q6 + 1;
+        data.T_reliable = parsed_response.Q7 + 1;
+        data.T_honest = parsed_response.Q8 + 1;
+        data.D_dominant = parsed_response.Q9 + 1;
+        data.D_strong = parsed_response.Q10 + 1;
+        data.D_masculine = parsed_response.Q11 + 1;
+
+        console.log(data);
+      },
+    };
+    rateAvgCIs.push(likert_trial);
+  });
+
+  /* Demographics */
+  var age = {
+    timeline: [{
+      type: 'survey-text',
+      questions: [{ prompt: "Indicate your age:", rows: 1, columns: 10 }],
+      button_label: "Continue",
+    }],
+    loop_function: function (data) {
+      var age = data.values()[0].responses;
+      var age = JSON.parse(age).Q0;
+      if (age == "") {
+        alert("Please answer this question");
+        return true;
+      }
+    },
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        age: JSON.parse(data.responses)["Q0"],
+      });
+    },
+  };
+
+  var genderOptions = ['Male', 'Female', 'Other'];
+  var gender = {
+    type: 'survey-multi-choice',
+    questions: [{ prompt: "Please indicate your gender :", options: genderOptions, required: true }],
+    button_label: "Continue",
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        gender: JSON.parse(data.responses)["Q0"],
+      });
+    },
+  };
+
+  /* Debriefing */
+  var debriefing = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['continue'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Debriefing</h1>";
+      html += "<p class='justify'>Thank you for taking part in this study!</br></br>";
+      html += "The aim of this research was to simply asses participant's perception of these faces.</br></br>";
+      html += 'Feel free to contact me if you have any question or comment regarding this study.</br></br></br>';
+      html += "<u>Please click on the button <i>continue</i> to validate your participation on prolific.</u></p>";
+      return html;
+    }
+  };
+
+  preloadimages = _.flattenDeep(preloadimages);
+
+
+  // TIMELINE ----------------------------------------------------------------------------------------------------------
+  timeline.push(fullScreenConsent);
+  timeline.push(rateIndInst);
+  timeline.push(rateIndCIs);
+  timeline.push(rateAvgInst);
+  timeline.push(rateAvgCIs);
+  timeline.push(age);
+  timeline.push(gender);
+  timeline.push(debriefing);
+
+  timeline = _.flattenDeep(timeline);
+
+
+  // INITIALISE EXP ----------------------------------------------------------------------------------------------------
+  jsPsych.init({
+    timeline: timeline,
+    preload_images: preloadimages,
+    max_load_time: 500 * 1000,
+    exclusions: {
+      min_width: 700,
+      min_height: 600,
+    },
+    on_finish: function (data) {
+      $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+      /* Initialize Firebase */
+      var config = {
+        apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+        databaseURL: "https://biatw-68fe6.firebaseio.com/"
+      };
+
+      firebase.initializeApp(config);
+      var database = firebase.database();
+
+      /* jsPsych: add data to every trial */
+      jsPsych.data.addProperties({
+        id: id,
+        totalTime: jsPsych.totalTime()
+      });
+
+      var subdata = data.filter({ trial_type: 'survey-likert' }).csv();
+
+      /* Send data to Firebase and redirect to Qualtrics */
+      database.ref("WFjudges/" + id + "/").update({ subdata }).then(function () {
+        console.log("data sent!");
+        window.location = prolificLink; // Validate Prolific participation
+      });
+    }
+  });
+
+</script>
+
+</html>
