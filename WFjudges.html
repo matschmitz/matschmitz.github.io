@@ -19,20 +19,27 @@
       cursor: default;
     }
 
-    .imgJudge {
-      width: 200px;
-      margin: 20px 10px 10px 10px;
-      padding: 0px;
-    }
-
     .jspsych-content-wrapper {
       width: 800px;
       height: 600px;
     }
 
+    .imgJudge {
+      width: 200px;
+      margin: 20px 10px 10px 140px;
+      padding: 0px;
+    }
+
+    .displayCI {
+      width: 100px;
+      margin: 10px;
+      padding: 0px;
+    }
+
     .scaleInfo {
       margin-bottom: 20px;
       color: steelblue;
+      font-style: italic;
     }
   </style>
 </head>
@@ -109,10 +116,10 @@
       html = "";
       html += "<h1>Informed Consent</h1>";
       html += "<p class='justify'>In this study about face perception you will be asked to rate several faces. ";
-      html += "It is important that you remain <strong>concentrated throughout the task</strong>.</br></br>";
+      html += "It is important that you remain <b>concentrated throughout the task</b>.</br></br>";
       html += "Your participation is voluntary, does not imply any risks, your answers will be ";
       html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
-      html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
+      html += "you will receive a <b>monetary compensation</b> as stated in the Prolific ";
       html += "description of this experiment.</br></br>";
       html += "This study is administrated by Mathias Schmitz, PhD student at the UCLouvain (Belgium).</br></br>";
       html += "If you have any questions or comments please contact me at ";
@@ -129,22 +136,33 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Instructions</h1>";
-      html += "<p class='justify'>In this first task, we will present you 20 faces one at a time. ";
-      html += "Your task will be to rate each face on 12 traits. To do so, use the following scale with <i>1 = Not at all</i> to <i>7 = Very much</i>. ";
-      html += "Try to be as <b>spontaneous</b> as possible and rely on your <b>first impression</b>.</br></br>";
-      html += "Notice that the faces have been blurred in order to make the task a bit more difficult and to preserve the anonimity of the person. ";
-      html += "Please remain concentrated.</p>";
+      html += "<p class='justify'>In this first task, we will present you 20 faces, one at a time. ";
+      html += "Your task is to rate each face on 12 traits. ";
+      html += "To do so, use the following scale: from <span class='scaleInfo'>1 = Not at all</span> to <span class='scaleInfo'>7 = Very much</span>.</br></br>";
+      html += "Try to be as <b>spontaneous</b> as possible and try to rely on your <b>first impression</b>.</br></br>";
+      html += "Notice that these faces have been blurred in order to make the task a bit more challenging and to preserve the anonimity of the person. ";
+      html += "Below are displayed some of the faces you will have to rate for you to better gauge the differences.</br></br>";
+      html += "<img class='displayCI' src='WFcis/ind_Wallon_8erglqb2zkwb6ef.png'>";
+      html += "<img class='displayCI' src='WFcis/ind_Flamand_73wvjnaobfjng7n.png'>";
+      html += "<img class='displayCI' src='WFcis/ind_Wallon_rf1r18nab27v1bb.png'>";
+      html += "<img class='displayCI' src='WFcis/ind_Flamand_hpkce3jm9se0bdu.png'>";
+      html += "<img class='displayCI' src='WFcis/ind_Wallon_womh49tkhokwulr.png'>";
+      html += "<img class='displayCI' src='WFcis/ind_Flamand_ahv4ono0mconwhx.png'>";
+      html += "</br>Please remain <b>concentrated</b>.</p>";
       return html;
     },
   };
 
   /* Ind CIs ratings */
-  var scaleInfo = "</br><span class='scaleInfo'><i>1 = Not at all " +
+  var scaleInfo = "</br><span class='scaleInfo'>" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "Not at all " +
     "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
     "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
     "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
-    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
-    " 7 = Very much</i></span>"
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "Very much</span>"
   var scale = ["1", "2", "3", "4", "5", "6", "7"];
   var itemsTraits = ['Warm', 'Sociable', 'Friendly', 'Competent', 'Efficient', 'Hard-working', 'Trustworthy', 'Reliable', 'Honest', 'Dominant', 'Physically strong', 'Masculine'];
 
@@ -156,22 +174,25 @@
   CIsIndStims.map(function (ciImg) {
     var likert_trial = {
       type: 'survey-likert',
+      scale_width: 500,
       preamble: ciImg.imgHtml + scaleInfo,
       questions: traitList,
       randomize_question_order: true,
       button_label: 'Continue',
       on_load: function () {
-        $(".jspsych-survey-likert-statement").css("margin", "0");
-        $(".jspsych-survey-likert-statement").css("padding", "0");
-        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
-        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
-        $("#jspsych-survey-likert-form").css("width", "600px");
-        $("li").css("width", "12%");
         $(".jspsych-content-wrapper").css("height", "auto");
         $(".jspsych-content-wrapper").scrollTop(0);
+        $(".jspsych-survey-likert-statement").css("margin", "0");
+        $(".jspsych-survey-likert-statement").css("padding", "0");
+        $(".jspsych-survey-likert-statement").css("float", "left");
+        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
+        $(".jspsych-survey-likert-opts").css("margin", "0 0 0 130px");
+        $("li").css("width", "60px");
+        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
       },
       on_finish: function (data) {
         $(".jspsych-content-wrapper").css("height", "600px");
+        $(".jspsych-survey-likert-statement").css("margin", "auto");
         data.ci = ciImg.imgHtml;
         var parsed_response = JSON.parse(data.responses);
 
@@ -203,7 +224,8 @@
       html += "<h1>Instructions</h1>";
       html += "<p class='justify'>We will present you another set of two faces that are shown below.</br></br>";
       html += "Your task is the same: rate each of these two face on the 12 traits.</p>";
-      html += CIsAvgStims[0].imgHtml + CIsAvgStims[1].imgHtml;
+      html += "<img class='displayCI' src='WFcis/avg_Wallon.png'>";
+      html += "<img class='displayCI' src='WFcis/avg_Flamand.png'>";
       return html;
     },
   };
@@ -213,22 +235,25 @@
   CIsAvgStims.map(function (ciImg) {
     var likert_trial = {
       type: 'survey-likert',
+      scale_width: 500,
       preamble: ciImg.imgHtml + scaleInfo,
       questions: traitList,
       randomize_question_order: true,
       button_label: 'Continue',
       on_load: function () {
-        $(".jspsych-survey-likert-statement").css("margin", "0");
-        $(".jspsych-survey-likert-statement").css("padding", "0");
-        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
-        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
-        $("#jspsych-survey-likert-form").css("width", "600px");
-        $("li").css("width", "12%");
         $(".jspsych-content-wrapper").css("height", "auto");
         $(".jspsych-content-wrapper").scrollTop(0);
+        $(".jspsych-survey-likert-statement").css("margin", "0");
+        $(".jspsych-survey-likert-statement").css("padding", "0");
+        $(".jspsych-survey-likert-statement").css("float", "left");
+        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
+        $(".jspsych-survey-likert-opts").css("margin", "0 0 0 130px");
+        $("li").css("width", "60px");
+        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
       },
       on_finish: function (data) {
         $(".jspsych-content-wrapper").css("height", "600px");
+        $(".jspsych-survey-likert-statement").css("margin", "auto");
         data.ci = ciImg.imgHtml;
         var parsed_response = JSON.parse(data.responses);
 
@@ -323,7 +348,7 @@
     preload_images: preloadimages,
     max_load_time: 500 * 1000,
     exclusions: {
-      min_width: 700,
+      min_width: 800,
       min_height: 600,
     },
     on_finish: function (data) {
