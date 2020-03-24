@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>exp</title>
+    <script src="jspsych-6.0.3/jspsych.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="js/jspsych-html-mouse-response.js"></script>
+    <script src="js/jspsych-iat-html-mat.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/firebase.js"></script>
+    <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            cursor: default;
+        }
+
+        .rcimg-12 {
+            cursor: pointer;
+        }
+
+        .rcimg-12 {
+            margin: 10px;
+        }
+
+        .rcimg-12:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .jspsych-content-wrapper {
+            width: 900px;
+            height: 700px;
+        }
+
+        .iat_color_black {
+            color: black;
+        }
+
+        .iat_color_green {
+            color: green;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
+    /* Parameters */
+    var numOfPairsRC12 = 150 * 6; // Total number of pair images images (inv & ori)
+    var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_1SlrxHRsm4FXHLf";
+    var gitImg = "https://matschmitz.github.io/noisyFaces/stimuliWF/";
+    var gitImg = "stimuliWF/";
+
+    /* Initial variables */
+    var timeline = [];
+    var preloadimagesRC12 = [];
+    var id = jsPsych.data.getURLVariable("id");
+    if (id == null) { id = jsPsych.randomization.randomID(15) }; // if no id provided, generate a new id
+    var cond = jsPsych.data.getURLVariable("cond");
+    if (cond == null) { cond = _.sample(["WF", "FW"]) };  // if no cond provided, randomize cond (RC order: WF = walloons first)
+
+    // Consent ---------------------------------------------------------------------------------------------------------------
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: function () {
+            html = "";
+            html += "<h1> Consentement éclairé </h1>";
+            html += "<p class = 'justify'>Merci de votre intérêt et de votre participation à cette étude ";
+            html += "sur les relations entre Wallons et Flamands. ";
+            html += "Dans cette étude, il vous sera demandé de sélectionner un visage spécifique plusieurs fois et de compléter un questionnaire. ";
+            html += "Ceci devrait vous prendre environ <b>30 minutes</b>.</br></br>";
+            html += "Il est important que vous restiez pleinement <b>concentré·e</b>.</br></br>";
+            html += "Votre participation est volontaire, n'entraîne aucun risque, vos réponses seront ";
+            html += "anonymisées, et vous êtes libre de vous retirer de l'étude à tout moment.</br></br>";
+            html += "Cette étude est administrée par Mathias Schmitz et Julie Terache, ";
+            html += "doctorant·e·s à l'UCLouvain. ";
+            html += "Si vous avez des questions ou des commentaires, n'hésitez pas à nous contacter à "
+            html += "<b>mathias.schmitz@uclouvain.be</b></p>";
+            return html;
+        },
+        button_label: "J'accepte de participer à cette étude",
+        type: 'fullscreen',
+        fullscreen_mode: true,
+        delay_after: 200,
+    };
+
+    // RC ---------------------------------------------------------------------------------------------------------------
+    /* Conditions */
+    if (cond == "WF") { var cond_1 = "Wallon"; var cond_2 = "Flamand" } else { var cond_1 = "Flamand"; var cond_2 = "Wallon" };
+
+    /* Generate RC trials */
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
+    imgsRC12 = imgsRC12.map(function (e) { return [gitImg + 'faceOri' + e + '.png', gitImg + 'faceInv' + e + '.png'] });
+
+    imgsRC12 = _.flattenDeep(imgsRC12);
+    preloadimagesRC12 = imgsRC12;
+
+    // Full randomization but keep inv ori in the same trial
+    imgsRC12 = _.flattenDeep(_.shuffle(_.chunk(imgsRC12, 2)));
+    imgsRC12 = _.chunk(imgsRC12, 12); // 6 ori + 6 anti = 12 faces per trial
+    imgsRC12.map(function (e, i) { imgsRC12[i] = _.shuffle(e) });
+    var RC12_stim = [];
+    imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
+
+
+    /* RC instructions */
+    var RCinst_1 = {
+        type: "html-button-response",
+        post_trial_gap: 300,
+        choices: ['start'],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Instructions</h1>";
+            html += "<p class = 'justify'>Dans cette tâche, plusieurs visages vous seront présentés. Ses visages ont été bruités ";
+            html += "afin de préserver l'anonymat des personnes.</br></br>";
+            html += "Votre tâche consiste à ";
+            html += '<span class = "emphasize">choisir le visage qui vous semble le plus "<u>' + cond_1 + '</u>"</span> à chaque essai. ';
+            html += "Utilisez la souris pour faire votre choix.</br></br>";
+            html += "En moyenne, les participant·e·s prennent environ";
+            html += " <b>3 secondes</b> par essai. Essayez de maintenir un temps similaire.</br></br>"
+            html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
+            html += "Essayez de vous fier à votre <b>intuition</b> et de répondre le plus <b>spontanément</b> possible ";
+            html += "timeline faire le meilleur choix.</br></br>";
+            html += "N'hésitez pas à prendre des petites pauses à tout moment si vous le souhaitez.</br></br>"
+            html += "Veuillez rester concentré·e.</p>";
+            return html;
+        }
+    };
+
+    /* RC1 */
+    var trialCounter = 1;
+    var RC_1 = {
+        timeline_variables: RC12_stim,
+        randomize_order: false,
+        data: {
+            task: 'RC',
+            target: cond_1,
+        },
+        timeline: [{
+            type: 'html-mouse-response',
+            stimulus: function () {
+                html = "";
+                html += "<p>Choisissez le visage qui vous semble le plus <b>" + cond_1 + "</b>:</p>";
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='rcimg-12' src='" + e + "'>";
+                });
+                html += "</br>Essai: " + trialCounter + "/" + numOfPairsRC12 / 6 + "</br>";
+                trialCounter += 1;
+                return html;
+            },
+        }]
+    };
+
+
+    /* RC2 instructions */
+    var RCinst_2 = {
+        type: "html-button-response",
+        post_trial_gap: 300,
+        choices: ['start'],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Instructions</h1>";
+            html += "<p class = 'justify'>Nous allons maintenant vous demander de refaire la tâche ";
+            html += "mais cette fois ci, vous deverez :</br></br>";
+            html += '<b>choisir le visage qui vous semble le plus "<u>' + cond_2 + '</u>"</b> à chaque essai.</br></br>';
+            html += "N'hésitez pas à prendre des petites pauses à tout moment si vous le souhaitez.</br></br>";
+            html += "Veuillez rester concentré·e.</p>";
+            return html;
+        }
+    };
+
+    /* RC2 */
+    var trialCounter2 = 1;
+    var RC_2 = {
+        timeline_variables: RC12_stim,
+        randomize_order: false,
+        data: {
+            task: 'RC',
+            target: cond_2,
+        },
+        timeline: [{
+            type: 'html-mouse-response',
+            stimulus: function () {
+                html = "";
+                html += "<p>Choisissez le visage qui vous semble le plus <b>" + cond_2 + "</b>:</p>";
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='rcimg-12' src='" + e + "'>";
+                });
+                html += "</br>Essai: " + trialCounter2 + "/" + numOfPairsRC12 / 6 + "</br>";
+                trialCounter2 += 1;
+                return html;
+            },
+        }]
+    };
+
+    /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+    timeline.push(activeFullscreen);
+    timeline.push(RCinst_1);
+    timeline.push(RC_1);
+    timeline.push(RCinst_2);
+    timeline.push(RC_2);
+
+    /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
+    jsPsych.init({
+        timeline: _.flattenDeep(timeline),
+        preload_images: preloadimagesRC12,
+        max_load_time: 1000 * 900,
+        exclusions: {
+            min_width: 900,
+            min_height: 700,
+        },
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='img/loading.gif'>");
+
+            /* jsPsych: add data to every trial */
+            jsPsych.data.addProperties({
+                id: id,
+                cond: cond,
+            });
+
+            var dataRC = data.filter({ task: 'RC' }).csv();
+
+            /* Qualtrics url parameters */
+            qlink += "?id=" + id;
+
+            /* Initialize Firebase */
+            var config = {
+                apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+                databaseURL: "https://biatw-68fe6.firebaseio.com/"
+            };
+            firebase.initializeApp(config);
+            var database = firebase.database();
+
+            database
+                .ref("WF/" + id + "/")
+                .update({ dataRC })
+                .then(function () {
+                    console.log("Data RC sent!");
+                    window.location.href = qlink;
+                    // jsPsych.data.displayData();
+                });;
+        }
+    });
+</script>
+
+</html>
