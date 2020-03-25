@@ -352,7 +352,7 @@ Adjust presentation time
   timeline.push(staOrdInst);
   timeline.push(staOrdered);
   timeline.push(staDescription);
-    
+  
   timeline = _.flattenDeep(timeline);
 
 
@@ -382,7 +382,6 @@ Adjust presentation time
       qlink += "?id=" + id;
       qlink += "&hghGrpClr=" + hghGrpClr;
       qlink += "&inGrpClr=" + inGrpClr;
-      qlink += "&inGrp=" + inGrp;
       qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
       qlink += "&screenWidth=" + screen.width || 0;
@@ -395,7 +394,6 @@ Adjust presentation time
         id: id,
         hghGrpClr: hghGrpClr,      // H-group color: "G" | "B"
         inGrpClr: inGrpClr,        // Ingroup color: "G" | "B"
-        inGrp: inGrp,              // Ingroup status: "H" | "L"
         underOver: underOver,      // Ingroup is under- or over-estimator: "under" | "over"
         permeaCond: permeaCond,    // permeability condition: "permeable" | "impermeable"
         hghFstSta: hghFstSta,      // 
