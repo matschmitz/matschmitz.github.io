@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>exp</title>
+    <script src="jspsych-6.0.3/jspsych.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="js/jspsych-html-mouse-response.js"></script>
+    <script src="js/jspsych-iat-html-mat.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/firebase.js"></script>
+    <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            cursor: default;
+        }
+
+        .rcimg-12 {
+            cursor: pointer;
+        }
+
+        .rcimg-12 {
+            margin: 10px;
+        }
+
+        .rcimg-12:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .jspsych-content-wrapper {
+            width: 900px;
+            height: 700px;
+        }
+
+        .iat_color_black {
+            color: black;
+        }
+
+        .iat_color_green {
+            color: green;
+        }
+    </style>
+</head>
+
+<body></body>
+
+<script>
+    /* Parameters */
+    var numOfPairsRC12 = 350 * 6; // Total number of pair images images (inv & ori)
+    var RCbreak = 3000; // break time in ms
+    var RCbreakTrials = [150, 250]; // RC trials on which to apply a break
+    var qlink = "QT LINK";
+    var gitImg = "img_chinese/";
+
+    /* Initial variables */
+    var timeline = [];
+    var preloadimagesRC12 = [];
+    var id = jsPsych.data.getURLVariable("id");
+    if (id == null) { id = jsPsych.randomization.randomID(15) }; // if no id provided, generate a new id
+
+    // Consent ---------------------------------------------------------------------------------------------------------------
+    /* Fullscreen mode */
+    var activeFullscreen = {
+        message: function () {
+            html = "";
+            html += "<h1>Informed Consent</h1>";
+            html += "<p class='justify'>In this study about face perception, ";
+            html += "you will be asked to select a specific target face several times and then ";
+            html += "you will have to fill a short survey. ";
+            html += "It is important that you remain fully <strong>concentrated</strong>.</p>";
+            html += "<p class='justify'>Your participation is voluntary, does not imply any risks, your answers will be ";
+            html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
+            html += "you will receive a <strong>monetary compensation</strong> as stated in the Prolific ";
+            html += "description of this experiment.</p>";
+            html += "<p class='justify'>This study is administrated by Mathias Schmitz (PhD student) ";
+            html += "and Marine Rougier (post-doc student), from the UCLouvain (Belgium). ";
+            html += "If you have any question or comment please feel free to contact us at "
+            html += "<strong>mathias.schmitz@uclouvain.be</strong></p>";
+            return html;
+        },
+        button_label: "I agree to take part in this study",
+        type: 'fullscreen',
+        fullscreen_mode: true,
+        delay_after: 200,
+    };
+
+    // RC ---------------------------------------------------------------------------------------------------------------
+    /* Generate RC trials */
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1); // generate numerical sequence
+    imgsRC12 = imgsRC12.map(function (e) { return [gitImg + 'faceOri' + e + '.png', gitImg + 'faceInv' + e + '.png'] });
+
+    imgsRC12 = _.flattenDeep(imgsRC12);
+    preloadimagesRC12 = imgsRC12;
+
+    // Full randomization but keep inv ori in the same trial
+    imgsRC12 = _.flattenDeep(_.shuffle(_.chunk(imgsRC12, 2)));
+    imgsRC12 = _.chunk(imgsRC12, 12); // 6 ori + 6 anti = 12 faces per trial
+    imgsRC12.map(function (e, i) { imgsRC12[i] = _.shuffle(e) });
+    var RC12_stim = [];
+    imgsRC12.map(function (e) { RC12_stim.push({ trialImgs: e }) });
+
+    /* RC instructions */
+    var RCinst = {
+        type: "html-button-response",
+        post_trial_gap: 300,
+        choices: ['start'],
+        stimulus: function () {
+            var html = "";
+            html += "<h1>Instructions</h1>";
+            html += "<p class = 'justify'>In this task, several faces will be presented to you. ";
+            html += "These faces have been blurred on purpose to preserve the anonymity of the persons.</br></br>";
+            html += "Your task is to <b>choose the most Chinese-looking face</b> in each trial.</br></br>";
+            html += "Use your mouse to make a choice.</br></br>";
+            html += "Note that the faces may look similar, but they are in fact different.</br></br>";
+            html += "Try to rely on your <b>intuition</b> to make a choice. ";
+            html += "Participants usually take between 3 and 5 seconds per trials to make their choice. Try to keep a similar pace.</br></br>";
+            html += "The task comprise a total of 350 trials. ";
+            html += "We will ask you to take a (forced) " + RCbreak / 1000 + " seconds small break after 150 and 250 trials to ease the task.";
+            html += "Feel free to take extra (small) breaks whenever you want during the task if you feel so.";
+            html += "Please remain concentrated</p>";
+            return html;
+        }
+    };
+
+    /* RC */
+    var trialCounter = 1;
+    var RC = {
+        timeline_variables: RC12_stim,
+        randomize_order: true,
+        data: { task: 'RC' },
+        timeline: [{
+            type: 'html-mouse-response',
+            stimulus: function () {
+                html = "";
+                html += "<p>Choose the most <b>Chinese-looking</b> face:</p>";
+                jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                    html += "<img class='rcimg-12' src='" + e + "'>";
+                });
+                html += "</br>Trial: " + trialCounter + "/" + numOfPairsRC12 / 6 + "</br>";
+                trialCounter += 1;
+                return html;
+            },
+            on_finish: function () {
+                console.log(trialCounter);
+                var currentTrial = trialCounter - 1;
+                if (_.includes(RCbreakTrials, currentTrial)) {
+                    html = "";
+                    html += "<p>Please take a small break.</br></br>";
+                    html += "The task will automatically resume after " + RCbreak / 1000 + " seconds.</p>";
+                    jsPsych.pauseExperiment();
+                    $("#jspsych-content").append(html);
+                    setTimeout(jsPsych.resumeExperiment, 3000);
+                }
+            }
+        }]
+    };
+
+    /*  ~~~~~~~~~~~~~~~~ TIMELINES ~~~~~~~~~~~~~~~~ */
+    timeline.push(activeFullscreen);
+    timeline.push(RCinst);
+    timeline.push(RC);
+
+    /*  ~~~~~~~~~~~~~~~~ INIT ~~~~~~~~~~~~~~~~ */
+    jsPsych.init({
+        timeline: _.flattenDeep(timeline),
+        preload_images: preloadimagesRC12,
+        max_load_time: 1000 * 900,
+        exclusions: {
+            min_width: 900,
+            min_height: 700,
+        },
+        on_finish: function (data) {
+            $("#jspsych-content").html("<img src='img/loading.gif'>");
+
+            /* jsPsych: add data to every trial */
+            jsPsych.data.addProperties({
+                id: id,
+            });
+
+            var dataRC = data.filter({ task: 'RC' }).csv();
+
+            /* Qualtrics url parameters */
+            qlink += "?id=" + id;
+
+            /* Initialize Firebase */
+            var config = {
+                apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+                databaseURL: "https://biatw-68fe6.firebaseio.com/"
+            };
+            firebase.initializeApp(config);
+            var database = firebase.database();
+
+            database
+                .ref("RC2/" + id + "/")
+                .update({ dataRC })
+                .then(function () {
+                    console.log("Data sent!");
+                    window.location = qlink;
+                    //jsPsych.data.displayData();
+                });
+        }
+    });
+</script>
+
+</html>
