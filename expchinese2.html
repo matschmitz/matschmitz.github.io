@@ -153,7 +153,7 @@
                     html += "The task will automatically resume after " + RCbreak / 1000 + " seconds.</p>";
                     jsPsych.pauseExperiment();
                     $("#jspsych-content").append(html);
-                    setTimeout(jsPsych.resumeExperiment, 3000);
+                    setTimeout(jsPsych.resumeExperiment, RCbreak);
                 }
             }
         }]
