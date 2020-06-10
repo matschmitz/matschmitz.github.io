@@ -214,6 +214,7 @@
   /* PAXE cover story */
   preloadimages.push('img/paxe.png');
   preloadimages.push('img/paxe2.png');
+  preloadimages.push('img/navon_ex.png');
 
   var paxe1 = {
     type: "html-button-response",
@@ -254,20 +255,6 @@
       html += "<p class='justify'>The overall PAXE score is a composite score based on the performances on these four separate tasks.</br>";
       html += "For the present study, you will only take the <b>Letter Detection Task</b>, ";
       html += "which is actually the most important of the four tasks.</p>";
-      // html += "In order for you to become familiar with these two groups and to understand what they are like, ";
-      // html += "we will give you a chance to complete a task to form an impression of each group.</br></br>";
-      // html += "In a previous study, we tested a large sample of Americans with the PAXE test and ";
-      // html += "asked them to list a series of behaviors that characterize them. ";
-      // html += "Hereafter you will see some of these behaviors. These behaviors will be presented without identifying the actor, but ";
-      // html += "you will still know if the behavior belongs to the ";
-      // html += "<span id='blue'>Blue group</span> or to the <span id='green'>Green group</span> according to their PAXE score.</br></br>";
-      // html += "Behaviors performed by <span id='blue'>Blue group</span> members will be displayed ";
-      // html += "with a <span id='blue'>blue</span> background,</br>and behaviors performed by <span id='green'>Green group</span> ";
-      // html += "members will be displayed with a <span id='green'>green</span> background.</br></br>";
-      // html += "Your task is to <b>read</b> each of these behaviors and to do your best to <b>form an impression</b> ";
-      // html += "about the two groups. ";
-      // html += "Note that this is not a memory task. In addition, behaviors will be automatically paced. ";
-      // html += "Please remain <b>concentrated</b>.</p>";
       return html;
     },
   };
@@ -308,8 +295,8 @@
   };
 
   /* Navon task */
-  var stimNavonSmall = _.range(1, 15).map(function (e) { return { img: 'img/navon_small_' + e + '.png' } });
-  var stimNavonBig = _.range(1, 15).map(function (e) { return { img: 'img/navon_big_' + e + '.png' } });
+  var stimNavonSmall = _.range(1, 16).map(function (e) { return { img: 'img/navon_small_' + e + '.png' } });
+  var stimNavonBig = _.range(1, 16).map(function (e) { return { img: 'img/navon_big_' + e + '.png' } });
   var stimNavon = _.flattenDeep([stimNavonSmall, stimNavonBig]);
   stimNavon.map(function (e) { preloadimages.push(e.img) });
 
@@ -325,6 +312,7 @@
         html += "<br/><img width='600px' src='" + jsPsych.timelineVariable('img', true) + "'>";
         return html;
       },
+      on_load: function () { $('body').css('cursor', 'none') }
     }]
   };
 
@@ -337,6 +325,7 @@
       var html = "<img src='https://i.gifer.com/4V0b.gif'>";
       return html;
     },
+    on_load: function () { $('body').css('cursor', 'default') },
   };
 
   /* Minimal group assignment */
@@ -362,7 +351,7 @@
   var permetaTxt5 = permeaCond == "impermea" ? "IS " : "IS NOT";
   var permetaTxt6 = permeaCond == "impermea" ? "unlikely " : "likely";
 
-  var categorization1 = {
+  var permea1 = {
     type: "html-button-response",
     choices: ['start'],
     post_trial_gap: 200,
@@ -374,13 +363,13 @@
       html += "Consequently, being categorized as an holistic reasoner or as an analytic reasoner ";
       html += "can very much be considered as <b>" + permetaTxt2 + "</b>.</br></br>";
       html += "Indeed, past research concluded that practice and training <b>are mostly " + permetaTxt3 + "</b>, ";
-      html += "and that you <b>" + permetaTxt4 + "develop another way of reasoning</b> except your dominant one. ";
+      html += "and that you <b>" + permetaTxt4 + " develop another way of reasoning</b> except your dominant one. ";
       html += "We will tell you more about this area of research at the end of the study.</p>";
       return html;
     },
   };
 
-  var categorization2 = {
+  var permea2 = {
     type: "html-button-response",
     choices: ['start'],
     post_trial_gap: 200,
@@ -389,9 +378,9 @@
       html += "<h1>Your results to the Letter Detection Task</h1>";
       html += "<p class='justify'>To sum up, based on your <b>Interference Index</b> on the <b>Letter Detection Task</b>, ";
       html += "you are <b>" + grpMbr + " reasoner</b>. ";
-      html += "95% of the " + grpMbr + " reasoners <b> belong to the " + grpClrSpan + "according to their total score on the PAXE. ";
-      html += "The way of reasoning " + permetaTxt5 + "a stable and permanent characteristic ";
-      html += "and is <b>" + permetaTxt6 + "</b> to change over the life span."
+      html += "95% of the " + grpMbr + " reasoners <b> belong to the " + grpClrSpan + " </b>according to their total score on the PAXE. ";
+      html += "The way of reasoning <b>" + permetaTxt5 + " a stable and permanent characteristic</b> ";
+      html += "and is <b>" + permetaTxt6 + " to change over the life span</b>."
       return html;
     },
   };
@@ -502,8 +491,8 @@
   timeline.push(navonInst);
   timeline.push(navonTask);
   timeline.push(loadingGif);
-  timeline.push(categorization1);
-  timeline.push(categorization2);
+  timeline.push(permea1);
+  timeline.push(permea2);
   timeline.push(staInst);
   timeline.push(staRandomised);
   timeline.push(staOrdInst);
