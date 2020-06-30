@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>exp</title>
+  <script src="jsPsych-6.1.0/jspsych.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-multi-choice.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/lodash.min.js"></script>
+  <script src="js/firebase.js"></script>
+  <link href="jsPsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css">
+  <style>
+    body {
+      cursor: default;
+    }
+
+    .jspsych-content-wrapper {
+      width: 800px;
+      height: 600px;
+    }
+
+    .imgJudge {
+      width: 200px;
+      margin: 20px 10px 10px 140px;
+      padding: 0px;
+    }
+
+    .displayCI {
+      width: 100px;
+      margin: 10px;
+      padding: 0px;
+    }
+
+    .scaleInfo {
+      margin-bottom: 20px;
+      color: steelblue;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body></body>
+<script>
+
+  // Parameters
+  var n = 30; // number of individuals CIs randomly sampled to be rated by each judge
+  var itemsTraits = ['Competent', 'Efficient', 'Capable', 'Intelligent', 'Sociable', 'Nice', 'Warm', 'Caring'];
+  var CIsPath = 'RCcis/'; // CIs' path
+  var prolificLink = "https://app.prolific.co/submissions/complete?cc=Q3RZ328Y";
+
+  // Initial variables
+  var timeline = [];
+  var preloadimages = [];
+  var id = jsPsych.data.getURLVariable("id"); // Need to add ?id={{%PROLIFIC_PID%}} at the end of the prolific survey link!
+  if (id == null) { id = jsPsych.randomization.randomID(15) };
+
+  // Producers IDs
+  var producers_ids_HC = [
+    '-KuBWGtnBv9TbOjCSgCb', '-KuW8CLmsVitj1e3SLs3', '-KuC-AGQy7Xh3nxGqgR2', '-KuWSOfI3-NiAXew1XeO', '-KuXBmik1i44xdXAIkui',
+    '-KuC0dSYg5AQbpbwOJs-', '-KuXYF3gcnaSy4wXcadD', '-KuXhKKk9YEBqeEMQvlZ', '-KuC5xCmh8vhj6kC1nrS', '-KuXhmN36_lAn6xdhUTN',
+    '-KuC8eJJFa-6UwEvhVM0', '-KuYvZconHvUULf55u7O', '-KuCA8-KO8m87u-T-R-l', '-KuZEXzf6IokS_HZPIf3', '-KuCI28V803KIYdW8-aR',
+    '-KuCfYFNM7s9Ejr3hPw3', '-KuCX_Wz6LANRTPwNRqf', '-KuCdpXsVf6VKhQJp4dr', '-KuCfBBaQqD85v-8mAIe', '-KuCpoPWgQHLjhmjJGyw',
+    '-KuCowif8JdxjCD-h8fc', '-KuCpDiiRzbFpIUPD_rv', '-KuCreyIcZFzKTx66TJs', '-KuCtMk4rozLlIV15eLa', '-KuCx4O4I7RQNwitCM9q',
+    '-KuCw9BFZxOKgw262gY8', '-KuCx36jICT4DRCvok8f', '-KuD3G1YWTmNzN-fNOiN', '-KuD2zFGO4inZ9x8DuAy', '-KuDBkc9kIU542rdSb1M',
+    '-KuDJJzx6IMwGik1YuJP', '-KuDJU2oyBql957exyeA', '-KuDMzmN94dxunvqJnR1', '-KuDUYHF3R9dNqpcVlin', '-KuEkgb6slf9U3La3k5v',
+    '-KuF5hEqa2oPZRpHwS-5', '-KuFAGaWpYyUhpGG2i2N', '-KuFAk-WSYl0kowIo9aZ', '-KuFCXK1dYWe80hHwFRv', '-KuFRQuv0DVivEQjtFnx',
+    '-KuFVIXL619AzxXYB6Qw', '-KuFU8I6XHf53PfLhqO0', '-KuFUvpS6XjVRER9NCPb', '-KuFh2IMaWtCLqlZK7Ab', '-KuFeUkD9x2HfrE5fjqd',
+    '-KuFiYnZ2MkrW9ckMrCC', '-KuGGshwcjpBH7CFWjyb', '-KuGJfJCnW5G4u1L31wX', '-KuGOgJqueEhzCWPu4Hy', '-KuGVVZ3gODJj0O94WgB',
+    '-KuGfcOJxP9G45Pv6SAx', '-KuGgbEA7vAADjb9rADE', '-KuGlRgPo3qxF34P8Chx', '-KuGsB2tnHFY69U4IJXI', '-KuGxY3bDZlsWrq0lQfb',
+    '-KuGytOkTbN6DU2sZ3x6', '-KuH4q7T7XGln5ZLL7P0', '-KuHEHBYnoMj7zEYKBM7', '-KuHatu4o5S6d_Pcvpzk', '-KuHen49XFV114YkBHyQ',
+    '-KuHn8pWrf4obZGEpzO-', '-KuHsqbS2WmRFKJLfLDN', '-KuHovQQ7GkwzD1PaKYk', '-KuHyIrbQOfXIKWwXjpz', '-KuI48XVSq6CZYpGGiAL',
+    '-KuIDmtW6qGu0zAXqQCz', '-KuIlH3hX2FJ8BNUgD1n', '-KuJ347Qp9mDV7xU7iIz', '-KuJuHFHtj3-3BpaU6ZU', '-KuJtQ6Jsu29EwGW1bl0',
+    '-KuJwH1A3ocmn_gdmG9C', '-KuK5xMJGujhFyFwNtXk', '-KuK4MuvnmjNXg1HEjt7', '-KuKU0WP9lq1STutFDVH', '-KuK_wJgrUkJx3KoBZD1',
+    '-KuKcZA0Kaw59ZolTD8h', '-KuLC1PwNvIqTMJyBYu2', '-KuLJ8UdC_cfo7h9s_F5'
+  ];
+
+  var producers_ids_LC = [
+    '-KuB_lxz-88zbsEx7ziX', '-KuVVyPVGfnkB-Pk2p1T', '-KuBdkFhSz9eEe0nNjYD', '-KuVcbAnQgc16FTcBI3L', '-KuBlqlXJhSGLpMkOh7y',
+    '-KuVnSkKQDb1T9dqj7Zm', '-KuByvFDAyVsfmzmfF-O', '-KuWD-VT_lvFmSK9QjGB', '-KuC-JGp86afBc5HTOf_', '-KuC-6ya8gg2-w5Roich',
+    '-KuWmQCumTC_XPUNAqiZ', '-KuCNfdnX69CTlmTBKoV', '-KuCOzlgTuZnqGz7fP-N', '-KuCXN4R_UnDcCTOc68n', '-KuC_DtgK44klcLnx9_9',
+    '-KuCYosoNSyxzBm7hHob', '-KuCjdAdaV7-2nM-EcnB', '-KuCf_kbiW_o4rMxa4B_', '-KuCfDoUQ16s0VI6Gy-K', '-KuCnxJ3c0PXokbmezSw',
+    '-KuCq630USagGSFXcWQk', '-KuD1fQ_P2vU8fIoT6s7', '-KuDASIzo-i-a8Wki4hd', '-KuDMMQwgk7M-1w7Nk6v', '-KuEueli2MJsmExGyWoI',
+    '-KuEu3aN9sLoPMviAzUr', '-KuExS0XObHaFj67WSL1', '-KuF7Sr4h_Vt-9lnL3xp', '-KuF8SD00g9rmW3N-IWb', '-KuFHBxhE3XZENwaWQAv',
+    '-KuFEqzU1SgJmC7ZY-QB', '-KuFNfDOS6QvAzoNT8Is', '-KuFO1sCB_q4zKkeIzes', '-KuFfbDAYFYEHZTMzVtR', '-KuFcBFZBm8a75ppYEHS',
+    '-KuFdd5H0u6BEy-9q5ic', '-KuFqNq3mjRdfcLmtS6w', '-KuFtlvJ3-JdpM8EEJ0q', '-KuG9BiO3FPQ7u3NONM3', '-KuGSB1dtwlGSR2XWLVS',
+    '-KuGUWiFGGod1IR5MZKW', '-KuGVO1pjvQ3Ev_toadV', '-KuGyKjQK1abqrH-wZeC', '-KuGZUZKafkrtWg8HUOY', '-KuGo00Q9V45Q_REJgJT',
+    '-KuGt7l89w9Fr4nXkNL2', '-KuGxD-UhDUlOboaiDsL', '-KuH10a4z_hZViuXDoLd', '-KuH55GYbiL3fVnmjZX6', '-KuHCv49_XtRNgjwWpgs',
+    '-KuHkiOBN6cY6ICu0My2', '-KuHqs0LL7BuXoNjltHZ', '-KuIFhY8RkYZFlWacjLH', '-KuIfFVCEzYeV_ytYWHb', '-KuInA1IpWmSF59qGoNl',
+    '-KuK4PC0InTyV3hAvCzR', '-KuK5WJzIUl8z04cwZzc', '-KuV5klFdqkZVQ2zToto'
+  ];
+
+  var sampled_producers_ids_HC = _.sampleSize(producers_ids_HC, n / 2);
+  var sampled_producers_ids_LC = _.sampleSize(producers_ids_LC, n / 2);
+
+  // Push individual and average CIs
+  var CIs = [];
+  sampled_producers_ids_HC.map(function (e) {CIs.push(CIsPath + 'ind_HC_' + e + '.jpg')});
+  sampled_producers_ids_LC.map(function (e) {CIs.push(CIsPath + 'ind_LC_' + e + '.jpg')});
+  CIs.push(CIsPath + 'avg_HC.png');
+  CIs.push(CIsPath + 'avg_LC.png');
+
+  CIs = _.flattenDeep(CIs);
+  preloadimages.push(CIs);
+
+  CIs = CIs.map(function (e) { return { imgHtml: "<img class='imgJudge' src='" + e + "'>" } }); // add img html format
+  CIs = _.flattenDeep(CIs);
+  CIs = _.shuffle(CIs); // randomize order
+
+
+  // EXPERIMENT --------------------------------------------------------------------------------------------------------
+  /* Consent */
+  var fullScreenConsent = {
+    button_label: "I accept to participate in this study",
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    delay_after: 200,
+    message: function () {
+      html = "";
+      html += "<h1>Informed Consent</h1>";
+      html += "<p class='justify'>In this study about face perception you will be asked to rate several faces. ";
+      html += "It is important that you remain <b>concentrated throughout the task</b>.</br></br>";
+      html += "Your participation is voluntary, does not imply any risks, your answers will be ";
+      html += "anonymous, and you are free to withdraw from the study at any moment. After full completion, ";
+      html += "you will receive a <b>monetary compensation</b> as stated in the Prolific ";
+      html += "description of this experiment.</br></br>";
+      html += "This study is administrated by Mathias Schmitz, PhD student at the UCLouvain (Belgium).</br></br>";
+      html += "If you have any questions or comments please contact me at ";
+      html += "mathias.schmitz@uclouvain.be</p>";
+      return html;
+    },
+  };
+
+  /* Ind CIs instructions */
+  var rateInst = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['Start'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Instructions</h1>";
+      html += "<p class='justify'>In this first task, we will present you 32 faces, one at a time. ";
+      html += "Your task is to rate each face on 8 traits (in random order for each face). ";
+      html += "To do so, use the following scale: from <span class='scaleInfo'>0 = Not at all</span> to <span class='scaleInfo'>6 = Very much</span>.</br></br>";
+      html += "Try to rely on your <b>first impression</b>.</br></br>";
+      html += "Note that these faces have been blurred in order to make the task a bit more challenging and to preserve the anonimity of the person.</br></br>";
+      html += "Please remain <b>concentrated</b>.</p>";
+      return html;
+    },
+  };
+
+  /* Ind CIs ratings */
+  var scaleInfo = "</br><span class='scaleInfo'>" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "Not at all " +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+    "Very much</span>"
+  var scale = ["0", "1", "2", "3", "4", "5", "6"];
+  
+  var traitList = [];
+  itemsTraits.map(function (item) { traitList.push({ prompt: item, labels: scale, required: true }); });
+
+  var raceCIs = [];
+
+  CIs.map(function (ciImg) {
+    var likert_trial = {
+      type: 'survey-likert',
+      scale_width: 500,
+      preamble: ciImg.imgHtml + scaleInfo,
+      questions: traitList,
+      randomize_question_order: true,
+      button_label: 'Continue',
+      on_load: function () {
+        $(".jspsych-content-wrapper").css("height", "auto");
+        $(".jspsych-content-wrapper").scrollTop(0);
+        $(".jspsych-survey-likert-statement").css("margin", "0");
+        $(".jspsych-survey-likert-statement").css("padding", "0");
+        $(".jspsych-survey-likert-statement").css("float", "left");
+        $(".jspsych-survey-likert-opts").css("padding", "0 0 10px");
+        $(".jspsych-survey-likert-opts").css("margin", "0 0 0 130px");
+        $("li").css("width", "60px");
+        $("#jspsych-survey-likert-next").css("margin", "10px 0 20px 0");
+      },
+      on_finish: function (data) {
+        $(".jspsych-content-wrapper").css("height", "600px");
+        $(".jspsych-survey-likert-statement").css("margin", "auto");
+        data.ci = ciImg.imgHtml;
+        var parsed_response = JSON.parse(data.responses);
+
+        data.C_competent = parsed_response.Q0;
+        data.C_efficient = parsed_response.Q1;
+        data.C_capable = parsed_response.Q2;
+        data.C_intelligent = parsed_response.Q3;
+        data.W_sociable = parsed_response.Q4;
+        data.W_nice = parsed_response.Q5;
+        data.W_warm = parsed_response.Q6;
+        data.W_caring = parsed_response.Q7;
+
+        console.log(data);
+      },
+    };
+    raceCIs.push(likert_trial);
+  });
+
+  
+  /* Demographics */
+  var age = {
+    timeline: [{
+      type: 'survey-text',
+      questions: [{ prompt: "Indicate your age:", rows: 1, columns: 10 }],
+      button_label: "Continue",
+    }],
+    loop_function: function (data) {
+      var age = data.values()[0].responses;
+      var age = JSON.parse(age).Q0;
+      if (age == "") {
+        alert("Please answer this question");
+        return true;
+      }
+    },
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        age: JSON.parse(data.responses)["Q0"],
+      });
+    },
+  };
+
+  var genderOptions = ['Male', 'Female', 'Other'];
+  var gender = {
+    type: 'survey-multi-choice',
+    questions: [{ prompt: "Please indicate your gender:", options: genderOptions, required: true }],
+    button_label: "Continue",
+    on_finish: function (data) {
+      jsPsych.data.addProperties({
+        gender: JSON.parse(data.responses)["Q0"],
+      });
+    },
+  };
+
+  /* Debriefing */
+  var debriefing = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['continue'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>Debriefing</h1>";
+      html += "<p class='justify'>Thank you for taking part in this study!</br></br>";
+      html += "The aim of this research was to simply asses participant's perception of these faces.</br></br>";
+      html += 'Feel free to contact me if you have any question or comment regarding this study.</br></br></br>';
+      html += "<u>Please click on the button <i>continue</i> to validate your participation on Prolific.</u></p>";
+      return html;
+    }
+  };
+
+  preloadimages = _.flattenDeep(preloadimages);
+
+
+  // TIMELINE ----------------------------------------------------------------------------------------------------------
+  timeline.push(fullScreenConsent);
+  timeline.push(rateInst);
+  timeline.push(raceCIs);
+  timeline.push(age);
+  timeline.push(gender);
+  timeline.push(debriefing);
+
+  timeline = _.flattenDeep(timeline);
+
+
+  // INITIALISE EXP ----------------------------------------------------------------------------------------------------
+  jsPsych.init({
+    timeline: timeline,
+    preload_images: preloadimages,
+    max_load_time: 500 * 1000,
+    exclusions: {
+      min_width: 800,
+      min_height: 600,
+    },
+    on_finish: function (data) {
+      $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+      /* Initialize Firebase */
+      var config = {
+        apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+        databaseURL: "https://biatw-68fe6.firebaseio.com/"
+      };
+
+      firebase.initializeApp(config);
+      var database = firebase.database();
+
+      /* jsPsych: add data to every trial */
+      jsPsych.data.addProperties({
+        id: id,
+        totalTime: jsPsych.totalTime()
+      });
+
+      var subdata = data.filter({ trial_type: 'survey-likert' }).csv();
+
+      /* Send data to Firebase and redirect to Qualtrics */
+      database.ref("RCjudges/" + id + "/").update({ subdata }).then(function () {
+        console.log("data sent!");
+        window.location = prolificLink; // Validate Prolific participation
+      });
+    }
+  });
+
+</script>
+
+</html>
