@@ -1,3 +1,7 @@
+.main-container {
+    max-width: 1200px !important;
+}
+
 h1.toc-ignore {
     color: #e8e8e8;
     background-color: #5e5e5e;
@@ -23,9 +27,11 @@ h3 {
 }
 
 pre {
-    background-color: #f7f7f7 !important;
+  background-color: #f7f7f7 !important;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
-pre.r {
-
+pre code {
+    white-space: pre
 }
