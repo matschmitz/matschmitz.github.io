@@ -1,0 +1,658 @@
+<!-- 
+To do:
+Adjust prime duration: 76 hz (13ms)
+Ask participant to list behaviours that charectarize them
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>exp</title>
+  <script src="jspsych-6.0.3/jspsych.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-image-keyboard-response.js"></script>
+  <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+  <script src="js/jspsych-categorize-html-mat.js"></script>
+  <script src="js/jquery.min.js"></script> <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -->
+  <script src="js/lodash.min.js"></script> <!-- https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js -->
+  <script src="js/firebase.js"></script> <!-- https://www.gstatic.com/firebasejs/5.0.4/firebase.js -->
+  <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+  <style>
+    .stimulus {
+      font-size: 32px;
+    }
+
+    .feedback {
+      font-size: 25px;
+    }
+  </style>
+</head>
+
+<script>
+  /* Parameters */
+  var itiSta = 50;  // 400; inter-trial-interval for statements
+  var delaySta = 500; // 5500; how long is each statement displayed
+  var primeDuration = 500; // 76 hz (13ms); 2 frames = 13*2 ms
+  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_9GfHU4wVer6NGiV";
+
+  /* Initial variables */
+  var timeline = [];
+  var HC = [];
+  var LC = [];
+  var id = jsPsych.data.getURLVariable("id");
+
+  /* Functions */
+  function flatten(arr) {
+    return arr.reduce(function (flat, toFlatten) {
+      return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+    }, []);
+  };
+
+  /*  ~~~~~~~~~~~~~~~~ Impression formation  ~~~~~~~~~~~~~~~~ */
+  /* Generate statements */
+  var CP = ['CP1', 'CP2', 'CP3', 'CP4', 'CP5', 'CP6', 'CP7', 'CP8']; // C+
+  var CN = ['CN1', 'CN2', 'CN3', 'CN4', 'CN5', 'CN6', 'CN7', 'CN8']; // C-
+  var WP = ['WP1', 'WP2', 'WP3', 'WP4', 'WP5', 'WP6', 'WP7', 'WP8']; // W+
+  var WN = ['WN1', 'WN2', 'WN3', 'WN4', 'WN5', 'WN6', 'WN7', 'WN8']; // w-
+
+  // HC: 6C+, 2C-, 2W+, 2W-
+  HC = HC.concat(_.sampleSize(CP, 6), _.sampleSize(CN, 2), _.sampleSize(WP, 2), _.sampleSize(WN, 2));
+
+  // LC: 2C+, 6C-, 2W+, 2W-
+  var CPleft = _.difference(CP, HC);
+  var CNleft = _.difference(CN, HC);
+  var WPleft = _.difference(WP, HC);
+  var WNleft = _.difference(WN, HC);
+  LC = LC.concat(_.sampleSize(CPleft, 2), _.sampleSize(CNleft, 6), _.sampleSize(WPleft, 2), _.sampleSize(WNleft, 2));
+
+  HC = _.shuffle(HC);
+  LC = _.shuffle(LC);
+
+  // Assign group identity (B vs. G)
+  var hghGrp = _.sample(['B', 'G'])
+  var lowGrp = _.difference(['B', 'G'], [hghGrp])[0];
+  var inGrp = 'O'; // only high-group
+  if (inGrp == hghGrp) { var status = "H" };
+  if (inGrp == lowGrp) { var status = "L" };
+  if (inGrp == 'O') { var status = 'O' };
+
+  HC = HC.map(function (e) { return e + hghGrp });
+  LC = LC.map(function (e) { return e + lowGrp });
+
+  var hghFst = _.sample([true, false]);
+  if (hghFst) { var staOrd = HC.concat(LC) } else { var staOrd = LC.concat(HC) };
+  if (hghGrp == 'B') { var grpColorHtml = "<span id='blue'>BLUE</span>" } else { var grpColorHtml = "<span id='green'>GREEN</span>" };
+
+
+  /* Statements */
+  var CP = [
+    "X a remporté le prix annuel de l'employé qui contribue le plus au profit de l'entreprise.",
+    "X a pratiqué la pièce de violon 20 fois par jour et après un mois a estimé qu'il savait bien la jouer.",
+    "X a écrit un petit programme informatique qui résolvait un problème d'intégrale mathématique très difficile.",
+    "X parle couramment quatre langues différentes.",
+    "X a présenté ses recherches lors d'un congrès de chimie.",
+    "X a publié une nouvelle dans un magazine littéraire avant la fin de ses candidatures.",
+    "X a travaillé ardûment sur la tâche d’algèbre linéaire pour des crédits extra.",
+    "X fait très attention quand il s'agit d'épargne afin de pouvoir s’acheter une maison."
+  ];
+  var CN = [
+    "X est allé·e faire de la randonnée en montagne et a dû se faire secourir car il/elle n'avait pas fait attention où il/elle allait.",
+    "X a été renvoyé de son travail parce qu'il/elle a rarement fait les choses à temps.",
+    "La bicyclette de X a été volée plusieurs fois parce qu'il/elle oublie de le cadenasser.",
+    "X se perd souvent en conduisant en ville, même s'il y vit depuis plusieurs années.",
+    "L'électricité de X a été coupée parce qu'il/elle n'a pas payé la facture à temps.",
+    "X a eu difficile à trouver du travail parce qu'il/elle était toujours en retard pour des entrevues d'emploi.",
+    "X a mis près d'une heure pour trouver sa voiture après l'avoir garée dans un centre commercial.",
+    "X a raté son permis de conduire pour la quatrième fois et a fini par l'abandonner."
+  ];
+  var WP = [
+    "X a passé des heures avec un ami dont le chien venait de mourir.",
+    "X adore être avec d'autres personnes.",
+    "X a aidé une femme aveugle à traverser la rue.",
+    "X salue toujours ses amis avec une accolade.",
+    "X sourit toujours aux étrangers dans la rue juste pour rendre leur journée meilleure.",
+    "X rend souvent visite à ces amis d’enfance.",
+    "X aime avoir de longues conversations avec ses amis.",
+    "X a cédé sa place dans le bus surchargé quand une vieille dame est montée."
+  ];
+  var WN = [
+    "X n’a pas pris la peine d’aider un étranger à trouver son chemin.",
+    "X a décidé de partir tôt de la fête car il trouvait que c’était trop superficielle.",
+    "X préfère aller au cinéma seul plutôt qu'avec un ami.",
+    "X a crié sur le conducteur qui lui a pris la dernière place de parking libre.",
+    "X parle rarement à ses colocataires.",
+    "X ne voulait pas féliciter le gagnant du concours.",
+    "X n'est pas allé·e à l'enterrement de sa grand-mère parce qu'il/elle était trop occupé·e par son travail.",
+    "X a crié à sur une petite fille car elle avait mal colorié le dessin."
+  ];
+
+  staStim = {
+    CP1B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[0] + "</p>", CP1G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[0] + "</p>",
+    CP2B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[1] + "</p>", CP2G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[1] + "</p>",
+    CP3B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[2] + "</p>", CP3G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[2] + "</p>",
+    CP4B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[3] + "</p>", CP4G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[3] + "</p>",
+    CP5B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[4] + "</p>", CP5G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[4] + "</p>",
+    CP6B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[5] + "</p>", CP6G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[5] + "</p>",
+    CP7B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[6] + "</p>", CP7G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[6] + "</p>",
+    CP8B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CP[7] + "</p>", CP8G: "<p id='greenSta'><b>VERTS</b></br></br>" + CP[7] + "</p>",
+
+    CN1B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[0] + "</p>", CN1G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[0] + "</p>",
+    CN2B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[1] + "</p>", CN2G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[1] + "</p>",
+    CN3B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[2] + "</p>", CN3G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[2] + "</p>",
+    CN4B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[3] + "</p>", CN4G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[3] + "</p>",
+    CN5B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[4] + "</p>", CN5G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[4] + "</p>",
+    CN6B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[5] + "</p>", CN6G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[5] + "</p>",
+    CN7B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[6] + "</p>", CN7G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[6] + "</p>",
+    CN8B: "<p id='blueSta'><b>BLEUS</b></br></br>" + CN[7] + "</p>", CN8G: "<p id='greenSta'><b>VERTS</b></br></br>" + CN[7] + "</p>",
+
+    WP1B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[0] + "</p>", WP1G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[0] + "</p>",
+    WP2B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[1] + "</p>", WP2G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[1] + "</p>",
+    WP3B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[2] + "</p>", WP3G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[2] + "</p>",
+    WP4B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[3] + "</p>", WP4G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[3] + "</p>",
+    WP5B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[4] + "</p>", WP5G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[4] + "</p>",
+    WP6B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[5] + "</p>", WP6G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[5] + "</p>",
+    WP7B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[6] + "</p>", WP7G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[6] + "</p>",
+    WP8B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WP[7] + "</p>", WP8G: "<p id='greenSta'><b>VERTS</b></br></br>" + WP[7] + "</p>",
+
+    WN1B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[0] + "</p>", WN1G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[0] + "</p>",
+    WN2B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[1] + "</p>", WN2G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[1] + "</p>",
+    WN3B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[2] + "</p>", WN3G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[2] + "</p>",
+    WN4B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[3] + "</p>", WN4G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[3] + "</p>",
+    WN5B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[4] + "</p>", WN5G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[4] + "</p>",
+    WN6B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[5] + "</p>", WN6G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[5] + "</p>",
+    WN7B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[6] + "</p>", WN7G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[6] + "</p>",
+    WN8B: "<p id='blueSta'><b>BLEUS</b></br></br>" + WN[7] + "</p>", WN8G: "<p id='greenSta'><b>VERTS</b></br></br>" + WN[7] + "</p>",
+  };
+
+  stimStaOrd = []; // Ordered statements by group color
+  staOrd.map(function (sta) { stimStaOrd.push({ stimulus: staStim[sta] }) });
+
+  /* Sta rdm instructions */
+  var staInst1 = {
+    message: function () {
+      html = "";
+      html += "<h1>INFORMATION COMPLEMENTAIRE TEST-D98</h1>";
+      html += "<p class='justify'>Un autre avantage important de ce test est qu'il ";
+      html += "permet de classer les personnes en deux groupes différents. ";
+      html += "Les membres de chaque groupe sont très similaires les uns aux autres : ";
+      html += "ils sont souvent issus de milieux semblables, et partagent des opinions et croyances similaires. ";
+      html += "Afin d'éviter l'utilisation d'un langage trop technique et spécifique à ce test, ";
+      html += "nous les appellerons ici simplement le groupe des ";
+      html += "« <span id='blue'>BLEUS</span> » et des « <span id='green'>VERTS</span> ».</br></br>";
+      html += "En ce qui vous concerne, l’analyse de vos réponses au test indique ";
+      html += "que vous faites partie du groupe des <b>" + grpColorHtml + "</b>.</br></p>";
+      return html;
+    },
+    button_label: "Clicker ici pour continuer",
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    delay_after: 200,
+    on_start: function () { $('body').css('cursor', 'default') },
+    on_finish: function () { $('body').css('cursor', 'none') },
+  };
+
+
+  /* Sta rdm instructions */
+  var staInst2 = {
+    type: "html-keyboard-response",
+    post_trial_gap: 200,
+    choices: [32],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>INFORMATION COMPLEMENTAIRE TEST-D98</h1>";
+      html += "<p class='justify'>Plusieurs chercheurs (notamment Dough, Glass & Fromm, 2016) ";
+      html += "ont fait passer ce test à un grand nombre de personnes et leur ont par la suite ";
+      html += "demandé de lister une série de comportements qui les caractérisaient ";
+      html += " (comme nous l’avons fait pour vous).</br></br>";
+      html += "Dans la tâche qui suit, nous vous présenterons certains comportements typiques ";
+      html += "(rendus anonymes) réalisés par les membres du groupe des ";
+      html += "<span id='blue'>BLEUS</span> et des <span id='green'>VERTS</span> ";
+      html += "afin que vous puissiez avoir une meilleure appréhension de ceux-ci. ";
+      html += "Chaque comportement sera présenté avec un arrière-plan coloré (bleu ou vert), ";
+      html += "indiquant ainsi le groupe d’appartenance de son auteur.</br></br>";
+      html += "Votre tâche consiste simplement à <b>lire</b> les comportements et ";
+      html += "à vous <b>faire une impression</b> de ces deux groupes.</br></br>";
+      html += "Les comportements défileront de manière automatique. Veuillez rester concentré·e.</p>";
+      html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+      return html;
+    },
+  };
+
+  /* Statements shuffled */
+  var staOrdered = {
+    timeline_variables: stimStaOrd,
+    randomize_order: false,
+    timeline: [
+      {
+        type: 'html-keyboard-response',
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        choices: jsPsych.NO_KEYS,
+        trial_duration: delaySta,
+        post_trial_gap: itiSta,
+      }
+    ]
+  };
+
+  /* Sta ord instructions */
+  var staInst3 = {
+    type: "html-keyboard-response",
+    post_trial_gap: 200,
+    choices: [32],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>INFORMATION COMPLEMENTAIRE TEST-D98</h1>";
+      html += "<p class='justify'>Nous allons à nouveau vous présenter les comportements mais cette fois-ci, ";
+      html += "les comportements seront triés par groupe.</br></br>";
+      html += "Comme précédemment, votre tâche consiste à <span class='emphasize'>lire</span> et ";
+      html += "vous <span class='emphasize'>former une impression</span> des deux groupes. </br></br>";
+      html += "Les comportements défileront automatiquement.</p>";
+      html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour continuer</p>";
+      return html;
+    },
+  };
+
+  /* Statements ordered */
+  var staRandomised = {
+    timeline_variables: stimStaOrd,
+    randomize_order: true,
+    timeline: [
+      {
+        type: 'html-keyboard-response',
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        choices: jsPsych.NO_KEYS,
+        trial_duration: delaySta - 500,
+        post_trial_gap: itiSta - 100,
+      }
+    ]
+  };
+
+  /* Group description */
+  var hghFstDscrp = _.sample([true, false]);
+
+  var staDescription = {
+    type: 'survey-text',
+    preamble: 'Veuillez écrire en quelques lignes votre impression des groupes:',
+    questions: function () {
+      var G = "<span id='green'>VERTS</span>";
+      var B = "<span id='blue'>BLEUS</span>";
+
+      function sendMsg(groupName) {
+        return 'les membres du groupe ' + groupName + ' sont :' + "</br><span id='min2lines'>(minimum: 2 lignes)</span>";
+      };
+
+      if (hghGrp == 'B') { var HGname = B; var LGname = G; } else { var HGname = G; var LGname = B; };
+
+      if (hghFstDscrp) {
+        return [{ prompt: sendMsg(HGname), rows: 5, columns: 80 }, { prompt: sendMsg(LGname), rows: 5, columns: 80 }];
+      } else {
+        return [{ prompt: sendMsg(LGname), rows: 5, columns: 80 }, { prompt: sendMsg(HGname), rows: 5, columns: 80 }];
+      };
+    },
+    on_start: function () { $('body').css('cursor', 'default') },
+    on_finish: function () { $('body').css('cursor', 'none') },
+  };
+
+  /*  ~~~~~~~~~~~~~~~~ LDT  ~~~~~~~~~~~~~~~~ */
+  /* LDT training */
+  /* Instructions */
+  var LDTtrainingInst = {
+    type: "html-keyboard-response",
+    post_trial_gap: 200,
+    choices: [32],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>CATEGORISATION DE MOTS : ENTRAINEMENT</h1>";
+      html += "<p class='justify'>Dans cette tâche, votre objectif consiste à déterminer si le stimulus qui "
+      html += "vous sera présenté correspond à un <b>mot</b> (par exemple: <code>&nbspmaison&nbsp</code>) ";
+      html += "ou à un <b>non-mot</b> (par exemple: <code>&nbspsonmai&nbsp</code>). ";
+      html += "<p class='justify'>Pour enregistrer vos réponses utilisez les touches comme indiqué ci-dessous :</br>";
+      html += "</br><span class='light-keys'><kbd>S</kbd></span> si le stimulus correspond à un <b>non-mot</b>";
+      html += "</br><span class='light-keys'><kbd>L</kbd></span> si le stimulus correspond à un <b>mot</b></p>";
+      html += "<p class='justify'></br>Notez qu'à chaque essai, vous verrez apparaître brièvement un ";
+      html += "<code>&nbsp+&nbsp</code> et <code>&nbsp#####&nbsp</code> avant l'apparition du stimulus. ";
+      html += "Vous devrez alors encoder le plus <b>rapidement</b> et <b>précisément</b> possible votre réponse ";
+      html += "(en appuyant sur la touche S ou L) <i>dès</i> que le stimulus sera visible.</p>";
+      html += "<p class='justify'>Cette première tâche est un entraînement. Vous recevrez un feedback après ";
+      html += "chaque essai.</p>";
+      html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+      return html
+    },
+  };
+
+  var LDTstimTraining = [
+    { target: 'sain', isWord: true },
+    { target: 'propre', isWord: true },
+    { target: 'bête', isWord: true },
+    { target: 'raleur', isWord: true },
+    { target: 'parfait', isWord: true },
+    { target: 'beau', isWord: true },
+    { target: 'bizarre', isWord: true },
+    { target: 'nisa', isWord: false },
+    { target: 'ropper', isWord: false },
+    { target: 'tebe', isWord: false },
+    { target: 'lerrau', isWord: false },
+    { target: 'exoju', isWord: false },
+    { target: 'trapif', isWord: false },
+    { target: 'ebua', isWord: false },
+    { target: 'leas', isWord: false },
+    { target: 'rezabir', isWord: false }
+  ];
+
+
+  var LDTtraining = {
+    timeline_variables: LDTstimTraining,
+    randomize_order: true,
+    timeline: [
+      {
+        type: 'html-keyboard-response',
+        stimulus: '<p class="stimulus">+</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 500,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // first mask
+        stimulus: '<p class="stimulus">#####</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 250,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // prime
+        stimulus: '<p class="stimulus">aaaaa</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: primeDuration,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // second mask
+        stimulus: '<p class="stimulus">#####</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 250,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response',
+        stimulus: function () { return "<p class='stimulus'>" + jsPsych.timelineVariable('target', true) + "</p>"; },
+        choices: ['s', 'l'], // s = non-word; l = word
+        stimulus_duration: 250,
+        trial_duration: 3000, // window response time
+        post_trial_gap: 0,
+        data: {
+          target: jsPsych.timelineVariable('target'),
+          isWord: jsPsych.timelineVariable('isWord')
+        },
+        on_finish: function (data) {
+          /*check if correct answer*/
+          console.log(data.isWord)
+          if (data.isWord) {
+            var correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('l');
+          } else {
+            var correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('s');
+          }
+          if (data.rt == null) var correct = null; // timeout
+          jsPsych.data.addDataToLastTrial({ correct: correct });
+          // console.log(data.correct);
+          // console.log(data.rt);
+        }
+      },
+      {
+        type: 'html-keyboard-response', // feedback
+        stimulus: function () {
+          var correct = jsPsych.data.get().last(1).values()[0].correct;
+          console.log(correct);
+          if (correct == null) return "<p class='feedback'>veuillez répondre plus vite!</p>"; // timeout
+          if (correct) return "<p class='feedback'>correct!</p>";
+          if (!correct) return "<p class='feedback'>incorrect!</p>";
+        },
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 400,
+        post_trial_gap: _.sample([250, 350, 450]),
+      }
+    ]
+  };
+
+  /* LDT */
+  /* Instructions */
+  var LDTinst = {
+    type: "html-keyboard-response",
+    choices: [32],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>CATEGORISATION DE MOTS</h1>";
+      html += "<p class='justify'>La tâche d'entraînement est terminée. Votre objectif reste le même: ";
+      html += "déterminer si le stimulus qui ";
+      html += "vous sera présenté correspond à un <b>mot</b> (par exemple: <code>&nbspmaison&nbsp</code>) ";
+      html += "ou à un <b>non-mot</b> (par exemple: <code>&nbspsonmai&nbsp</code>). ";
+      html += "<p class='justify'>Pour enregistrer vos réponses utilisez les touches comme indiqué ci-dessous :</br>";
+      html += "</br><span class='light-keys'><kbd>S</kbd></span> si le stimulus correspond à un <b>non-mot</b>";
+      html += "</br><span class='light-keys'><kbd>L</kbd></span> si le stimulus correspond à un <b>mot</b></p>";
+      html += "<p class='justify'></br>Comme lors de l'entraînement, vous verrez apparaître brièvement un ";
+      html += "<code>&nbsp+&nbsp</code> et <code>&nbsp#####&nbsp</code> avant l'apparition du stimulus. ";
+      html += "Vous devrez alors encoder le plus <b>rapidement</b> et <b>précisément</b> possible votre réponse ";
+      html += "(en appuyant sur la touche S ou L) <i>dès</i> que le stimulus sera visible.</p>";
+      html += "<p class='justify'>Notez que vous ne recevrez plus de feedback après chaque essai.</p>";
+      html += "<p></br>appuyez sur <span class='light-keys'><kbd>espace</kbd></span> pour commencer</p>";
+      return html;
+    },
+  };
+
+  var LDTstim = [
+    /*warmth words (from Romher & Louvet 2012)*/
+    { target: 'chaleureux', targetClean: 'warmth', isWord: true, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'sociable', targetClean: 'sociable', isWord: true, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'amical', targetClean: 'friendly', isWord: true, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'agréable', targetClean: 'nice', isWord: true, targetDim: 'warmth', prime: 'BLEUS' },
+    /*warmth non-words*/
+    { target: 'reuchaleux', targetClean: 'reuchaleux', isWord: false, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'bailecos', targetClean: 'bailecos', isWord: false, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'calima', targetClean: 'calima', isWord: false, targetDim: 'warmth', prime: 'BLEUS' },
+    { target: 'begréala', targetClean: 'begreala', isWord: false, targetDim: 'warmth', prime: 'BLEUS' },
+    /*competence words (from Romher & Louvet 2012)*/
+    { target: 'compétent', targetClean: 'competent', isWord: true, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'capable', targetClean: 'capable', isWord: true, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'intelligent', targetClean: 'intelligent', isWord: true, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'efficace', targetClean: 'efficient', isWord: true, targetDim: 'competence', prime: 'BLEUS' },
+    /*competence words non-words*/
+    { target: 'tencompte', targetClean: 'tencompte', isWord: false, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'bacaple', targetClean: 'bacaple', isWord: false, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'tengintelli', targetClean: 'tengintelli', isWord: false, targetDim: 'competence', prime: 'BLEUS' },
+    { target: 'efacifec', targetClean: 'efacifec', isWord: false, targetDim: 'competence', prime: 'BLEUS' },
+
+    /*warmth words (from Romher & Louvet 2012)*/
+    { target: 'chaleureux', targetClean: 'warmth', isWord: true, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'sociable', targetClean: 'sociable', isWord: true, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'amical', targetClean: 'friendly', isWord: true, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'agréable', targetClean: 'nice', isWord: true, targetDim: 'warmth', prime: 'VERTS' },
+    /*warmth non-words*/
+    { target: 'reuchaleux', targetClean: 'reuchaleux', isWord: false, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'bailecos', targetClean: 'bailecos', isWord: false, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'calima', targetClean: 'calima', isWord: false, targetDim: 'warmth', prime: 'VERTS' },
+    { target: 'begréala', targetClean: 'begreala', isWord: false, targetDim: 'warmth', prime: 'VERTS' },
+    /*competence words (from Romher & Louvet 2012)*/
+    { target: 'compétent', targetClean: 'competent', isWord: true, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'capable', targetClean: 'capable', isWord: true, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'intelligent', targetClean: 'intelligent', isWord: true, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'efficace', targetClean: 'efficient', isWord: true, targetDim: 'competence', prime: 'VERTS' },
+    /*competence words non-words*/
+    { target: 'tencompte', targetClean: 'temcompte', isWord: false, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'bacaple', targetClean: 'bacaple', isWord: false, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'tengintelli', targetClean: 'tengintelli', isWord: false, targetDim: 'competence', prime: 'VERTS' },
+    { target: 'efacifec', targetClean: 'efacifec', isWord: false, targetDim: 'competence', prime: 'VERTS' },
+
+    /*warmth words (from Romher & Louvet 2012)*/
+    { target: 'chaleureux', targetClean: 'warmth', isWord: true, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'sociable', targetClean: 'sociable', isWord: true, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'amical', targetClean: 'friendly', isWord: true, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'agréable', targetClean: 'nice', isWord: true, targetDim: 'warmth', prime: 'XXXXX' },
+    /*warmth non-words*/
+    { target: 'reuchaleux', targetClean: 'reuchaleux', isWord: false, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'bailecos', targetClean: 'bailecos', isWord: false, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'calima', targetClean: 'calima', isWord: false, targetDim: 'warmth', prime: 'XXXXX' },
+    { target: 'begréala', targetClean: 'begreala', isWord: false, targetDim: 'warmth', prime: 'XXXXX' },
+    /*competence words (from Romher & Louvet 2012)*/
+    { target: 'compétent', targetClean: 'competent', isWord: true, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'capable', targetClean: 'capable', isWord: true, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'intelligent', targetClean: 'intelligent', isWord: true, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'efficace', targetClean: 'efficient', isWord: true, targetDim: 'competence', prime: 'XXXXX' },
+    /*competence words non-words*/
+    { target: 'tencompte', targetClean: 'tencompte', isWord: false, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'bacaple', targetClean: 'bacaple', isWord: false, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'tengintelli', targetClean: 'tengintelli', isWord: false, targetDim: 'competence', prime: 'XXXXX' },
+    { target: 'efacifec', targetClean: 'efacifec', isWord: false, targetDim: 'competence', prime: 'XXXXX' },
+  ];
+
+  var LDT = {
+    timeline_variables: LDTstim,
+    //randomize_order: true,
+    sample: { // Keep blocks with the same primes together, randomize block order
+      type: 'custom',
+      fn: function (t) {
+        // 0-15: BLEUS; 16-31: VERTS, 32-47
+        var B = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        var G = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
+        var X = [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47];
+
+        var BGX = flatten(_.shuffle([_.shuffle(B), _.shuffle(G), _.shuffle(X)]));
+        console.log(BGX)
+
+        return BGX;
+      }
+    },
+    timeline: [
+      {
+        type: 'html-keyboard-response', // fixation cross
+        stimulus: '<p class="stimulus">+</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 1000,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // first mask
+        stimulus: '<p class="stimulus">#####</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 250,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // prime
+        stimulus: function () { return '<p class="stimulus">' + jsPsych.timelineVariable('prime', true) + '</p>'; },
+        choices: jsPsych.NO_KEYS,
+        trial_duration: primeDuration,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response', // second mask
+        stimulus: '<p class="stimulus">#####</p>',
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 250,
+        post_trial_gap: 0
+      },
+      {
+        type: 'html-keyboard-response',
+        stimulus: function () { return "<p class='stimulus'>" + jsPsych.timelineVariable('target', true) + "</p>"; },
+        choices: ['s', 'l'], // s = non-word; l = word
+        stimulus_duration: 250,
+        trial_duration: 3000, // window response time
+        post_trial_gap: _.sample([250, 350, 450]),
+        data: {
+          target: jsPsych.timelineVariable('target'),
+          isWord: jsPsych.timelineVariable('isWord'),
+          targetClean: jsPsych.timelineVariable('targetClean'),
+          targetDim: jsPsych.timelineVariable('targetDim'),
+          prime: jsPsych.timelineVariable('prime'),
+          task: 'LDT'
+        },
+        on_finish: function (data) {
+          /*check if correct answer*/
+          if (data.isWord) {
+            var correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('l');
+          } else {
+            var correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('s');
+          }
+          if (data.rt == null) var correct = null; // timeout
+
+          jsPsych.data.addDataToLastTrial({ correct: correct });
+
+          console.log(data.prime);
+        }
+      },
+    ]
+  };
+
+
+  /*  ~~~~~~~~~~~~~~~~ TIMELINES  ~~~~~~~~~~~~~~~~ */
+  // timeline.push(staInst1);
+  // timeline.push(staInst2);
+  // timeline.push(staRandomised);
+  // timeline.push(staInst3);
+  // timeline.push(staOrdered);
+  // timeline.push(staDescription);
+  // timeline.push(LDTtrainingInst);
+  // timeline.push(LDTtraining);
+  // timeline.push(LDTinst);
+  timeline.push(LDT);
+
+
+  /*  ~~~~~~~~~~~~~~~~ INITIALISE EXP  ~~~~~~~~~~~~~~~~ */
+  jsPsych.init({
+    timeline: timeline,
+    max_load_time: 60 * 1000,
+    exclusions: {
+      min_width: 800,
+      min_height: 600,
+    },
+    on_interaction_data_update: function (data) {
+      //console.log(JSON.stringify(data)); // focus/blur data
+    },
+    on_finish: function (data) {
+      $("#jspsych-content").html("<img src='img/loading.gif'>");
+
+      /* Initialize Firebase */
+      var config = {
+        apiKey: "AIzaSyD4r9uWI4icto61fm2tC9neKdEiOUWzMJ8",
+        databaseURL: "https://biatw-68fe6.firebaseio.com/"
+      };
+
+      firebase.initializeApp(config);
+      var database = firebase.database();
+      if (id == null) { id = database.ref("LDT").push().key; }; // if no id provided, generate a Firebase id
+
+
+      /* Qualtrics url parameters */
+      qlink += "?id=" + id;
+      qlink += "&windWidth=" + window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      qlink += "&windHeight=" + window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      qlink += "&screenWidth=" + screen.width || 0;
+      qlink += "&screenHeight=" + screen.height || 0;
+      qlink += "&userAgent=" + navigator.userAgent;
+      qlink += "&totalTime=" + jsPsych.totalTime();
+
+      /* jsPsych: add data to every trial */
+      jsPsych.data.addProperties({
+        id: id,
+        hghGrp: hghGrp,
+        inGrp: inGrp, // "G", "B"
+        status: status, // codes for condition: "H", "L", "O"
+        hghFstSta: hghFst,
+        hghFstDscrp: hghFstDscrp,
+      });
+
+      //jsPsych.data.displayData();
+
+      var dataLDT = data.filter({ task: 'LDT' }).csv();
+
+      /* Send data to Firebase and redirect to Qualtrics */
+      database.ref("LDT/" + id + "/").update({ dataLDT }).then(function () {
+        console.log("dataAll sent!");
+        window.location = qlink; // redirect to qualtrics
+
+      });
+    }
+  });
+</script>
+
+</html>
