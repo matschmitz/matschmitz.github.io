@@ -1,0 +1,60 @@
+<!-- 
+~~~~ TO DO ~~~~
+Qualtrics link (counterbalance?)
+Adjust presentation time
+
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="js/lodash.min.js"></script>
+</head>
+
+<body></body>
+
+<script>
+
+  Qualtrics.SurveyEngine.addOnload(function () {
+
+    var allScenarios = [];
+
+    var miedo = ["El COVID-19 ha resultado ser un virus mortal, sin embargo…", ""];
+    var fuente = ["El gobierno asegura", "Los expertos internacionales aseguran"];
+    var identidad = ["tus manos", "nuestras manos como peruanos"];
+    var norma = [" Encuestas recientes muestran que la gran mayoría de personas indica que estaría dispuesta a vacunarse.", ""];
+    var beneficio = ["Protegerte a ti", "A tus prójimos"];
+
+    miedo.map(function (miedo_i) {
+      fuente.map(function (fuente_i) {
+        identidad.map(function (identidad_i) {
+          norma.map(function (norma_i) {
+            beneficio.map(function (beneficio_i) {
+              var scenario = "";
+              scenario += miedo_i + "¡La vacuna contra el COVID-19 ya está disponible en Perú!";
+              scenario += fuente_i + " que esta es altamente eficaz.";
+              scenario += " La decisión está en " + identidad_i;
+              scenario += ". " + norma_i;
+              scenario += "Vacunarte te permitirá " + beneficio_i + ".";
+              allScenarios.push(scenario);
+            });
+          });
+        });
+      });
+    });
+
+    var selectedScenarios = _.sampleSize(allScenarios, 5);
+    console.log(selectedScenarios);
+
+    Qualtrics.SurveyEngine.setEmbeddedData("scenario1", selectedScenarios[0]);
+    Qualtrics.SurveyEngine.setEmbeddedData("scenario2", selectedScenarios[1]);
+    Qualtrics.SurveyEngine.setEmbeddedData("scenario3", selectedScenarios[2]);
+    Qualtrics.SurveyEngine.setEmbeddedData("scenario4", selectedScenarios[3]);
+    Qualtrics.SurveyEngine.setEmbeddedData("scenario5", selectedScenarios[4]);
+
+  });
+  
+</script>
+
+</html>
