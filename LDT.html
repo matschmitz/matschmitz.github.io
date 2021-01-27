@@ -38,9 +38,7 @@ REMOVE HIGHLIGHT
   var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_9MnMbuPpSUIfwhw";
   var primeDuration = 17; // 76 hz (13ms); 2 frames = 13*2 ms
   var cond = jsPsych.data.getURLVariable("cond");
-  var targetOrder = jsPsych.data.getURLVariable("targetOrder");
   if (cond == null) { cond = _.sampleSize(["bogus", "control"], 1)[0] };
-  if (targetOrder == null) { targetOrder = _.sampleSize(["OD", "DO"], 1)[0] }; // disabled vs. old first in Qualtrics survey
 
   /* Initial variables */
   var timeline = [];
@@ -317,79 +315,79 @@ REMOVE HIGHLIGHT
 
   var LDTstim = [
     /*warmth words (from Romher & Louvet 2012)*/
-    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld },
-    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld },
-    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld },
-    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld },
-    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld },
-    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld },
+    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'old' },
+    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'old' },
+    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'old' },
+    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'old' },
+    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'old' },
+    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'old' },
     /*competence words (from Romher & Louvet 2012)*/
-    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld },
-    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld },
-    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld },
-    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld },
-    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld },
-    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld },
+    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'old' },
+    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'old' },
+    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'old' },
+    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'old' },
+    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'old' },
+    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'old' },
     /*warmth non-words*/
-    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld },
-    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld },
-    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld },
-    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld },
+    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'old' },
+    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'old' },
+    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'old' },
+    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'old' },
     /*competence words non-words*/
-    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld },
-    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld },
-    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld },
-    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld },
+    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'old' },
+    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'old' },
+    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'old' },
+    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'old' },
 
     /*warmth words (from Romher & Louvet 2012)*/
-    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgDisabled },
-    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgDisabled },
-    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgDisabled },
-    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgDisabled },
-    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgDisabled },
-    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgDisabled },
+    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'disabled' },
     /*competence words (from Romher & Louvet 2012)*/
-    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgDisabled },
-    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgDisabled },
-    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgDisabled },
-    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgDisabled },
-    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgDisabled },
-    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgDisabled },
+    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'disabled' },
     /*warmth non-words*/
-    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgDisabled },
-    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgDisabled },
-    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgDisabled },
-    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgDisabled },
+    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'disabled' },
     /*competence words non-words*/
-    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgDisabled },
-    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgDisabled },
-    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgDisabled },
-    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgDisabled },
+    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'disabled' },
+    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'disabled' },
 
     /*warmth words (from Romher & Louvet 2012)*/
-    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgPedestrian },
-    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgPedestrian },
-    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgPedestrian },
-    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgPedestrian },
-    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgPedestrian },
-    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgPedestrian },
+    { target: 'friendly', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'warm', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'likeable', isWord: true, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'sincere', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'reliable', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'honest', isWord: true, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'pedestrian' },
     /*competence words (from Romher & Louvet 2012)*/
-    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgPedestrian },
-    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgPedestrian },
-    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgPedestrian },
-    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgPedestrian },
-    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgPedestrian },
-    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgPedestrian },
+    { target: 'intelligent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'capable', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'competent', isWord: true, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'ambitious', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'self-assured', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'determined', isWord: true, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'pedestrian' },
     /*warmth non-words*/
-    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgPedestrian },
-    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgPedestrian },
-    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgPedestrian },
-    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgPedestrian },
+    { target: 'nidyrefl', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'elkeilba', isWord: false, targetDim: 'warmth', subDim: 'friendliness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'erisnce', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'nohtes', isWord: false, targetDim: 'warmth', subDim: 'morality', prime: imgOld, primeGrp: 'pedestrian' },
     /*competence words non-words*/
-    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgPedestrian },
-    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgPedestrian },
-    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgPedestrian },
-    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgPedestrian },
+    { target: 'inilgtetenl', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'ptnemotec', isWord: false, targetDim: 'competence', subDim: 'capability', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'uibsmtioa', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'pedestrian' },
+    { target: 'ditedmenre', isWord: false, targetDim: 'competence', subDim: 'assertiveness', prime: imgOld, primeGrp: 'pedestrian' },
   ];
 
   var LDT = {
@@ -441,6 +439,7 @@ REMOVE HIGHLIGHT
           targetDim: jsPsych.timelineVariable('targetDim'),
           subDim: jsPsych.timelineVariable('subDim'),
           prime: jsPsych.timelineVariable('prime'),
+          primeGrp: jsPsych.timelineVariable('primeGrp'),
           task: 'LDT'
         },
         on_finish: function (data) {
@@ -637,14 +636,12 @@ REMOVE HIGHLIGHT
       /* Qualtrics url parameters */
       qlink += "?id=" + id;
       qlink += "&cond=" + cond;
-      qlink += "&targetOrder=" + targetOrder;
       qlink += "&jsTime=" + jsPsych.totalTime();
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
         id: id,
         cond: cond,
-        targetOrder: targetOrder
       });
 
       //jsPsych.data.displayData();
