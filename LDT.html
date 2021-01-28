@@ -476,7 +476,7 @@ REMOVE HIGHLIGHT
       html += "Because the stimuli are presented subliminally, you have no control over your response. ";
       html += "The whole point of this measure is to prevent people from using strategies ";
       html += "(for example, making a positive judgment to give a good self-image) that sometimes distort the expression of attitudes.</p>";
-      
+
       return html;
     }
   };
@@ -614,6 +614,10 @@ REMOVE HIGHLIGHT
   jsPsych.init({
     timeline: timeline,
     max_load_time: 60 * 1000,
+    preload_images: [
+      'imgbogus/pedestrian.png', 'imgbogus/old.png', 'imgbogus/disabled.png',
+      'imgbogus/check.png', 'imgbogus/mask.png', 'imgbogus/summary.png'
+    ],
     exclusions: {
       min_width: 800,
       min_height: 600,
