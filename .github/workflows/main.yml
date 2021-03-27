@@ -4,7 +4,7 @@ name: buildWallet
 # Controls when the action will run.
 on:
   schedule:
-    - cron:  '43 18 * * *'
+    - cron:  '50 18 * * *'
 
 jobs: 
   autoscrape:
@@ -22,7 +22,7 @@ jobs:
         R -e 'install.packages("tidyverse")'
     # Run R script
     - name: Build
-      run: Rscript build_wallet.R
+      run: Rscript wallet_build.R
       
  # Add new files in data folder, commit along with other modified files, push
     - name: Commit files
