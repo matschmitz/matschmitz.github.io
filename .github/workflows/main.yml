@@ -1,0 +1,37 @@
+# Hourly scraping
+name: buildWallet
+
+# Controls when the action will run.
+on:
+  schedule:
+    - cron:  '43 18 * * *'
+
+jobs: 
+  autoscrape:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Load repo and install R
+    steps:
+    - uses: actions/checkout@master
+    - uses: r-lib/actions/setup-r@master
+
+    # Set-up R
+    - name: Install packages
+      run: |
+        R -e 'install.packages("tidyverse")'
+    # Run R script
+    - name: Build
+      run: Rscript build_wallet.R
+      
+ # Add new files in data folder, commit along with other modified files, push
+    - name: Commit files
+      run: |
+        git config --local user.name actions-user
+        git config --local user.email "actions@github.com"
+        git add wallets/*
+        git commit -am "GH ACTION Headlines $(date)"
+        git push origin master
+      env:
+        REPO_KEY: ${{secrets.GITHUB_TOKEN}}
+        username: github-actions
