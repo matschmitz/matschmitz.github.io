@@ -9,11 +9,11 @@ name: buildWallet
 #  pull_request:
 #    branches: [ master ]
 #  # Allows you to run this workflow manually from the Actions tab
-#  workflow_dispatch:
 on:
   schedule:
-    - cron:  "*/5 * * * *"
-
+    - cron:  "*/10 * * * *"
+  workflow_dispatch:
+    
 jobs: 
   autoscrape:
     # The type of runner that the job will run on
