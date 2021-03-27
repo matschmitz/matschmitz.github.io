@@ -11,7 +11,7 @@ name: buildWallet
 #  # Allows you to run this workflow manually from the Actions tab
 on:
   schedule:
-    - cron:  "35 * * * *"
+    - cron:  "35 10 3 5 *"
 #  workflow_dispatch:
     
 jobs: 
