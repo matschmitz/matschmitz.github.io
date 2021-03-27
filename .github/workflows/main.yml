@@ -20,10 +20,8 @@ jobs:
     - name: Install packages
       run: |
         R -e 'install.packages("tidyverse")'
-        R -e 'install.packages("janitor")'
-        R -e 'install.packages("rvest")'
     # Run R script
-    - name: Scrape
+    - name: Build
       run: Rscript build_wallet.R
       
  # Add new files in data folder, commit along with other modified files, push
