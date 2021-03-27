@@ -12,7 +12,7 @@ name: buildWallet
 #  workflow_dispatch:
 on:
   schedule:
-    - cron:  "43 * * * *"
+    - cron:  "47 * * * *"
 
 jobs: 
   autoscrape:
