@@ -4,7 +4,7 @@ name: buildWallet
 # Controls when the action will run.
 on:
   schedule:
-    - cron:  '38 18 * * *'
+    - cron:  '43 18 * * *'
 
 jobs: 
   autoscrape:
@@ -31,7 +31,7 @@ jobs:
         git config --local user.email "actions@github.com"
         git add wallets/*
         git commit -am "GH ACTION Headlines $(date)"
-        git push origin main
+        git push origin master
       env:
         REPO_KEY: ${{secrets.GITHUB_TOKEN}}
         username: github-actions
