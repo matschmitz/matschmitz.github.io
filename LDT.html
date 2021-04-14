@@ -62,7 +62,7 @@ REMOVE HIGHLIGHT
       html += "<p class='justify'>This study is administrated by Mathias Schmitz (Postdoctoral researcher) ";
       html += "at the UCLouvain (Belgium). ";
       html += "If you have any question or comment please feel free to contact me at "
-      html += "<b>mathias.schmitz@uclouvain.be</b></p>";
+      html += "<b>mathias.schmitz@uclouvain.be</b></p></br></br>";
       return html;
     },
     button_label: "I agree to take part in this study",
@@ -86,7 +86,7 @@ REMOVE HIGHLIGHT
       html += "or <b>LDT</b> for short. This task aims to measure people's attitudes.</br></br>";
       html += "The purpose of this research is to compare responses of participants ";
       html += "speaking different languages: French, Dutch, German, and English.</br></br>";
-      html += "In the first, part of the study we will test this measure ";
+      html += "In the first part of the study, we will test this measure ";
       html += "and in the second part, you will be asked to fill in a short survey.</p>";
       return html;
     }
@@ -102,7 +102,7 @@ REMOVE HIGHLIGHT
       html += "<p class='justify'>This study is about measuring attitudes (emotions or beliefs about a person or a group) ";
       html += "and is carried out by four international researchers from the Netherlands, US, Germany, and Belgium. ";
       html += "It is the final phase in the development of a modified version of a task called the <b>Lexical Decision Task</b> ";
-      html += "or <b>LDT</b> for short. This task aims to measure people's <mark>true</mark> underlying attitudes.</br></br>";
+      html += "or <b>LDT</b> for short. This task aims to measure people's true underlying attitudes.</br></br>";
       html += "The purpose of this research is to compare responses of participants ";
       html += "speaking different languages: French, Dutch, German, and English.</br></br>";
       html += "In the first part of the study, we will test this measure ";
@@ -200,18 +200,18 @@ REMOVE HIGHLIGHT
     { target: 'deal', isWord: true },
     { target: 'joyful', isWord: true },
     { target: 'perfect', isWord: true },
-    { target: 'beautiful', isWord: true },
-    { target: 'dirty', isWord: true },
-    { target: 'weird', isWord: true },
+    // { target: 'beautiful', isWord: true },
+    // { target: 'dirty', isWord: true },
+    // { target: 'weird', isWord: true },
     { target: 'eyhltha', isWord: false },
     { target: 'ecanl', isWord: false },
     { target: 'abtes', isWord: false },
     { target: 'edal', isWord: false },
     { target: 'juylfo', isWord: false },
     { target: 'fecpert', isWord: false },
-    { target: 'utfabuile', isWord: false },
-    { target: 'riytd', isWord: false },
-    { target: 'rewid', isWord: false }
+    // { target: 'utfabuile', isWord: false },
+    // { target: 'riytd', isWord: false },
+    // { target: 'rewid', isWord: false }
   ];
 
   var LDTtraining = {
@@ -402,7 +402,7 @@ REMOVE HIGHLIGHT
         type: 'html-keyboard-response', // fixation cross
         stimulus: '<p class="stimulus">+</p>',
         choices: jsPsych.NO_KEYS,
-        trial_duration: 1000,
+        trial_duration: 500,
         post_trial_gap: 0
       },
       {
@@ -432,7 +432,7 @@ REMOVE HIGHLIGHT
         choices: ['s', 'l'], // s = non-word; l = word
         stimulus_duration: 250,
         trial_duration: 3000, // window response time
-        post_trial_gap: _.sample([250, 350, 450]),
+        post_trial_gap: 0,
         data: {
           target: jsPsych.timelineVariable('target'),
           isWord: jsPsych.timelineVariable('isWord'),
@@ -457,6 +457,19 @@ REMOVE HIGHLIGHT
           console.log(data.correct);
         }
       },
+      {
+        type: 'html-keyboard-response', // feedback
+        stimulus: function () {
+          var correct = jsPsych.data.get().last(1).values()[0].correct;
+          console.log(correct);
+          if (correct == null) return "<p class='feedback' style='color:red'>please answer as fast as possible!</p>"; // timeout
+          if (correct) return "<p class='feedback'></p>";
+          if (!correct) return "<p class='feedback'></p>";
+        },
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 700,
+        post_trial_gap: _.sample([250, 350, 450]),
+      }
     ]
   };
 
@@ -488,59 +501,59 @@ REMOVE HIGHLIGHT
     stimulus: function () {
       var html = "";
       html += "<h1>LDT - How does it work?</h1>";
-      html += "<p class='justify'>Research has shown that this LDT task provides a <mark>very accurate</mark> measure of the person's <mark>true</mark> attitudes ";
+      html += "<p class='justify'>Research has shown that this LDT task provides a very accurate measure of the person's true attitudes ";
       html += "(emotions or beliefs about a person or a group). ";
       html += "For example, researchers at the universities of ";
       html += "Harvard (M. Banaji), Stanford (J. Eberhardt), Princeton (S. Fiske) have used it to measure ";
-      html += "people's attitudes towards groups <mark>and showed that these responses predicted behaviour ";
+      html += "people's attitudes towards groups and showed that these responses predicted behaviour ";
       html += "better than any other psychological measure.</br>";
       html += "Although this task is not a perfect measure of attitude, it is the closest 'tool' to the lie detector ";
-      html += "test available today to determine your true attitude.</mark></br></br>"
+      html += "test available today to determine your true attitude.</br></br>"
       html += "<i>How does it works?</i></br>";
       html += "Because the stimuli are presented subliminally, you have no control over your response. ";
-      html += "<mark>This is why the measurement is reliable and gives you access to your 'true' attitude, ";
+      html += "This is why the measurement is reliable and gives you access to your 'true' attitude, ";
       html += "in a way that is devoid of the various strategies ";
       html += "(for example, making a positive judgment to give a good self-image) ";
-      html += "that people often use to hide their 'real' underlying views.</mark></p>";
+      html += "that people often use to hide their 'real' underlying views.</p>";
       return html;
     }
   };
 
   var inst8 = cond == "control" ? inst8_control : inst8_bogus;
 
-  var scaleDeathPenalty = [
-    "Strongly disagree",
-    "Disagree",
-    "Neutral",
-    "Agree",
-    "Strongly agree"
-  ];
+  // var scaleDeathPenalty = [
+  //   "Strongly disagree",
+  //   "Disagree",
+  //   "Neutral",
+  //   "Agree",
+  //   "Strongly agree"
+  // ];
 
-  var deathPenalty = {
-    type: 'survey-likert',
-    preamble: function () {
-      var html = "";
-      html += "<h1>LDT - Calibration</h1>";
-      html += "<p class='justify'><mark>Before accessing the questionnaire, we will check whether the measurement has ";
-      html += "detected your true attitude.</br>";
-      html += "Indeed, it should be noted that some of the subliminal stimuli presented in the LDT task ";
-      html += "were related to the death penalty and therefore the LDT also measured your attitude towards the death penalty. ";
-      html += "To verify that the LDT has detected your true attitude, we now ask you to express your attitude towards the death penalty ";
-      html += "on the following scale by choosing the option that best corresponds to your sincere opinion.</mark></p>";
-      return html;
-    },
-    questions: [
-      { prompt: "<mark>How much do you agree with the death penalty?</mark>", name: 'death', labels: scaleDeathPenalty, required: true },
-    ],
-    button_label: 'continue',
-    on_finish: function (data) {
-      $(".jspsych-content-wrapper").css("height", "600px");
-      var parsed_response = JSON.parse(data.responses);
-      data.scale = 'deathPenalty';
-      data.death = parsed_response.death + 1;
-      console.log(data.death);
-    },
-  };
+  // var deathPenalty = {
+  //   type: 'survey-likert',
+  //   preamble: function () {
+  //     var html = "";
+  //     html += "<h1>LDT - Calibration</h1>";
+  //     html += "<p class='justify'>Before accessing the questionnaire, we will check whether the measurement has ";
+  //     html += "detected your true attitude.</br>";
+  //     html += "Indeed, it should be noted that some of the subliminal stimuli presented in the LDT task ";
+  //     html += "were related to the death penalty and therefore the LDT also measured your attitude towards the death penalty. ";
+  //     html += "To verify that the LDT has detected your true attitude, we now ask you to express your attitude towards the death penalty ";
+  //     html += "on the following scale by choosing the option that best corresponds to your sincere opinion.</p>";
+  //     return html;
+  //   },
+  //   questions: [
+  //     { prompt: "How much do you agree with the death penalty?", name: 'death', labels: scaleDeathPenalty, required: true },
+  //   ],
+  //   button_label: 'continue',
+  //   on_finish: function (data) {
+  //     $(".jspsych-content-wrapper").css("height", "600px");
+  //     var parsed_response = JSON.parse(data.responses);
+  //     data.scale = 'deathPenalty';
+  //     data.death = parsed_response.death + 1;
+  //     console.log(data.death);
+  //   },
+  // };
 
   var inst9_control = {
     type: 'html-keyboard-response',
@@ -567,7 +580,7 @@ REMOVE HIGHLIGHT
       var html = "";
       html += "<h1>LDT - Calibration</h1>";
       html += "<p class='justify'>Based on your responses, we are now verifying that the LDT has been calibrated correctly ";
-      html += "to measure your <mark>true</mark> attitudes. ";
+      html += "to measure your true attitudes. ";
       html += "If the calibration fails, you will be asked to do a few more LDT trials to further calibrate the measure. ";
       html += "If the calibration succeeds, then you will be redirected to the second part of this study.</br></br>";
       html += "Please wait a few seconds while the program carries out the computation...</p></br>";
@@ -578,22 +591,38 @@ REMOVE HIGHLIGHT
 
   var inst9 = cond == "control" ? inst9_control : inst9_bogus;
 
-  var inst10 = {
+  var inst10_control = {
     type: "html-button-response",
     post_trial_gap: 300,
     choices: ['continue'],
     stimulus: function () {
       var html = "";
       html += "<h1>LDT - Calibration result</h1>";
-      html += "<p class='justify'>The calibration succeeded! You will now be redirected to the second part of the study.</p></br>";
+      html += "<p class='justify'>The calibration succeeded to measure your attitudes toward two social groups, ";
+      html += "namely, old people and disabled people.</br></br>";
+      html += " You will now be redirected to the second part of the study.</p></br>";
       html += "<img src='imgbogus/check.png' width = '80px'></br></br>";
       return html;
     }
   };
 
+  var inst10_bogus = {
+    type: "html-button-response",
+    post_trial_gap: 300,
+    choices: ['continue'],
+    stimulus: function () {
+      var html = "";
+      html += "<h1>LDT - Calibration result</h1>";
+      html += "<p class='justify'>The calibration succeeded to measure your true attitudes toward two social groups, ";
+      html += "namely, old people and disabled people.</br></br>";
+      html += " You will now be redirected to the second part of the study.</p></br>";
+      html += "<img src='imgbogus/check.png' width = '80px'></br></br>";
+      return html;
+    }
+  };
 
+  var inst10 = cond == "control" ? inst10_control : inst10_bogus;
 
-  // var inst8 = cond == "control" ? inst8_control : inst8_bogus;
 
   /*  ~~~~~~~~~~~~~~~~ TIMELINES  ~~~~~~~~~~~~~~~~ */
   timeline.push(activeFullscreen);
@@ -607,7 +636,7 @@ REMOVE HIGHLIGHT
   timeline.push(inst7);
   timeline.push(LDT);
   timeline.push(inst8);
-  if (cond == "bogus") timeline.push(deathPenalty);
+  // if (cond == "bogus") timeline.push(deathPenalty);
   timeline.push(inst9);
   timeline.push(inst10);
 
