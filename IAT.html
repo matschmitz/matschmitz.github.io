@@ -34,8 +34,12 @@
     #jspsych-iat-stim {
       margin: 0;
       padding: 0;
-      height: 100px;
+      height: 75px;
       font-size: 25px;
+    }
+
+    .small_img > img {
+      max-height: 75px;
     }
   </style>
 </head>
@@ -92,10 +96,11 @@
       html += "<p class='justify'>This study is about measuring genuine attitudes (emotions or beliefs about a person or a group) ";
       html += "and is carried out by four international researchers from the Netherlands, US, Germany, and Belgium. ";
       html += "Its aim is to test if people are able to access to their genuine (true) attitude.</br></br>";
-      html += "Thus, you will first take a new version of the <b>Implicit Association Test</b> ";
-      html += "or <b>IAT</b> for short. This test aims to measure people’s genuine personal attitudes. ";
-      html += "In the second part, you will complete a follow-up study to check if we are able to detect your true attitude, ";
-      html += "that is, such as the IAT can unveil it.</p>";
+      html += "Specifically, you will first take a new version of the <b>Implicit Association Test</b> ";
+      html += "or <b>IAT</b> for short. This test aims to measure people’s genuine personal attitudes.</br></br>";
+      html += "In the second part, you will complete a follow-up study. ";
+      html += "This study is designed to check if you are able to report your ";
+      html += "own true attitude as revealed by means of the IAT.</p>";
       return html;
     }
   };
@@ -106,24 +111,28 @@
   var left_key = "S";
   var right_key = "L";
   var label_good_bad = ['good', 'bad'];
-  var label_black_white = ['old/disabled people', 'people in general'];
+  var label_black_white = ['elderly/disabled people', 'people in general'];
 
   var IATstims_black = [
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_1.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_2.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_3.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_1.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_2.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_3.png' height='100px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_1.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_2.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_3.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/old_4.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_1.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_2.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_3.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[0], stimulus: "<img src='imgbogus/disabled_4.png' height='120px'>" },
   ];
 
   var IATstims_white = [
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_1.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_2.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_3.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_4.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_5.png' height='100px'>" },
-    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_6.png' height='100px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_1.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_2.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_3.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_4.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_5.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_6.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_7.png' height='120px'>" },
+    { categories: "black_white", category: label_black_white[1], stimulus: "<img src='imgbogus/general_8.png' height='120px'>" },
   ];
 
   var IATstims_good = [
@@ -133,6 +142,8 @@
     { categories: "good_bad", category: label_good_bad[0], stimulus: "valuable" },
     { categories: "good_bad", category: label_good_bad[0], stimulus: "fabulous" },
     { categories: "good_bad", category: label_good_bad[0], stimulus: "excellent" },
+    { categories: "good_bad", category: label_good_bad[0], stimulus: "successful" },
+    { categories: "good_bad", category: label_good_bad[0], stimulus: "precious" },
   ];
 
   var IATstims_bad = [
@@ -143,6 +154,8 @@
     { categories: "good_bad", category: label_good_bad[1], stimulus: "tragic" },
     { categories: "good_bad", category: label_good_bad[1], stimulus: "horrific" },
     { categories: "good_bad", category: label_good_bad[1], stimulus: "awful" },
+    { categories: "good_bad", category: label_good_bad[1], stimulus: "selfish" },
+    { categories: "good_bad", category: label_good_bad[1], stimulus: "scorn" },
   ];
 
   var IATstims_blackWhite = _.flattenDeep([IATstims_black, IATstims_white]);
@@ -213,7 +226,7 @@
       html += "while trying to make as <b>few mistakes as possible</b>. Going too slowly or ";
       html += "making too many mistakes will make your result uninterpretable.</br></br>";
       html += "You will have to classify the words according to whether they are <b>good</b> or <b>bad</b>, ";
-      html += "and the icons according to whether they refer to <b>old/disabled people</b> or <b>people in general</b>. ";
+      html += "and the icons according to whether they refer to <b>elderly/disabled people</b> or <b>people in general</b>. ";
       html += "On the following slide we will present you these categories of words and icons.</p></br>";
       html += "<h3 style='text-align: left'>Keep in mind</h3>";
       html += "<p class='justify'>•	The two labels at the top of your screen will tell you which words or icons go with each key.</br>";
@@ -252,14 +265,14 @@
       html += "<td align='left'>" + IATstims_bad.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
       html += "</tr>";
       html += "<tr>";
-      html += "<td align='left'>Old/disabled people</td>";
-      html += "<td align='left'>" + IATstims_black.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+      html += "<td align='left'>Elderly/disabled people</td>";
+      html += "<td class='small_img' align='left'>" + IATstims_black.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
       html += "</tr>";
       html += "<tr>";
       html += "<td align='left'>People in general</td>";
-      html += "<td align='left'>" + IATstims_white.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
+      html += "<td class='small_img' align='left'>" + IATstims_white.map(function (e) { return e.stimulus; }).join(", ") + "</td>";
       html += "</tr>";
-      html += "</table>";
+      html += "</table></br>";
       return html;
     }
   };
@@ -741,7 +754,7 @@
     max_load_time: 60 * 1000,
     preload_images: [
       'imgbogus/disabled_1.png', 'imgbogus/disabled_2.png', 'imgbogus/disabled_3.png',
-      'imgbogus/old_1.png', 'imgbogus/old_2.png','imgbogus/old_3.png',
+      'imgbogus/old_1.png', 'imgbogus/old_2.png', 'imgbogus/old_3.png',
       'imgbogus/general_1.png', 'imgbogus/general_2.png', 'imgbogus/general_3.png',
       'imgbogus/general_4.png', 'imgbogus/general_5.png', 'imgbogus/general_6.png',
       'imgbogus/check.png', 'img/loading.gif'
