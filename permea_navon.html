@@ -4,24 +4,24 @@
 <head>
   <meta charset="utf-8">
   <title>exp</title>
-  <script src="jspsych-6.0.3/jspsych.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-fullscreen.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-html-keyboard-response.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-html-button-response.js"></script>
-  <script src="jspsych-6.0.3/plugins/jspsych-survey-text.js"></script>
+  <script src="jspsych-6.2.0/jspsych.js"></script>
+  <script src="jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jspsych-6.2.0/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.2.0/plugins/jspsych-survey-text.js"></script>
   <script src="js/jspsych-html-mouse-response.js"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/lodash.min.js"></script>
   <script src="js/firebase.js"></script>
-  <link href="jspsych-6.0.3/css/jspsych.css" rel="stylesheet" type="text/css">
+  <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
   <style>
     body {
       cursor: default;
     }
 
     .jspsych-content-wrapper {
-      width: 800px;
-      height: 650px;
+      width: 900px;
+      height: 700px;
     }
 
     #yellow {
@@ -33,6 +33,15 @@
       color: #ed7c31;
       margin-left: 120px;
     }
+
+    #green, #greenSta {
+      color: rgb(0, 107, 0);
+    }
+
+    #blue, #blueSta {
+      color: rgb(32, 32, 156);
+    }
+
   </style>
 </head>
 
@@ -44,7 +53,7 @@
   var delaySta = 5500; // 5500; how long is each statement displayed
   var dotTaskTrialDuration = 3000; // 3000
   var loadingDuration = 7000; // 7000
-  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_bQw8T3SvqfLby2F";
+  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_8eLZh07zlinHIjA";
 
   /* Initial variables */
   var timeline = [];
@@ -309,7 +318,7 @@
       post_trial_gap: 300,
       stimulus: function () {
         var html = "";
-        html += "<br/><img width='600px' src='" + jsPsych.timelineVariable('img', true) + "'>";
+        html += "<br/><img height='500px' src='" + jsPsych.timelineVariable('img', true) + "'>";
         return html;
       },
       on_load: function () { $('body').css('cursor', 'none') }
