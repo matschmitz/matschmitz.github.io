@@ -49,7 +49,7 @@
   /* Parameters */
   var timeline = [];
   var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_87yt1jfLh9l4BUy";
-  var numOfPairs = 60;  // Total number of pair images images (inv & ori)
+  var numOfPairs = 70;  // Total number of pair images images (inv & ori)
   var cond = jsPsych.data.getURLVariable("cond");
   // if (cond == null) { cond = _.sampleSize(["bogus", "control"], 1)[0] };
   var id = jsPsych.data.getURLVariable("id");
@@ -120,7 +120,7 @@
       html += "<b>choisir le visage qui ressemble le plus à une <u>personne âgée</u></b> à chaque essai. ";
       html += "Utilisez la souris pour faire votre choix.</br></br>";
       html += "En moyenne, les participant·e·s prennent environ <b>1 seconde</b> par essai. ";
-      html += "Essayez de maintenir un temps similaire. Il y a un total de 100 essais.</br></br>";
+      html += "Essayez de maintenir un temps similaire. Il y a un total de " + numOfPairs + " essais.</br></br>";
       html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
       html += "Essayez de vous fier à votre <b>intuition</b> pour faire le meilleur choix.</br></br>";
       html += "Veuillez rester concentré·e.</p></br></br>";
