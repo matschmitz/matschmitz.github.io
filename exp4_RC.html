@@ -4,39 +4,62 @@
 <head>
   <meta charset="utf-8">
   <title>exp</title>
-  <script src="jspsych-6.2.0/jspsych.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-image-keyboard-response.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-survey-text.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-html-button-response.js"></script>
-  <script src="jspsych-6.2.0/plugins/jspsych-survey-likert.js"></script>
+  <script src="jspsych-6.3.1/jspsych.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-preload.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-image-keyboard-response.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-survey-text.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-survey-likert.js"></script>
   <script src="js/jspsych-categorize-html-mat.js"></script>
   <script src="js/jspsych-iat-html-mat.js"></script>
   <script src="js/jspsych-html-mouse-response.js"></script>
   <script src="js/jquery.min.js"></script> <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js -->
   <script src="js/lodash.min.js"></script> <!-- https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js -->
   <script src="js/firebase.js"></script> <!-- https://www.gstatic.com/firebasejs/5.0.4/firebase.js -->
-  <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
+  <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet" type="text/css">
   <style>
-    .stimulus {
-      font-size: 32px;
-    }
-
     .jspsych-content-wrapper {
       width: 900px !important;
       height: 700px !important;
     }
 
-    .rcimg{
-      cursor: pointer;
+    .stimulus {
+      font-size: 32px;
+    }
+
+    .rc-img-area {
+      position: relative;
+      width: 850px;
+      height: 590px;
+      /* border-style: solid;
+      border-width: 1px;
+      border-color: rgb(168, 30, 210); */
     }
 
     .rcimg {
-      margin-top: 25px;
+      cursor: pointer;
+      /* margin-top: 25px;
       margin-bottom: 25px;
       margin-left: 25px;
-      margin-right: 25px;
+      margin-right: 25px; */
+    }
+
+    .rcimg:nth-of-type(1) {
+      /* border-style: solid;
+      border-width: 1px;
+      border-color: brown; */
+      position: absolute;
+      margin: 0px;
+    }
+
+    .rcimg:nth-of-type(2) {
+      /* border-style: solid;
+      border-width: 1px;
+      border-color: blue; */
+      position: absolute;
+      margin: 0px;
     }
 
     .rcimg:hover {
@@ -49,7 +72,7 @@
   /* Parameters */
   var timeline = [];
   var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_87yt1jfLh9l4BUy";
-  var numOfPairs = 70;  // Total number of pair images images (inv & ori)
+  var numOfPairs = 50;  // Total number of pair images images (inv & ori)
   var cond = jsPsych.data.getURLVariable("cond");
   // if (cond == null) { cond = _.sampleSize(["bogus", "control"], 1)[0] };
   var id = jsPsych.data.getURLVariable("id");
@@ -80,13 +103,15 @@
       var html = "";
       html += "<h1>Deuxième étude : Vos attitudes</h1>";
       html += "<p class='justify'>Cette deuxième étude est indépendante de la première et ";
-      html += "est menée par quatre chercheurs internationaux des Pays-Bas, des États-Unis, d'Allemagne et de Belgique. "
+      html += "est menée des chercheurs de France et de Belgique. "
       html += "Le but est de tester si les gens sont capables d'accéder à leur attitudes authentiques, ";
       html += "c'est-à-dire à ce qu'ils pensent vraiment de certains groupes ou personnes.</br></br>";
-      html += "Pour cela, vous passerez d'abord une nouvelle version du test de la <b>Corrélation Inverse</b> ";  
-      html += "permettant de mesurer vos véritables attitudes personnelles à l'égard des personnes handicapées et des personnes âgées. ";
+      html += "Pour cela, vous passerez d'abord une nouvelle version du test de la <b>Corrélation Inverse</b> ";
+      html += "développé par un groupe de chercheurs internationaux, don Ron Dotch. ";
+      html += "Ce test permettra de connaître vos véritables attitudes personnelles ";
+      html += "à l'égard de deux groupes en particulier : les personnes handicapées et les personnes âgées.</br></br>";
       html += "Par la suite, il vous sera demander de compléter un court questionnaire 'classique' ";
-      html += "dans lequel vous devrez rapporter vos attitudes vis-à-vis de ces mêmes groupes.</br></br>";
+      html += "dans lequel vous devrez rapporter vos attitudes vis-à-vis de ces mêmes groupes. ";
       html += "En somme, cette deuxième étude vise à tester si vous êtes capable de rapporter vos <b>vraies</b> attitudes, ";
       html += "tel que mesuré par le test de la Corrélation Inverse.</p>";
       return html;
@@ -106,6 +131,13 @@
   preloadimages.push(['imgbogus/check.png', 'img/loading.gif']);
   preloadimages = _.flattenDeep(preloadimages);
 
+  /* Preload images */
+  var preload = {
+    type: 'preload',
+    auto_preload: true,
+    images: preloadimages
+  };
+
   /* RC instructions */
   var RCinst_old = {
     type: "html-button-response",
@@ -114,7 +146,7 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Corrélation inverse : personnes âgées</h1>";
-      html += "<p class = 'justify'>Dans cette tâche, plusieurs visages vous seront présentés. ";
+      html += "<p class = 'justify'>Dans cette tâche, deux visages vous seront présentés à chaque essai. ";
       html += "Ces visages ont été grisés afin de préserver l'anonymat des personnes.</br></br>";
       html += "Votre tâche consiste à ";
       html += "<b>choisir le visage qui ressemble le plus à une <u>personne âgée</u></b> à chaque essai. ";
@@ -122,7 +154,9 @@
       html += "En moyenne, les participant·e·s prennent environ <b>1 seconde</b> par essai. ";
       html += "Essayez de maintenir un temps similaire. Il y a un total de " + numOfPairs + " essais.</br></br>";
       html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
-      html += "Essayez de vous fier à votre <b>intuition</b> pour faire le meilleur choix.</br></br>";
+      html += "De plus, la posisiton des deux visages varie à chaque essai. ";
+      html += "Cela permet d'amélioré la qualité de votre réponse.";
+      html += "</br></br>Essayez de vous fier à votre <b>intuition</b> pour faire le meilleur choix.</br></br>";
       html += "Veuillez rester concentré·e.</p></br></br>";
       return html;
     }
@@ -135,27 +169,51 @@
     repetitions: 1,
     randomize_order: true,
     post_trial_gap: 0,
+    auto_preload: true,
     data: {
       task: 'RC_old',
     },
     timeline: [{
       type: 'html-mouse-response',
       on_load: function () {
-          // $('.jspsych-content').css({ "max-width": "100%" });
+        // Generate non-overlapping random positions for the two images
+        img_size = 252;
+        top_1 = _.sampleSize(_.range(0, 338), 1)[0];
+        left_1 = _.sampleSize(_.range(0, 598), 1)[0];
+        top_2 = _.sampleSize(_.range(0, 338), 1)[0];
+        left_2 = _.sampleSize(_.range(0, 598), 1)[0];
+
+        overlapp = true;
+        while (overlapp == true) {
+          top_overlapp = _.inRange(top_2, top_1, top_1 + img_size) || _.inRange(top_1, top_2, top_2 + img_size);
+          left_overlapp = _.inRange(left_2, left_1, left_1 + img_size) || _.inRange(left_1, left_2, left_2 + img_size);
+          if (!(top_overlapp && left_overlapp)) {
+            overlapp = false;
+          } else {
+            top_2 = _.sampleSize(_.range(0, 338), 1)[0];
+            left_2 = _.sampleSize(_.range(0, 598), 1)[0];
+          };
+          console.log("top: " + top_overlapp);
+          console.log("left: " + left_overlapp);
+          console.log("overlapp: " + overlapp);
+        }
+        $(".rcimg:nth-of-type(1)").css({ "top": top_1 + "px", "left": left_1 + "px" });
+        $(".rcimg:nth-of-type(2)").css({ "top": top_2 + "px", "left": left_2 + "px" });
       },
       stimulus: function () {
         html = "";
         html += "<p>choisissez le visage qui ressemble le plus à une <b>personne âgée</b> :</p>";
+        html += "<div class='rc-img-area'>";
         jsPsych.timelineVariable('trialImgs', true).map(function (e) {
           html += "<img class='rcimg' src='" + e + "'>";
         });
-        html += "</br>Essai : " + i + "/" + numOfPairs + "</br>";
+        html += "</div>";
+        html += "<p>Essai : " + i + "/" + numOfPairs + "</p>";
         i += 1;
         return html;
       },
     }]
   };
-
 
   var RCinst_disabled = {
     type: "html-button-response",
@@ -185,16 +243,40 @@
     timeline: [{
       type: 'html-mouse-response',
       on_load: function () {
-          // $('.jspsych-content').css({ "max-width": "100%" });
+        // Generate non-overlapping random positions for the two images
+        img_size = 252;
+        top_1 = _.sampleSize(_.range(0, 338), 1)[0];
+        left_1 = _.sampleSize(_.range(0, 598), 1)[0];
+        top_2 = _.sampleSize(_.range(0, 338), 1)[0];
+        left_2 = _.sampleSize(_.range(0, 598), 1)[0];
+
+        overlapp = true;
+        while (overlapp == true) {
+          top_overlapp = _.inRange(top_2, top_1, top_1 + img_size) || _.inRange(top_1, top_2, top_2 + img_size);
+          left_overlapp = _.inRange(left_2, left_1, left_1 + img_size) || _.inRange(left_1, left_2, left_2 + img_size);
+          if (!(top_overlapp && left_overlapp)) {
+            overlapp = false;
+          } else {
+            top_2 = _.sampleSize(_.range(0, 338), 1)[0];
+            left_2 = _.sampleSize(_.range(0, 598), 1)[0];
+          };
+          console.log("top: " + top_overlapp);
+          console.log("left: " + left_overlapp);
+          console.log("overlapp: " + overlapp);
+        }
+        $(".rcimg:nth-of-type(1)").css({ "top": top_1 + "px", "left": left_1 + "px" });
+        $(".rcimg:nth-of-type(2)").css({ "top": top_2 + "px", "left": left_2 + "px" });
       },
       stimulus: function () {
         html = "";
         html += "<p>choisissez le visage qui ressemble le plus à une <b>personne handicapée</b> :</p>";
+        html += "<div class='rc-img-area'>";
         jsPsych.timelineVariable('trialImgs', true).map(function (e) {
           html += "<img class='rcimg' src='" + e + "'>";
         });
-        html += "</br>Essai : " + ii + "/" + numOfPairs + "</br>";
-        ii += 1;
+        html += "</div>";
+        html += "<p>Essai : " + i + "/" + numOfPairs + "</p>";
+        i += 1;
         return html;
       },
     }]
@@ -258,6 +340,7 @@
 
 
   /*  ~~~~~~~~~~~~~~~~ TIMELINES  ~~~~~~~~~~~~~~~~ */
+  timeline.push(preload);
   timeline.push(activeFullscreen);
   timeline.push(inst1);
   timeline.push(RCinst_old);
