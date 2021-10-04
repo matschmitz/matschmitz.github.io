@@ -104,16 +104,18 @@
       html += "<h1>Deuxième étude : Vos attitudes</h1>";
       html += "<p class='justify'>Cette deuxième étude est indépendante de la première et ";
       html += "est menée des chercheurs de France et de Belgique. "
-      html += "Le but est de tester si les gens sont capables d'accéder à leur attitudes authentiques, ";
-      html += "c'est-à-dire à ce qu'ils pensent vraiment de certains groupes ou personnes.</br></br>";
-      html += "Pour cela, vous passerez d'abord une nouvelle version du test de la <b>Corrélation Inverse</b> ";
-      html += "développé par un groupe de chercheurs internationaux, don Ron Dotch. ";
-      html += "Ce test permettra de connaître vos véritables attitudes personnelles ";
-      html += "à l'égard de deux groupes en particulier : les personnes handicapées et les personnes âgées.</br></br>";
-      html += "Par la suite, il vous sera demander de compléter un court questionnaire 'classique' ";
-      html += "dans lequel vous devrez rapporter vos attitudes vis-à-vis de ces mêmes groupes. ";
+      html += "Le but est de tester si les gens sont capables d'accéder à leur attitudes authentiques. ";
+      html += "Autrement dit, est-ce que les gens sont en mesure de mettre le doigt sur ce ";
+      html += "qu'ils pensent vraiment de certains groupes ou de certaines personnes.</br></br>";
+      html += "Pour cela, vous passerez d'abord une nouvelle version d’un test connu sous le nom de <b>Corrélation Inverse</b>. ";
+      html += "Ce test permet de connaître vos véritables attitudes personnelles ";
+      html += "à l'égard de certains groupes. On s'intéressera ici à deux groupes en particulier : ";
+      html += "les personnes handicapées et les personnes âgées.</br></br>";
+      html += "Par la suite, il vous sera demander de compléter un court questionnaire 'classique'. ";
+      html += "Dans ce questionnaire, on vous demandera de reporter vos attitudes vis-à-vis de ces mêmes groupes. ";
+      html += "L’objectif sera de comparer les deux relevés de vos attitudes. ";
       html += "En somme, cette deuxième étude vise à tester si vous êtes capable de rapporter vos <b>vraies</b> attitudes, ";
-      html += "tel que mesuré par le test de la Corrélation Inverse.</p>";
+      html += "telles que reportées par le test de la Corrélation Inverse.</p>";
       return html;
     }
   };
@@ -152,11 +154,13 @@
       html += "<b>choisir le visage qui ressemble le plus à une <u>personne âgée</u></b> à chaque essai. ";
       html += "Utilisez la souris pour faire votre choix.</br></br>";
       html += "En moyenne, les participant·e·s prennent environ <b>1 seconde</b> par essai. ";
-      html += "Essayez de maintenir un temps similaire. Il y a un total de " + numOfPairs + " essais.</br></br>";
-      html += "Notez également que les visages peuvent se ressembler mais qu'ils sont en réalité différents. ";
-      html += "De plus, la posisiton des deux visages varie à chaque essai. ";
-      html += "Cela permet d'amélioré la qualité de votre réponse.";
-      html += "</br></br>Essayez de vous fier à votre <b>intuition</b> pour faire le meilleur choix.</br></br>";
+      html += "Essayez de vous appliquer au maximum pour faire votre sélection tout en tentant de ";
+      html += "maintenir un temps de réponse similaire. Il y a un total de " + numOfPairs + " essais.</br></br>";
+      html += "Notez également que les visages peuvent avoir l'air de se ressembler mais qu'ils sont en réalité différents. ";
+      html += "De plus, la position des deux visages varie à chaque essai. ";
+      html += "Cela permet d'améliorer la qualité de vos réponses.";
+      html += "</br></br>Pour réaliser le test de la meilleure façon possible, fiez-vous à votre <b>intuition</b> ";
+      html += "pour faire le meilleur choix de visage à chaque essai.</br></br>";
       html += "Veuillez rester concentré·e.</p></br></br>";
       return html;
     }
@@ -222,10 +226,12 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Corrélation inverse : personnes handicapées</h1>";
-      html += "<p class = 'justify'>Nous vous demandons à présent de passer à nouveau la tâche de la corrélation inverse ";
-      html += "mais cette fois au lieu de choisir le visage qui ressemble le plus à une personne âgée, ";
-      html += "vous devrez choisir celui qui ressemble le plus à une <b><u>personne handicapée</u></b>.</br></br>"
-      html += "Le reste des instructions restent les mêmes.</p></br></br>";
+      html += "<p class = 'justify'>Nous vous demandons à présent de passer une nouvelle fois la tâche de la corrélation inverse. ";
+      html += "Attention, au lieu de choisir le visage qui ressemble le plus à une personne âgée, ";
+      html += "vous devrez cette fois hoisir celui qui ressemble le plus à une <b><u>personne handicapée</u></b>.</br></br>"
+      html += "Le reste des instructions restent bien évidemment les mêmes. ";
+      html += "Encore une fois, pour réaliser le test de la meilleure façon possible, ";
+      html += "fier à votre intuition pour faire le meilleur choix de visage à chaque essai.</p></br></br>";
       return html;
     }
   };
@@ -275,8 +281,8 @@
           html += "<img class='rcimg' src='" + e + "'>";
         });
         html += "</div>";
-        html += "<p>Essai : " + i + "/" + numOfPairs + "</p>";
-        i += 1;
+        html += "<p>Essai : " + ii + "/" + numOfPairs + "</p>";
+        ii += 1;
         return html;
       },
     }]
@@ -292,8 +298,8 @@
       html += "<h1>Corrélation Inverse - Calibrage</h1>";
       html += "<p class='justify'>Sur base de vos réponses, nous vérifions maintenant que le test de la corrélation inverse a été ";
       html += "calibré correctement pour mesurer vos véritables attitudes envers les personnes âgées et les personnes handicapées.</br></br>";
-      html += "Si le calibrage échoue, il vous sera demandé de faire quelques essais supplémentaires pour calibrer davantage la mesure. ";
-      html += "Si le calibrage est réussi, vous serez redirigé vers la deuxième partie de cette étude.</br></br>";
+      html += "Si le calibrage échoue, il vous sera demandé de faire quelques essais supplémentaires pour affiner la mesure. ";
+      html += "Si le calibrage est réussi, vous serez redirigé.e vers la suite de cette étude.</br></br>";
       html += "Veuillez patienter quelques secondes pendant que le programme effectue le calcul...</p></br>";
       html += "<img src ='img/loading2.gif' width = '80px'>";
       return html;
@@ -307,7 +313,8 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Corrélation Inverse - Résultat du calibrage</h1>";
-      html += "<p class='justify'>Le calibrage a réussi à mesurer vos véritables attitudes envers deux groupes sociaux, ";
+      html += "<p class='justify'>Le calibrage. Le test de la <b>Corrélation Inverse</b> a permis de ";
+      html += "mesurer vos véritables attitudes envers deux groupes sociaux, ";
       html += "à savoir les personnes âgées et les personnes handicapées.</p></br>";
       html += "<img src='imgbogus/check.png' width = '80px'></br></br>";
       return html;
@@ -321,18 +328,21 @@
     stimulus: function () {
       var html = "";
       html += "<h1>Comment fonctionne la Corrélation Inverse ?</h1>";
-      html += "<p class='justify'>Les recherches ont montré que cette tâche de la Corrélation Inverse fournit une mesure très précise des ";
+      html += "<p class='justify'>Les recherches ont montré que ce test de Corrélation Inverse fournit une mesure très précise des ";
       html += "attitudes authentiques d'une personne. ";
-      html += "Il s'agit de l'outil le plus proche du détecteur de mensonges disponible aujourd'hui ";
-      html += "pour déterminer vos véritables attitudes.</br></br>";
-      html += "Par exemple, des chercheurs des universités de Harvard (M. Banaji), Stanford (J. Eberhardt), Princeton (S. Fiske) ";
-      html += "l'ont utilisé pour mesurer les attitudes authentiques des personnes à l'égard de groupes et ont montré ";
-      html += "que ces réponses prédisaient le comportement mieux que toute autre mesure psychologique.</br></br>";
+      html += "Il s'agit d’un outil précieux que l’on peut comparer à un détecteur de mensonges. ";
+      html += "C’est le nec plus ultra des tests disponibles aujourd'hui pour déterminer les véritables attitudes.</br></br>";
+      html += "Pour ne citer qu'un exemple, des chercheurs de la Radboud University au Pays Bas (R. Dotsch, D. Wigboldus, O. Lagner, & A. van Knippenberg) ";
+      html += "ont utilisé ce test pour mesurer les attitudes authentiques des personnes à l'égard de divers groupes et ont montré ";
+      html += "que les réponses obtenues prédisaient le comportement mieux que toute autre mesure disponible ";
+      html += "actuellement dans la panoplie des tests psychologiques.</br></br>";
       html += "Comme on vous demande de répondre très rapidement et que les visages sont ambigus, ";
-      html += " vous n'avez aucun contrôle sur votre réponse. ";
-      html += "C'est pourquoi la mesure est fiable et vous donne accès à vos véritables attitudes, ";
-      html += "sans les diverses stratégies visant à cacher les 'vrais' sentiments sous-jacents ";
-      html += "(par exemple, porter un jugement positif pour donner une bonne image de soi).</br></br>";
+      html += "vous n'exercez qu’un contrôle très limité sur votre réponse. ";
+      html += "L’avantage est aussi qu’on prend en compte un grand nombre de réponses sur un faible laps de temps. ";
+      html += "Enfin, les variations dans les visages d’un essai à l’autre sont à peine perceptible. ";
+      html += "C'est pourquoi la mesure est fiable et donne accès à vos véritables attitudes, ";
+      html += "sans être soumis à toute une série d’influences indésirables sur vos réponses ";
+      html += "(en particulier, le souhait de certaines personnes de vouloir exprimer un jugement positif pour donner une bonne image de soi).</br></br>";
       html += "Vous allez maintenant être redirigé vers le questionnaire 'classique'.</p>";
       return html;
     },
