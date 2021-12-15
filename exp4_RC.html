@@ -71,15 +71,15 @@
 <script>
   /* Parameters */
   var timeline = [];
-  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_87yt1jfLh9l4BUy";
+  var qlink = "https://uclpsychology.co1.qualtrics.com/jfe/form/SV_40FSRKNN51xdmHc";
   var numOfPairs = 50;  // Total number of pair images images (inv & ori)
   var cond = jsPsych.data.getURLVariable("cond");
   // if (cond == null) { cond = _.sampleSize(["bogus", "control"], 1)[0] };
-  var id = jsPsych.data.getURLVariable("id");
-  if (id == null) { id = jsPsych.randomization.randomID(15) };
+  var jsid = jsPsych.data.getURLVariable("jsid");
+  if (jsid == null) { jsid = jsPsych.randomization.randomID(15) };
 
   // Redirect if control condition ----------------------------------------------------------------------------------------
-  if (cond == "control") window.location = qlink + "?id=" + id + "&cond=" + cond;
+  if (cond == "control") window.location = qlink + "?jsid=" + jsid + "&cond=" + cond;
 
 
   // Fullscreen mode ------------------------------------------------------------------------------------------------------
@@ -387,13 +387,13 @@
       var database = firebase.database();
 
       /* Qualtrics url parameters */
-      qlink += "?id=" + id;
+      qlink += "?jsid=" + jsid;
       qlink += "&cond=" + cond;
       qlink += "&jsTime=" + jsPsych.totalTime();
 
       /* jsPsych: add data to every trial */
       jsPsych.data.addProperties({
-        id: id,
+        jsid: jsid,
         cond: cond,
       });
 
@@ -402,7 +402,7 @@
       var dataIAT = data.filter({ task: 'IAT' }).csv();
 
       /* Send data to Firebase and redirect to Qualtrics */
-      database.ref("bogus/IAT/" + id + "/")
+      database.ref("bogus/IAT/" + jsid + "/")
         .update({ dataIAT })
         .then(function () {
           console.log("dataAll sent!");
